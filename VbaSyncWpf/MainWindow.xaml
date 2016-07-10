@@ -1,0 +1,256 @@
+﻿<Window x:Class="VbaSync.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:lib="clr-namespace:VbaSync;assembly=VbaSyncLib"
+        xmlns:local="clr-namespace:VbaSync"
+        xmlns:props="clr-namespace:VbaSync.Properties"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        Title="{x:Static props:Resources.MWTitle}"
+        Width="400"
+        Height="600"
+        MinWidth="375"
+        MinHeight="500"
+        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+        Icon="Icons/VBA Sync Simple.ico"
+        x:ClassModifier="internal"
+        mc:Ignorable="d" Closed="Window_Closed" Loaded="Window_Loaded">
+    <DockPanel>
+        <Menu x:Name="Menu" DockPanel.Dock="Top" Margin="4">
+            <MenuItem Header="{x:Static props:Resources.MWFileMenu}">
+                <MenuItem Header="{x:Static props:Resources.MWSaveSessionMenu}" Click="SaveSessionMenu_Click" />
+                <MenuItem Header="{x:Static props:Resources.MWLoadSessionMenu}" Click="LoadSessionMenu_Click" />
+                <MenuItem Header="{x:Static props:Resources.MWLoadLastMenu}" Click="LoadLastMenu_Click" />
+                <Separator />
+                <MenuItem Header="{x:Static props:Resources.MWSettingsMenu}" Click="SettingsMenu_Click" />
+                <Separator />
+                <MenuItem Header="{x:Static props:Resources.MWExitMenu}" Click="ExitMenu_Click" />
+            </MenuItem>
+        </Menu>
+        <Border DockPanel.Dock="Top" Height="1" Background="DimGray"  />
+    <Grid Margin="4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <StackPanel MinWidth="350"
+                    Margin="0,0,0,3.698"
+                    d:LayoutOverrides="Height">
+            <Label Content="{x:Static props:Resources.MWActionText}"
+                   Padding="0"
+                   Style="{StaticResource Level1Solid}" />
+            <RadioButton x:Name="ExtractFromFileButton"
+                         Content="{x:Static props:Resources.MWExtract}"
+                         IsChecked="{Binding Action,
+                                             ConverterParameter={x:Static lib:ActionType.Extract},
+                                             Converter={x:Static local:WpfStatic.EnumToBoolean}}"
+                         Style="{StaticResource Level1}" />
+            <RadioButton x:Name="PublishToFileButton"
+                         Content="{x:Static props:Resources.MWPublish}"
+                         IsChecked="{Binding Action,
+                                             ConverterParameter={x:Static lib:ActionType.Publish},
+                                             Converter={x:Static local:WpfStatic.EnumToBoolean}}"
+                         Style="{StaticResource Level1Close}" />
+            <Grid VerticalAlignment="Top"
+                  ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                  Style="{StaticResource Level1}">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="auto" MinWidth="75" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                    <RowDefinition Height="auto" />
+                </Grid.RowDefinitions>
+                <Label Content="{x:Static props:Resources.MWVBAFolder}"
+                       Padding="0"
+                       Style="{StaticResource Level1}"
+                       Target="{Binding ElementName=FolderBrowseBox}" />
+                <TextBox x:Name="FolderBrowseBox"
+                         Grid.Row="1"
+                         Grid.Column="0"
+                         Height="23"
+                         VerticalAlignment="Center"
+                         Style="{StaticResource Level1Close}"
+                         Text="{Binding FolderPath}" PreviewKeyDown="FolderBrowseBox_PreviewKeyDown" />
+                <Button x:Name="FolderBrowseButton"
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Height="23"
+                        MinWidth="75"
+                        Margin="2,0,0,0"
+                        VerticalAlignment="Bottom"
+                        Content="{x:Static props:Resources.BrowseAction}" Click="folderBrowseButton_Click" />
+                <Label Grid.Row="2"
+                       Grid.Column="0"
+                       Content="{x:Static props:Resources.MWOfficeFile}"
+                       Padding="0"
+                       Style="{StaticResource Level1}"
+                       Target="{Binding ElementName=FileBrowseBox}" />
+                <TextBox x:Name="FileBrowseBox"
+                         Grid.Row="3"
+                         Grid.Column="0"
+                         Height="23"
+                         VerticalAlignment="Center"
+                         Style="{StaticResource Level1Close}"
+                         Text="{Binding FilePath}" PreviewKeyDown="FileBrowseBox_PreviewKeyDown" />
+                <Button x:Name="FileBrowseButton"
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Height="23"
+                        MinWidth="75"
+                        Margin="2,0,0,0"
+                        VerticalAlignment="Bottom"
+                        Click="fileBrowseButton_Click"
+                        Content="{x:Static props:Resources.BrowseAction}" />
+            </Grid>
+        </StackPanel>
+        <DataGrid x:Name="ChangesGrid"
+                  Grid.Row="2"
+                  Margin="0,26,0,0"
+                  AutoGenerateColumns="False"
+                  BorderBrush="{x:Null}"
+                  CanUserAddRows="False"
+                  CanUserDeleteRows="False"
+                  CanUserResizeRows="False"
+                  GridLinesVisibility="None"
+                  HorizontalScrollBarVisibility="Disabled"
+                  IsSynchronizedWithCurrentItem="False"
+                  ItemsSource="{Binding ''}"
+                  KeyboardNavigation.TabNavigation="Once"
+                  MouseDoubleClick="changesGrid_MouseDoubleClick"
+                  SelectionMode="Single"
+                  SelectionUnit="FullRow">
+            <DataGrid.Resources>
+                <local:ChangeTypeToBrushConverter x:Key="ForeColorConverter" />
+                <local:ModuleTypeToIconConverter x:Key="IconConverter" />
+            </DataGrid.Resources>
+            <DataGrid.Style>
+                <StaticResource ResourceKey="Level1Close" />
+            </DataGrid.Style>
+            <DataGrid.CellStyle>
+                <Style TargetType="{x:Type DataGridCell}">
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="{x:Type DataGridCell}">
+                                <Border Background="{TemplateBinding Background}"
+                                        KeyboardNavigation.IsTabStop="False"
+                                        Padding="2,2,3,3">
+                                    <ContentPresenter SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </DataGrid.CellStyle>
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Setter Property="Foreground" Value="{Binding ChangeType, Converter={StaticResource ForeColorConverter}}" />
+                </Style>
+            </DataGrid.RowStyle>
+            <DataGrid.HorizontalGridLinesBrush>
+                <SolidColorBrush Color="{DynamicResource {x:Static SystemColors.ControlLightColorKey}}" />
+            </DataGrid.HorizontalGridLinesBrush>
+            <DataGrid.Columns>
+                <DataGridTemplateColumn IsReadOnly="False" MinWidth="26">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <CheckBox HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="{Binding Commit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Header="{x:Static props:Resources.MWChangeType}"
+                                        IsReadOnly="True"
+                                        KeyboardNavigation.IsTabStop="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock KeyboardNavigation.IsTabStop="False"
+                                       Text="{Binding ChangeType,
+                                                      Converter={x:Static local:WpfStatic.ChangeTypeToDescriptionOneWay}}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn MinWidth="120"
+                                        Header="{x:Static props:Resources.MWModule}"
+                                        IsReadOnly="True"
+                                        KeyboardNavigation.IsTabStop="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <StackPanel Orientation="Horizontal">
+                                <Image KeyboardNavigation.IsTabStop="False" Source="{Binding ModuleType, Converter={StaticResource IconConverter}}" />
+                                <TextBlock Margin="4,0,0,0"
+                                           KeyboardNavigation.IsTabStop="False"
+                                           Padding="0"
+                                           Text="{Binding ModuleName}"
+                                           TextTrimming="CharacterEllipsis" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+                <DataGridTemplateColumn Width="*"
+                                        Header="{x:Static props:Resources.MWDescription}"
+                                        IsReadOnly="True"
+                                        KeyboardNavigation.IsTabStop="False">
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <TextBlock KeyboardNavigation.IsTabStop="False"
+                                       Text="{Binding Description}"
+                                       TextTrimming="CharacterEllipsis" />
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <CheckBox x:Name="IncludeAllBox"
+                  Grid.Row="2"
+                  Margin="8,29,0,0"
+                  HorizontalAlignment="Left"
+                  VerticalAlignment="Top" Click="includeAllBox_Click" />
+        <Grid Grid.Row="3" Style="{StaticResource Level1}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="3*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="auto" />
+            </Grid.ColumnDefinitions>
+            <Button x:Name="RefreshButton"
+                    Grid.ColumnSpan="2"
+                    MinWidth="75"
+                    HorizontalAlignment="Left"
+                    Click="refreshButton_Click"
+                    Content="{x:Static props:Resources.MWRefreshAction}"
+                    Visibility="Visible" />
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <StackPanel.Resources>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Margin" Value="4,0,0,0" />
+                    </Style>
+                </StackPanel.Resources>
+                <Button x:Name="ApplyButton"
+                        MinWidth="75"
+                        Click="applyButton_Click"
+                        Content="{x:Static props:Resources.ApplyAction}" />
+                <Button x:Name="CancelButton"
+                        MinWidth="75"
+                        Click="cancelButton_Click"
+                        Content="{x:Static props:Resources.CancelAction}" />
+                <Button x:Name="OkButton"
+                        Height="20"
+                        MinWidth="75"
+                        VerticalAlignment="Top"
+                        Click="okButton_Click"
+                        Content="{x:Static props:Resources.OKAction}"
+                        IsDefault="True" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+    </DockPanel>
+</Window>
