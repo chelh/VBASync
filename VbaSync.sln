@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VbaSyncWpf", "C:\Users\Chel\Documents\VbaSync\VbaSyncWpf\VbaSyncWpf.csproj", "{DE38EFA6-B533-41B6-846B-94F432D8AD10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VbaSyncWpf", "VbaSyncWpf\VbaSyncWpf.csproj", "{DE38EFA6-B533-41B6-846B-94F432D8AD10}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VbaSyncLib", "C:\Users\Chel\Documents\VbaSync\VbaSyncLib\VbaSyncLib.csproj", "{035BAE2F-ED96-48B9-980E-3236E9239061}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VbaSyncLib", "VbaSyncLib\VbaSyncLib.csproj", "{035BAE2F-ED96-48B9-980E-3236E9239061}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
