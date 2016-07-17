@@ -1,4 +1,5 @@
-# VBA Sync Tool
+<h1>VBA Sync Tool&#x2001;<img src='http://i.imgur.com/sQAsBy4.png' alt='VBA Syc Tool logo' /></h1>
+
 Synchronizes macros from an Office VBA-enabled file with a version-controlled folder. Can either dump modules from an Office file to a folder, or publish modules from a folder to an Office file.
 
 This tool is superior to many other solutions because it…
@@ -15,4 +16,4 @@ This tool is superior to many other solutions because it…
   * …Supports Excel 97-2003, Excel 2007+, Word 97-2003, Word 2007+, PowerPoint 2007+, and Outlook files.
   * …Is completely free and open-source.
 
-<img src='http://i.stack.imgur.com/2etAI.png' alt='VBA Sync Tool after selecting folder and file locations' style='text-align:center' />
+<img src='http://i.stack.imgur.com/2etAI.png' alt='VBA Sync Tool after selecting folder and file locations' />
