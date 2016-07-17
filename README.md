@@ -14,3 +14,5 @@ This tool is superior to many other solutions because it…
   * …Works with document or worksheet modules in the same way as any other module.
   * …Supports Excel 97-2003, Excel 2007+, Word 97-2003, Word 2007+, PowerPoint 2007+, and Outlook files.
   * …Is completely free and open-source.
+
+<img src='http://i.stack.imgur.com/2etAI.png' alt='VBA Sync Tool after selecting folder and file locations' style='text-align:center' />
