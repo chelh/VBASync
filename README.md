@@ -19,7 +19,7 @@ VBA Sync Tool works *directly with the Office file,* unlike most other solutions
 <h2>Using</h2>
 VBA Sync Tool has two modes: **Extract**&nbsp;mode extracts modules from the file into the folder. You can then commit the extracted files to version control. **Publish**&nbsp;mode publishes modules from the folder into the file. You should do this after merges.
 
-After you select a mode, a folder path, and a file path, the tool will list which modules have changed, with a checkbox next to each. Tick the checkbox next to each module with changes you'd like to apply. When you're ready to synchronize, click **Apply** or **OK**.
+After you select a mode, a folder path, and a file path, the tool will list which modules have changed, with a checkbox next to each. Tick the checkbox next to each module with changes you'd like to apply. Double-click an entry to run a diff tool against the old and new files. (This requires setting up a diff tool under **File**→**Settings**.) If the underlying files change, click **Refresh**. When you're ready to synchronize, click **Apply** or **OK**.
 
 You can save and load session settings from the **File** menu. Settings are saved as `.ini` files. If a settings file is named `VBASync.ini` and located in the working directory, VBA Sync Tool will load those settings automatically. You can also specify a settings file on the command-line. I recommend launching VBA Sync Tool from a shortcut, to avoid having to specify the folder and file each time you need to synchronize.
 
