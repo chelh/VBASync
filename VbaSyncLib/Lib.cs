@@ -15,7 +15,7 @@ namespace VbaSync {
                 projIni.AddFile(Path.Combine(folderPath, "Project.INI.local"));
             }
             var projEncoding = Encoding.GetEncoding(projIni.GetInt("General", "CodePage") ?? Encoding.Default.CodePage);
-            foreach (var filePath in Directory.GetFiles(folderPath, "*.*").Where(s => extensions.Any(s.EndsWith)).Select(s => Path.Combine(folderPath, s))) {
+            foreach (var filePath in Directory.GetFiles(folderPath, "*.*").Where(s => extensions.Any(s.EndsWith)).Select(s => Path.Combine(folderPath, Path.GetFileName(s)))) {
                 var moduleText = File.ReadAllText(filePath, projEncoding).TrimEnd('\r', '\n') + "\r\n";
                 modulesText[Path.GetFileNameWithoutExtension(filePath)] = Tuple.Create(moduleText, ModuleProcessing.TypeFromText(moduleText));
             }
