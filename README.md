@@ -26,6 +26,6 @@ You can save and load session settings from the **File** menu. Settings are save
 <img src='http://i.stack.imgur.com/2etAI.png' alt='VBA Sync Tool after selecting folder and file locations' />
 
 <h2>Contributing</h2>
-I appreciate any code contributions, but am especially interested in translations and getting the tool to work with Access databases.
+I appreciate any code contributions, but am especially interested in translations and [issue #1](https://github.com/chelh/VBASync/issues/1) (Access database support).
 
 To build the tool, you will need to download another project of mine, [VBACompressionCodec](https://github.com/chelh/VBACompressionCodec), and use it as a reference.
