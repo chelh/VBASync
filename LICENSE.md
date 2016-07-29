@@ -2,7 +2,7 @@ The following license applies to VBA Sync Tool and VbaSyncLib, except for the po
 
 -----------------------------------------------------------------------------
 
-Copyright (c) 2016 Chelsea Hughes
+Copyright &copy; 2016 Chelsea Hughes
 
 You may use this software for any purpose and alter it freely. You may redistribute it subject to these restrictions:
 
