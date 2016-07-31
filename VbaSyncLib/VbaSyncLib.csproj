@@ -46,9 +46,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="VbaCompressionCodec, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\VbaCompressionCodec\bin\Release\VbaCompressionCodec.dll</HintPath>
+    <Reference Include="VbaCompressionCodec">
+      <HintPath>..\..\VbaCompressionCodec.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
