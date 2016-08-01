@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using OpenMcdf;
+using VbaSync.FormObjects;
 
 namespace VbaSync {
     public static class Lib {
@@ -125,12 +126,28 @@ namespace VbaSync {
                     if (CfStoragesAreDifferent(s1.GetStorage(t.Item1), s2.GetStorage(t.Item1), out explain)) {
                         return true;
                     }
-                } else {
-                    if (!s1.GetStream(t.Item1).GetData().SequenceEqual(s2.GetStream(t.Item1).GetData())) {
-                        explain = $"Different contents of stream '{t.Item1}' in storage '{s1.Name}'.";
+                } else if (t.Item1 == "f") {
+                    if (FStreamsAreDifferent(s1.GetStream(t.Item1).GetData(), s2.GetStream(t.Item1).GetData(), s1.Name, out explain)) {
                         return true;
                     }
+                } else if (!s1.GetStream(t.Item1).GetData().SequenceEqual(s2.GetStream(t.Item1).GetData())) {
+                    explain = $"Different contents of stream '{t.Item1}' in storage '{s1.Name}'.";
+                    return true;
                 }
+            }
+            explain = "No differences found.";
+            return false;
+        }
+
+        static bool FStreamsAreDifferent(byte[] b1, byte[] b2, string storageName, out string explain) {
+            explain = $"Different contents of stream 'f' in storage '{storageName}'.";
+            if (b1.Length != b2.Length) {
+                return true;
+            }
+            var fc1 = new FormControl(b1);
+            var fc2 = new FormControl(b2);
+            if (!fc1.Equals(fc2)) {
+                return true;
             }
             explain = "No differences found.";
             return false;
