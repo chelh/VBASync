@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using OpenMcdf;
-using VbaSync.FormObjects;
+using VbaSync.FrxObjects;
 
 namespace VbaSync {
     public static class Lib {

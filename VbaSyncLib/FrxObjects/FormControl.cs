@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace VbaSync.FormObjects {
+namespace VbaSync.FrxObjects {
     class FormControl {
         public byte MinorVersion { get; }
         public byte MajorVersion { get; }
