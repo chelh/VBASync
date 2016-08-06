@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="AppIniFile.cs" />
     <Compile Include="DiffPlex_ModVba.cs" />
+    <Compile Include="FrxObjects\AlignmentHelpers.cs" />
     <Compile Include="FrxObjects\FormControl.cs" />
     <Compile Include="IniFile.cs" />
     <Compile Include="ProjectIni.cs" />

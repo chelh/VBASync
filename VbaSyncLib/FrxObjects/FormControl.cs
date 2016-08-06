@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using static VbaSync.FrxObjects.AlignmentHelpers;
 
 namespace VbaSync.FrxObjects {
     class FormControl {
@@ -279,28 +280,6 @@ namespace VbaSync.FrxObjects {
                 return hashCode;
             }
         }
-
-        static void AlignTo(ushort alignment, Stream st, ref ushort bytesAccum) {
-            if (bytesAccum % alignment == 0) return;
-            st.Seek(alignment - bytesAccum % alignment, SeekOrigin.Current);
-            bytesAccum += (ushort)(alignment - bytesAccum % alignment);
-        }
-
-        static void IgnoreNext(ushort bytes, Stream st, ref ushort bytesAccum) {
-            st.Seek(bytes, SeekOrigin.Current);
-            bytesAccum += bytes;
-        }
-
-        static void AlignTo(uint alignment, Stream st, ref uint bytesAccum) {
-            if (bytesAccum % alignment == 0) return;
-            st.Seek(alignment - bytesAccum % alignment, SeekOrigin.Current);
-            bytesAccum += alignment - bytesAccum % alignment;
-        }
-
-        static void IgnoreNext(uint bytes, Stream st, ref uint bytesAccum) {
-            st.Seek(bytes, SeekOrigin.Current);
-            bytesAccum += bytes;
-        }
     }
 
     class OleSiteConcreteControl {
@@ -485,13 +464,6 @@ namespace VbaSync.FrxObjects {
                 hashCode = (hashCode*397) ^ (SitePosition?.GetHashCode() ?? 0);
                 return hashCode;
             }
-        }
-
-        static void AlignTo(ushort alignment, Stream st, ref ushort bytesAccum) {
-            if (bytesAccum % alignment == 0)
-                return;
-            st.Seek(alignment - bytesAccum % alignment, SeekOrigin.Current);
-            bytesAccum += (ushort)(alignment - bytesAccum % alignment);
         }
     }
 
