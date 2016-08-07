@@ -1,7 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.IO;
 using System.Text;
+using static VbaSync.FrxObjects.AlignmentHelpers;
+using static VbaSync.FrxObjects.StreamDataHelpers;
 
 namespace VbaSync.FrxObjects {
     class OleColor {
@@ -32,6 +33,158 @@ namespace VbaSync.FrxObjects {
                 hashCode = (hashCode * 397) ^ Red.GetHashCode();
                 hashCode = (hashCode * 397) ^ Blue.GetHashCode();
                 hashCode = (hashCode * 397) ^ Green.GetHashCode();
+                return hashCode;
+            }
+        }
+    }
+
+    class TextProps {
+        public byte MinorVersion { get; }
+        public byte MajorVersion { get; }
+        public TextPropsPropMask PropMask { get; }
+        public uint FontEffects { get; }
+        public uint FontHeight { get; }
+        public byte FontCharSet { get; }
+        public byte FontPitchAndFamily { get; }
+        public byte ParagraphAlign { get; }
+        public ushort FontWeight { get; }
+        public string FontName { get; }
+
+        public TextProps(byte[] b) {
+            using (var st = new MemoryStream(b))
+            using (var r = new BinaryReader(st)) {
+                MinorVersion = r.ReadByte();
+                MajorVersion = r.ReadByte();
+
+                var cbTextProps = r.ReadUInt16();
+                PropMask = new TextPropsPropMask(r.ReadUInt32());
+
+                // DataBlock
+                ushort dataBlockBytes = 0;
+                var fontNameLength = 0;
+                var fontNameCompressed = false;
+                if (PropMask.HasFontName) {
+                    fontNameLength = CcbToLength(r.ReadInt32(), out fontNameCompressed);
+                    dataBlockBytes += 4;
+                }
+                if (PropMask.HasFontEffects) {
+                    FontEffects = r.ReadUInt32();
+                    dataBlockBytes += 4;
+                }
+                if (PropMask.HasFontHeight) {
+                    FontHeight = r.ReadUInt32();
+                    dataBlockBytes += 4;
+                }
+                if (PropMask.HasFontCharSet) {
+                    FontCharSet = r.ReadByte();
+                    dataBlockBytes += 4;
+                }
+                if (PropMask.HasFontPitchAndFamily) {
+                    FontPitchAndFamily = r.ReadByte();
+                    dataBlockBytes += 1;
+                }
+                if (PropMask.HasParagraphAlign) {
+                    ParagraphAlign = r.ReadByte();
+                    dataBlockBytes += 1;
+                }
+                AlignTo(4, st, ref dataBlockBytes);
+                if (PropMask.HasFontWeight) {
+                    FontWeight = r.ReadUInt16();
+                }
+                AlignTo(4, st, ref dataBlockBytes);
+
+                // ExtraDataBlock
+                if (fontNameLength > 0) {
+                    FontName = (fontNameCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(fontNameLength));
+                }
+            }
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+            if (obj.GetType() != this.GetType()) {
+                return false;
+            }
+            return Equals((TextProps)obj);
+        }
+
+        protected bool Equals(TextProps other) {
+            return MinorVersion == other.MinorVersion && MajorVersion == other.MajorVersion && Equals(PropMask, other.PropMask) &&
+                   FontEffects == other.FontEffects && FontHeight == other.FontHeight && FontCharSet == other.FontCharSet &&
+                   FontPitchAndFamily == other.FontPitchAndFamily && ParagraphAlign == other.ParagraphAlign && FontWeight == other.FontWeight &&
+                   string.Equals(FontName, other.FontName);
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = MinorVersion.GetHashCode();
+                hashCode = (hashCode*397) ^ MajorVersion.GetHashCode();
+                hashCode = (hashCode*397) ^ (PropMask?.GetHashCode() ?? 0);
+                hashCode = (hashCode*397) ^ (int)FontEffects;
+                hashCode = (hashCode*397) ^ (int)FontHeight;
+                hashCode = (hashCode*397) ^ FontCharSet.GetHashCode();
+                hashCode = (hashCode*397) ^ FontPitchAndFamily.GetHashCode();
+                hashCode = (hashCode*397) ^ ParagraphAlign.GetHashCode();
+                hashCode = (hashCode*397) ^ FontWeight.GetHashCode();
+                hashCode = (hashCode*397) ^ (FontName?.GetHashCode() ?? 0);
+                return hashCode;
+            }
+        }
+    }
+
+    class TextPropsPropMask {
+        public bool HasFontName { get; }
+        public bool HasFontEffects { get; }
+        public bool HasFontHeight { get; }
+        public bool HasFontCharSet { get; }
+        public bool HasFontPitchAndFamily { get; }
+        public bool HasParagraphAlign { get; }
+        public bool HasFontWeight { get; }
+
+        public TextPropsPropMask(uint i) {
+            Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
+            HasFontName = bit(0);
+            HasFontEffects = bit(1);
+            HasFontHeight = bit(2);
+            HasFontCharSet = bit(4);
+            HasFontPitchAndFamily = bit(5);
+            HasParagraphAlign = bit(6);
+            HasFontWeight = bit(7);
+        }
+
+        public override bool Equals(object obj) {
+            if (ReferenceEquals(null, obj)) {
+                return false;
+            }
+            if (ReferenceEquals(this, obj)) {
+                return true;
+            }
+            if (obj.GetType() != this.GetType()) {
+                return false;
+            }
+            return Equals((TextPropsPropMask)obj);
+        }
+
+        protected bool Equals(TextPropsPropMask other) {
+            return HasFontName == other.HasFontName && HasFontEffects == other.HasFontEffects && HasFontHeight == other.HasFontHeight &&
+                   HasFontCharSet == other.HasFontCharSet && HasFontPitchAndFamily == other.HasFontPitchAndFamily &&
+                   HasParagraphAlign == other.HasParagraphAlign && HasFontWeight == other.HasFontWeight;
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = HasFontName.GetHashCode();
+                hashCode = (hashCode*397) ^ HasFontEffects.GetHashCode();
+                hashCode = (hashCode*397) ^ HasFontHeight.GetHashCode();
+                hashCode = (hashCode*397) ^ HasFontCharSet.GetHashCode();
+                hashCode = (hashCode*397) ^ HasFontPitchAndFamily.GetHashCode();
+                hashCode = (hashCode*397) ^ HasParagraphAlign.GetHashCode();
+                hashCode = (hashCode*397) ^ HasFontWeight.GetHashCode();
                 return hashCode;
             }
         }

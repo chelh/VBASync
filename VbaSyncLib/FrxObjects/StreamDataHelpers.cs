@@ -28,9 +28,11 @@ namespace VbaSync.FrxObjects {
             return Tuple.Create(r.ReadInt16(), r.ReadByte(), r.ReadInt16(), r.ReadUInt32(), Encoding.ASCII.GetString(r.ReadBytes(r.ReadByte())));
         }
 
-        public static byte[] ReadTextProps(BinaryReader r) {
+        public static TextProps ReadTextProps(BinaryReader r) {
             r.BaseStream.Seek(2, SeekOrigin.Current); // skip MinorVersion and MajorVersion
-            return r.ReadBytes(r.ReadUInt16());
+            var cbTextProps = r.ReadUInt16();
+            r.BaseStream.Seek(-4, SeekOrigin.Current); // reset to beginning of TextProps
+            return new TextProps(r.ReadBytes(cbTextProps + 4));
         }
     }
 }

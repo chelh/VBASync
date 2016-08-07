@@ -20,7 +20,7 @@ namespace VbaSync.FrxObjects {
         public Tuple<int, int> Size { get; }
         public byte[] Picture { get; } = new byte[0];
         public byte[] MouseIcon { get; } = new byte[0];
-        public byte[] TextProps { get; }
+        public TextProps TextProps { get; }
 
         public CommandButtonControl(byte[] b) {
             using (var st = new MemoryStream(b))
@@ -112,14 +112,14 @@ namespace VbaSync.FrxObjects {
                    MajorVersion == other.MajorVersion && Equals(PropMask, other.PropMask) && Equals(ForeColor, other.ForeColor) &&
                    Equals(BackColor, other.BackColor) && VariousPropertyBits == other.VariousPropertyBits && string.Equals(Caption, other.Caption) &&
                    PicturePosition == other.PicturePosition && MousePointer == other.MousePointer && string.Equals(Accelerator, other.Accelerator) &&
-                   Equals(Size, other.Size) && TextProps.SequenceEqual(other.TextProps);
+                   Equals(Size, other.Size) && Equals(TextProps, other.TextProps);
         }
 
         public override int GetHashCode() {
             unchecked {
                 var hashCode = Picture?.Length.GetHashCode() ?? 0;
                 hashCode = (hashCode * 397) ^ (MouseIcon?.Length.GetHashCode() ?? 0);
-                hashCode = (hashCode * 397) ^ (TextProps?.Length.GetHashCode() ?? 0);
+                hashCode = (hashCode * 397) ^ (TextProps?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ MinorVersion.GetHashCode();
                 hashCode = (hashCode * 397) ^ MajorVersion.GetHashCode();
                 hashCode = (hashCode * 397) ^ (PropMask?.GetHashCode() ?? 0);

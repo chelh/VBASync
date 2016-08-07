@@ -34,7 +34,7 @@ namespace VbaSync.FrxObjects {
         public byte[] MouseIcon { get; } = new byte[0];
         public bool FontIsStdFont { get; }
         public byte[] Picture { get; } = new byte[0];
-        public byte[] FontTextProps { get; } = new byte[0];
+        public TextProps FontTextProps { get; }
         public Tuple<short, byte, short, uint, string> FontStdFont { get; }
         public List<byte[]> SiteClassInfos { get; }
         public OleSiteConcreteControl[] Sites { get; }
@@ -234,7 +234,7 @@ namespace VbaSync.FrxObjects {
                   && PictureSizeMode == other.PictureSizeMode && ShapeCookie == other.ShapeCookie && DrawBuffer == other.DrawBuffer
                   && Equals(DisplayedSize, other.DisplayedSize) && Equals(LogicalSize, other.LogicalSize) && Equals(ScrollPosition, other.ScrollPosition)
                   && string.Equals(Caption, other.Caption) && MouseIcon.SequenceEqual(other.MouseIcon) && FontIsStdFont == other.FontIsStdFont
-                  && Picture.SequenceEqual(other.Picture) && FontTextProps.SequenceEqual(other.FontTextProps) && Equals(FontStdFont, other.FontStdFont)
+                  && Picture.SequenceEqual(other.Picture) && Equals(FontTextProps, other.FontTextProps) && Equals(FontStdFont, other.FontStdFont)
                   && Sites.SequenceEqual(other.Sites) && Remainder.SequenceEqual(other.Remainder))) return false;
             if (SiteClassInfos.Count != other.SiteClassInfos.Count) return false;
             return !SiteClassInfos.Where((t, i) => !t.SequenceEqual(other.SiteClassInfos[i])).Any();
@@ -247,6 +247,7 @@ namespace VbaSync.FrxObjects {
                 hashCode = (hashCode*397) ^ (PropMask?.GetHashCode() ?? 0);
                 hashCode = (hashCode*397) ^ (BackColor?.GetHashCode() ?? 0);
                 hashCode = (hashCode*397) ^ (ForeColor?.GetHashCode() ?? 0);
+                hashCode = (hashCode*397) ^ (FontTextProps?.GetHashCode() ?? 0);
                 hashCode = (hashCode*397) ^ (int)NextAvailableId;
                 hashCode = (hashCode*397) ^ (BooleanProperties?.GetHashCode() ?? 0);
                 hashCode = (hashCode*397) ^ (int)BorderStyle;
