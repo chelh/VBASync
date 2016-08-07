@@ -121,33 +121,50 @@ namespace VbaSync {
                 explain = $"Different file lists in storage '{s1.Name}'.\r\nFile 1: {{'{string.Join("', '", s1Names)}'}}\r\nFile 2: {{'{string.Join("'', '", s2Names)}'}}.";
                 return true;
             }
+            FormControl fc1 = null;
             foreach (var t in s1Names) {
                 if (t.Item2) {
                     if (CfStoragesAreDifferent(s1.GetStorage(t.Item1), s2.GetStorage(t.Item1), out explain)) {
                         return true;
                     }
                 } else if (t.Item1 == "f") {
-                    if (FStreamsAreDifferent(s1.GetStream(t.Item1).GetData(), s2.GetStream(t.Item1).GetData(), s1.Name, out explain)) {
+                    fc1 = new FormControl(s1.GetStream("f").GetData());
+                    var fc2 = new FormControl(s2.GetStream("f").GetData());
+                    if (!fc1.Equals(fc2)) {
+                        explain = $"Different contents of stream 'f' in storage '{s1.Name}'.";
                         return true;
+                    }
+                } else if (t.Item1 == "o" && fc1 != null) {
+                    var o1 = s1.GetStream("o").GetData();
+                    var o2 = s2.GetStream("o").GetData();
+                    uint idx = 0;
+                    foreach (var site in fc1.Sites) {
+                        explain = $"Different contents of stream 'o', site '{site.Name}' in storage '{s1.Name}'.";
+                        switch (site.ClsidCacheIndex) {
+                            case 17: // CommandButton
+                                if (!new CommandButtonControl(o1.Range(idx, site.ObjectStreamSize)).Equals(
+                                    new CommandButtonControl(o2.Range(idx, site.ObjectStreamSize)))) {
+                                    return true;
+                                }
+                                break;
+                            case 21: // Label
+                                if (!new LabelControl(o1.Range(idx, site.ObjectStreamSize)).Equals(
+                                    new LabelControl(o2.Range(idx, site.ObjectStreamSize)))) {
+                                    return true;
+                                }
+                                break;
+                            default:
+                                if (!o1.Range(idx, site.ObjectStreamSize).SequenceEqual(o2.Range(idx, site.ObjectStreamSize))) {
+                                    return true;
+                                }
+                                break;
+                        }
+                        idx += site.ObjectStreamSize;
                     }
                 } else if (!s1.GetStream(t.Item1).GetData().SequenceEqual(s2.GetStream(t.Item1).GetData())) {
                     explain = $"Different contents of stream '{t.Item1}' in storage '{s1.Name}'.";
                     return true;
                 }
-            }
-            explain = "No differences found.";
-            return false;
-        }
-
-        static bool FStreamsAreDifferent(byte[] b1, byte[] b2, string storageName, out string explain) {
-            explain = $"Different contents of stream 'f' in storage '{storageName}'.";
-            if (b1.Length != b2.Length) {
-                return true;
-            }
-            var fc1 = new FormControl(b1);
-            var fc2 = new FormControl(b2);
-            if (!fc1.Equals(fc2)) {
-                return true;
             }
             explain = "No differences found.";
             return false;

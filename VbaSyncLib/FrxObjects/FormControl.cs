@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using static VbaSync.FrxObjects.AlignmentHelpers;
+using static VbaSync.FrxObjects.StreamDataHelpers;
 
 namespace VbaSync.FrxObjects {
     class FormControl {
         public byte MinorVersion { get; }
         public byte MajorVersion { get; }
-        public PropMask PropMask { get; }
+        public FormPropMask PropMask { get; }
         public OleColor BackColor { get; }
         public OleColor ForeColor { get; }
         public uint NextAvailableId { get; }
@@ -46,7 +47,7 @@ namespace VbaSync.FrxObjects {
                 MajorVersion = r.ReadByte();
 
                 var cbForm = r.ReadUInt16();
-                PropMask = new PropMask(r.ReadUInt32());
+                PropMask = new FormPropMask(r.ReadUInt32());
 
                 // DataBlock
                 ushort dataBlockBytes = 0;
@@ -83,6 +84,13 @@ namespace VbaSync.FrxObjects {
                     GroupCount = r.ReadInt32();
                     dataBlockBytes += 4;
                 }
+                var captionLength = 0;
+                var captionCompressed = false;
+                if (PropMask.HasCaption) {
+                    captionLength = CcbToLength(r.ReadInt32(), out captionCompressed);
+                    dataBlockBytes += 4;
+                }
+                if (PropMask.HasFont) IgnoreNext(2, st, ref dataBlockBytes);
                 if (PropMask.HasMouseIcon) IgnoreNext(2, st, ref dataBlockBytes);
                 if (PropMask.HasCycle) {
                     Cycle = (Cycle)r.ReadByte();
@@ -97,18 +105,6 @@ namespace VbaSync.FrxObjects {
                     BorderColor = new OleColor(r.ReadBytes(4));
                     dataBlockBytes += 4;
                 }
-                var captionLength = 0;
-                var captionCompressed = false;
-                if (PropMask.HasCaption) {
-                    captionLength = r.ReadInt32();
-                    dataBlockBytes += 4;
-                    if (captionLength < 0) {
-                        captionLength = unchecked((int)(captionLength ^ 0x80000000));
-                        captionCompressed = true;
-                    }
-                }
-                if (PropMask.HasFont) IgnoreNext(2, st, ref dataBlockBytes);
-                AlignTo(4, st, ref dataBlockBytes);
                 if (PropMask.HasPicture) IgnoreNext(2, st, ref dataBlockBytes);
                 AlignTo(4, st, ref dataBlockBytes);
                 if (PropMask.HasZoom) {
@@ -132,6 +128,7 @@ namespace VbaSync.FrxObjects {
                     DrawBuffer = r.ReadUInt32();
                     dataBlockBytes += 4;
                 }
+                AlignTo(4, st, ref dataBlockBytes);
 
                 // ExtraDataBlock
                 ushort extraDataBlockBytes = 0;
@@ -151,7 +148,7 @@ namespace VbaSync.FrxObjects {
                     Caption = (captionCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(captionLength));
                     extraDataBlockBytes += (ushort)captionLength;
                 }
-                AlignTo(4, st, ref dataBlockBytes);
+                AlignTo(4, st, ref extraDataBlockBytes);
 
                 if (cbForm != 4 + dataBlockBytes + extraDataBlockBytes) {
                     throw new ApplicationException("Error reading 'f' stream in .frx data: expected cbForm size "
@@ -160,25 +157,18 @@ namespace VbaSync.FrxObjects {
 
                 // StreamData
                 if (PropMask.HasMouseIcon) {
-                    st.Seek(20, SeekOrigin.Current); // skip GUID and Preamble
-                    MouseIcon = r.ReadBytes(r.ReadInt32());
+                    MouseIcon = ReadGuidAndPicture(r);
                 }
                 if (PropMask.HasFont) {
-                    var guid = new Guid(r.ReadBytes(16));
-                    if (guid == new Guid(0x0BE35203, 0x8F91, 0x11CE, 0x9D, 0xE3, 0x00, 0xAA, 0x00, 0x4B, 0xB8, 0x51)) {
-                        // StdFont
-                        FontIsStdFont = true;
-                        st.Seek(1, SeekOrigin.Current); // skip Version
-                        FontStdFont = Tuple.Create(r.ReadInt16(), r.ReadByte(), r.ReadInt16(), r.ReadUInt32(), Encoding.ASCII.GetString(r.ReadBytes(r.ReadByte())));
+                    FontIsStdFont = GetFontIsStdFont(r);
+                    if (FontIsStdFont) {
+                        FontStdFont = ReadStdFont(r);
                     } else {
-                        // TextProps
-                        st.Seek(2, SeekOrigin.Current); // skip MinorVersion and MajorVersion
-                        FontTextProps = r.ReadBytes(r.ReadUInt16());
+                        FontTextProps = ReadTextProps(r);
                     }
                 }
                 if (PropMask.HasPicture) {
-                    st.Seek(20, SeekOrigin.Current); // skip GUID and Preamble
-                    Picture = r.ReadBytes(r.ReadInt32());
+                    Picture = ReadGuidAndPicture(r);
                 }
 
                 // FormSiteData
@@ -309,22 +299,14 @@ namespace VbaSync.FrxObjects {
                 var nameLength = 0;
                 var nameCompressed = false;
                 if (PropMask.HasName) {
-                    nameLength = r.ReadInt32();
+                    nameLength = CcbToLength(r.ReadInt32(), out nameCompressed);
                     dataBlockBytes += 4;
-                    if (nameLength < 0) {
-                        nameLength = unchecked((int)(nameLength ^ 0x80000000));
-                        nameCompressed = true;
-                    }
                 }
                 var tagLength = 0;
                 var tagCompressed = false;
                 if (PropMask.HasTag) {
-                    tagLength = unchecked((int)(tagLength ^ 0x80000000));
+                    tagLength = CcbToLength(r.ReadInt32(), out tagCompressed);
                     dataBlockBytes += 4;
-                    if (tagLength < 0) {
-                        tagLength = -tagLength;
-                        tagCompressed = true;
-                    }
                 }
                 if (PropMask.HasId) {
                     Id = r.ReadInt32();
@@ -358,42 +340,26 @@ namespace VbaSync.FrxObjects {
                 var controlTipTextLength = 0;
                 var controlTipTextCompressed = false;
                 if (PropMask.HasControlTipText) {
-                    controlTipTextLength = r.ReadInt32();
+                    controlTipTextLength = CcbToLength(r.ReadInt32(), out controlTipTextCompressed);
                     dataBlockBytes += 4;
-                    if (controlTipTextLength < 0) {
-                        controlTipTextLength = unchecked((int)(controlTipTextLength ^ 0x80000000));
-                        controlTipTextCompressed = true;
-                    }
                 }
                 var runtimeLicKeyLength = 0;
                 var runtimeLicKeyCompressed = false;
                 if (PropMask.HasRuntimeLicKey) {
-                    runtimeLicKeyLength = r.ReadInt32();
+                    runtimeLicKeyLength = CcbToLength(r.ReadInt32(), out runtimeLicKeyCompressed);
                     dataBlockBytes += 4;
-                    if (runtimeLicKeyLength < 0) {
-                        runtimeLicKeyLength = unchecked((int)(runtimeLicKeyLength ^ 0x80000000));
-                        runtimeLicKeyCompressed = true;
-                    }
                 }
                 var controlSourceLength = 0;
                 var controlSourceCompressed = false;
                 if (PropMask.HasControlSource) {
-                    controlSourceLength = r.ReadInt32();
+                    controlSourceLength = CcbToLength(r.ReadInt32(), out controlSourceCompressed);
                     dataBlockBytes += 4;
-                    if (controlSourceLength < 0) {
-                        controlSourceLength = unchecked((int)(controlSourceLength ^ 0x80000000));
-                        controlSourceCompressed = true;
-                    }
                 }
                 var rowSourceLength = 0;
                 var rowSourceCompressed = false;
                 if (PropMask.HasRowSource) {
-                    rowSourceLength = r.ReadInt32();
+                    rowSourceLength = CcbToLength(r.ReadInt32(), out rowSourceCompressed);
                     dataBlockBytes += 4;
-                    if (rowSourceLength < 0) {
-                        rowSourceLength = unchecked((int)(rowSourceLength ^ 0x80000000));
-                        rowSourceCompressed = true;
-                    }
                 }
 
                 // SiteExtraDataBlock
@@ -472,28 +438,6 @@ namespace VbaSync.FrxObjects {
         CurrentForm = 0x02
     }
 
-    enum SpecialEffect {
-        Flat = 0x00,
-        Raised = 0x01,
-        Sunken = 0x02,
-        Etched = 0x03,
-        Bump = 0x06
-    }
-
-    enum PictureAlignment {
-        TopLeft = 0x00,
-        TopRight = 0x01,
-        Center = 0x02,
-        BottomLeft = 0x03,
-        BottomRight = 0x04
-    }
-
-    enum PictureSizeMode {
-        Clip = 0x00,
-        Stretch = 0x01,
-        Zoom = 0x03
-    }
-
     class FormFlags {
         public bool Enabled { get; }
         public bool DesignExtenderPropertiesPersisted { get; }
@@ -563,69 +507,7 @@ namespace VbaSync.FrxObjects {
         }
     }
 
-    enum BorderStyle {
-        None = 0x00,
-        Single = 0x01
-    }
-
-    enum OleColorType {
-        Default = 0x00,
-        PaletteEntry = 0x01,
-        RgbColor = 0x02,
-        SystemPalette = 0x80
-    }
-
-    enum MousePointer {
-        Default = 0x00,
-        Arrow = 0x01,
-        Cross = 0x02,
-        IBeam = 0x03,
-        SizeNesw = 0x06,
-        SizeNs = 0x07,
-        SizeNwse = 0x08,
-        SizeWe = 0x09,
-        UpArrow = 0x0A,
-        HourGlass = 0x0B,
-        NoDrop = 0x0C,
-        AppStarting = 0x0D,
-        Help = 0x0E,
-        SizeAll = 0x0F,
-        Custom = 0x63
-    }
-
-    class OleColor {
-        public OleColorType ColorType { get; }
-        public ushort PaletteIndex { get; }
-        public byte Red { get; }
-        public byte Blue { get; }
-        public byte Green { get; }
-
-        public OleColor(byte[] b) {
-            if (b.Length != 4) throw new ArgumentException($"Error creating {nameof(OleColor)}. Expected 4 bytes but got {b.Length}.", nameof(b));
-            Blue = b[0];
-            Green = b[1];
-            Red = b[2];
-            PaletteIndex = unchecked((ushort)((Green << 8) | Blue));
-            ColorType = (OleColorType)b[3];
-        }
-
-        public override bool Equals(object o) {
-            var other = o as OleColor;
-            return other != null && ColorType == other.ColorType && Red == other.Red && Blue == other.Blue && Green == other.Green;
-        }
-
-        public override int GetHashCode() {
-            unchecked {
-                var hashCode = (int)ColorType;
-                hashCode = (hashCode*397) ^ Red.GetHashCode();
-                hashCode = (hashCode*397) ^ Blue.GetHashCode();
-                hashCode = (hashCode*397) ^ Green.GetHashCode();
-                return hashCode;
-            }
-        }
-    }
-
-    class PropMask {
+    class FormPropMask {
         public bool HasBackColor { get; }
         public bool HasForeColor { get; }
         public bool HasNextAvailableId { get; }
@@ -651,7 +533,7 @@ namespace VbaSync.FrxObjects {
         public bool HasShapeCookie { get; }
         public bool HasDrawBuffer { get; }
 
-        public PropMask(uint i) {
+        public FormPropMask(uint i) {
             Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
             HasBackColor = bit(1);
             HasForeColor = bit(2);
@@ -680,7 +562,7 @@ namespace VbaSync.FrxObjects {
         }
 
         public override bool Equals(object o) {
-            var other = o as PropMask;
+            var other = o as FormPropMask;
             return other != null && HasBackColor == other.HasBackColor && HasForeColor == other.HasForeColor && HasNextAvailableId == other.HasNextAvailableId
                    && HasBooleanProperties == other.HasBooleanProperties && HasBorderStyle == other.HasBorderStyle && HasMousePointer == other.HasMousePointer
                    && HasScrollBars == other.HasScrollBars && HasDisplayedSize == other.HasDisplayedSize && HasLogicalSize == other.HasLogicalSize
