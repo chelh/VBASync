@@ -1,12 +1,10 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using System.Text;
-using static VbaSync.FrxObjects.AlignmentHelpers;
 using static VbaSync.FrxObjects.StreamDataHelpers;
 
 namespace VbaSync.FrxObjects {
-    class LabelControl {
+    class LabelControl : FrxCommon {
         public byte MinorVersion { get; }
         public byte MajorVersion { get; }
         public LabelPropMask PropMask { get; }
@@ -33,70 +31,29 @@ namespace VbaSync.FrxObjects {
                 var cbLabel = r.ReadUInt16();
                 PropMask = new LabelPropMask(r.ReadUInt32());
 
-                // DataBlock
-                ushort dataBlockBytes = 0;
-                if (PropMask.HasForeColor) {
-                    ForeColor = new OleColor(r.ReadBytes(4));
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasBackColor) {
-                    BackColor = new OleColor(r.ReadBytes(4));
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasVariousPropertyBits) {
-                    VariousPropertyBits = r.ReadUInt32();
-                    dataBlockBytes += 4;
-                }
-                var captionLength = 0;
-                var captionCompressed = false;
-                if (PropMask.HasCaption) {
-                    captionLength = CcbToLength(r.ReadInt32(), out captionCompressed);
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasPicturePosition) {
-                    PicturePosition = (PicturePosition)r.ReadUInt32();
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasMousePointer) {
-                    MousePointer = (MousePointer)r.ReadByte();
-                    dataBlockBytes += 1;
-                }
-                AlignTo(4, st, ref dataBlockBytes);
-                if (PropMask.HasBorderColor) {
-                    BorderColor = new OleColor(r.ReadBytes(4));
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasBorderStyle) {
-                    BorderStyle = (BorderStyle)r.ReadInt16();
-                    dataBlockBytes += 2;
-                }
-                AlignTo(4, st, ref dataBlockBytes);
-                if (PropMask.HasSpecialEffect) {
-                    SpecialEffect = (SpecialEffect)r.ReadInt16();
-                    dataBlockBytes += 2;
-                }
-                AlignTo(4, st, ref dataBlockBytes);
-                if (PropMask.HasPicture) IgnoreNext(2, st, ref dataBlockBytes);
-                AlignTo(4, st, ref dataBlockBytes);
-                if (PropMask.HasAccelerator) {
-                    Accelerator = Encoding.Unicode.GetString(r.ReadBytes(2));
-                    dataBlockBytes += 2;
-                }
-                AlignTo(4, st, ref dataBlockBytes);
-                if (PropMask.HasMouseIcon) IgnoreNext(2, st, ref dataBlockBytes);
-                AlignTo(4, st, ref dataBlockBytes);
+                BeginDataBlock();
+                ForeColor = ReadAlignedOleColorIf(PropMask.HasForeColor, r);
+                BackColor = ReadAlignedOleColorIf(PropMask.HasBackColor, r);
+                VariousPropertyBits = ReadAlignedUInt32If(PropMask.HasVariousPropertyBits, r);
+                var captionCcb = ReadAlignedCcbIf(PropMask.HasCaption, r);
+                PicturePosition = (PicturePosition)ReadAlignedUInt32If(PropMask.HasPicturePosition, r);
+                MousePointer = (MousePointer)ReadByteIf(PropMask.HasMousePointer, r);
+                BorderColor = ReadAlignedOleColorIf(PropMask.HasBorderColor, r);
+                BorderStyle = (BorderStyle)ReadAlignedInt16If(PropMask.HasBorderStyle, r);
+                SpecialEffect = (SpecialEffect)ReadAlignedInt16If(PropMask.HasSpecialEffect, r);
+                Ignore2AlignedBytesIf(PropMask.HasPicture, r);
+                Accelerator = ReadAlignedWCharIf(PropMask.HasAccelerator, r);
+                Ignore2AlignedBytesIf(PropMask.HasMouseIcon, r);
+                EndDataBlock(r);
 
-                // ExtraDataBlock
-                ushort extraDataBlockBytes = 0;
-                if (captionLength > 0) {
-                    Caption = (captionCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(captionLength));
-                    extraDataBlockBytes += (ushort)captionLength;
-                }
-                AlignTo(4, st, ref extraDataBlockBytes);
-                if (PropMask.HasSize) {
-                    Size = Tuple.Create(r.ReadInt32(), r.ReadInt32());
-                    extraDataBlockBytes += 4;
-                }
+                BeginExtraDataBlock();
+                Caption = ReadStringFromCcb(captionCcb, r);
+                Size = ReadAlignedCoordsIf(PropMask.HasSize, r);
+                EndExtraDataBlock(r);
+
+                if (cbLabel != 4 + DataBlockBytes + ExtraDataBlockBytes)
+                    throw new ApplicationException("Error reading 'o' stream in .frx data: expected cbLabel size "
+                                                   + $"{4 + DataBlockBytes + ExtraDataBlockBytes}, but actual size was {cbLabel}.");
 
                 // StreamData
                 if (PropMask.HasPicture) {

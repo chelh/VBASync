@@ -140,21 +140,32 @@ namespace VbaSync {
                     uint idx = 0;
                     foreach (var site in fc1.Sites) {
                         explain = $"Different contents of stream 'o', site '{site.Name}' in storage '{s1.Name}'.";
+                        var o1Range = o1.Range(idx, site.ObjectStreamSize);
+                        var o2Range = o2.Range(idx, site.ObjectStreamSize);
                         switch (site.ClsidCacheIndex) {
+                            case 15: // MorphData
+                            case 26: // CheckBox
+                            case 25: // ComboBox
+                            case 24: // ListBox
+                            case 27: // OptionButton
+                            case 23: // TextBox
+                            case 28: // ToggleButton
+                                if (!new MorphDataControl(o1Range).Equals(new MorphDataControl(o2Range))) {
+                                    return true;
+                                }
+                                break;
                             case 17: // CommandButton
-                                if (!new CommandButtonControl(o1.Range(idx, site.ObjectStreamSize)).Equals(
-                                    new CommandButtonControl(o2.Range(idx, site.ObjectStreamSize)))) {
+                                if (!new CommandButtonControl(o1Range).Equals(new CommandButtonControl(o2Range))) {
                                     return true;
                                 }
                                 break;
                             case 21: // Label
-                                if (!new LabelControl(o1.Range(idx, site.ObjectStreamSize)).Equals(
-                                    new LabelControl(o2.Range(idx, site.ObjectStreamSize)))) {
+                                if (!new LabelControl(o1Range).Equals(new LabelControl(o2Range))) {
                                     return true;
                                 }
                                 break;
                             default:
-                                if (!o1.Range(idx, site.ObjectStreamSize).SequenceEqual(o2.Range(idx, site.ObjectStreamSize))) {
+                                if (!o1Range.SequenceEqual(o2Range)) {
                                     return true;
                                 }
                                 break;

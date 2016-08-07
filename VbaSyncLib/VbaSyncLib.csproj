@@ -55,6 +55,7 @@
     <Compile Include="DiffPlex_ModVba.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FrxObjects\AlignmentHelpers.cs" />
+    <Compile Include="FrxObjects\MorphDataControl.cs" />
     <Compile Include="FrxObjects\Common.cs" />
     <Compile Include="FrxObjects\FormControl.cs" />
     <Compile Include="FrxObjects\CommandButtonControl.cs" />

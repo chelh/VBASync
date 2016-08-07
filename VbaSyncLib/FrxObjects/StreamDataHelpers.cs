@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 
 namespace VbaSync.FrxObjects {
@@ -32,7 +30,7 @@ namespace VbaSync.FrxObjects {
             r.BaseStream.Seek(2, SeekOrigin.Current); // skip MinorVersion and MajorVersion
             var cbTextProps = r.ReadUInt16();
             r.BaseStream.Seek(-4, SeekOrigin.Current); // reset to beginning of TextProps
-            return new TextProps(r.ReadBytes(cbTextProps + 4));
+            return cbTextProps > 0 ? new TextProps(r.ReadBytes(cbTextProps + 4)) : null;
         }
     }
 }

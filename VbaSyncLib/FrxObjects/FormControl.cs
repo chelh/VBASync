@@ -7,7 +7,7 @@ using static VbaSync.FrxObjects.AlignmentHelpers;
 using static VbaSync.FrxObjects.StreamDataHelpers;
 
 namespace VbaSync.FrxObjects {
-    class FormControl {
+    class FormControl : FrxCommon {
         public byte MinorVersion { get; }
         public byte MajorVersion { get; }
         public FormPropMask PropMask { get; }
@@ -49,111 +49,39 @@ namespace VbaSync.FrxObjects {
                 var cbForm = r.ReadUInt16();
                 PropMask = new FormPropMask(r.ReadUInt32());
 
-                // DataBlock
-                ushort dataBlockBytes = 0;
-                if (PropMask.HasBackColor) {
-                    BackColor = new OleColor(r.ReadBytes(4));
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasForeColor) {
-                    ForeColor = new OleColor(r.ReadBytes(4));
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasNextAvailableId) {
-                    NextAvailableId = r.ReadUInt32();
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasBooleanProperties) {
-                    BooleanProperties = new FormFlags(r.ReadUInt32());
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasBorderStyle) {
-                    BorderStyle = (BorderStyle)r.ReadByte();
-                    dataBlockBytes += 1;
-                }
-                if (PropMask.HasMousePointer) {
-                    MousePointer = (MousePointer)r.ReadByte();
-                    dataBlockBytes += 1;
-                }
-                if (PropMask.HasScrollBars) {
-                    ScrollBars = new FormScrollBarFlags(r.ReadByte());
-                    dataBlockBytes += 1;
-                }
-                AlignTo(4, st, ref dataBlockBytes);
-                if (PropMask.HasGroupCount) {
-                    GroupCount = r.ReadInt32();
-                    dataBlockBytes += 4;
-                }
-                var captionLength = 0;
-                var captionCompressed = false;
-                if (PropMask.HasCaption) {
-                    captionLength = CcbToLength(r.ReadInt32(), out captionCompressed);
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasFont) IgnoreNext(2, st, ref dataBlockBytes);
-                if (PropMask.HasMouseIcon) IgnoreNext(2, st, ref dataBlockBytes);
-                if (PropMask.HasCycle) {
-                    Cycle = (Cycle)r.ReadByte();
-                    dataBlockBytes += 1;
-                }
-                if (PropMask.HasSpecialEffect) {
-                    SpecialEffect = (SpecialEffect)r.ReadByte();
-                    dataBlockBytes += 1;
-                }
-                AlignTo(4, st, ref dataBlockBytes);
-                if (PropMask.HasBorderColor) {
-                    BorderColor = new OleColor(r.ReadBytes(4));
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasPicture) IgnoreNext(2, st, ref dataBlockBytes);
-                AlignTo(4, st, ref dataBlockBytes);
-                if (PropMask.HasZoom) {
-                    Zoom = r.ReadUInt32();
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasPictureAlignment) {
-                    PictureAlignment = (PictureAlignment)r.ReadByte();
-                    dataBlockBytes += 1;
-                }
-                if (PropMask.HasPictureSizeMode) {
-                    PictureSizeMode = (PictureSizeMode)r.ReadByte();
-                    dataBlockBytes += 1;
-                }
-                AlignTo(4, st, ref dataBlockBytes);
-                if (PropMask.HasShapeCookie) {
-                    ShapeCookie = r.ReadUInt32();
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasDrawBuffer) {
-                    DrawBuffer = r.ReadUInt32();
-                    dataBlockBytes += 4;
-                }
-                AlignTo(4, st, ref dataBlockBytes);
+                BeginDataBlock();
+                BackColor = ReadAlignedOleColorIf(PropMask.HasBackColor, r);
+                ForeColor = ReadAlignedOleColorIf(PropMask.HasForeColor, r);
+                NextAvailableId = ReadAlignedUInt32If(PropMask.HasNextAvailableId, r);
+                BooleanProperties = new FormFlags(ReadAlignedUInt32If(PropMask.HasBooleanProperties, r));
+                BorderStyle = (BorderStyle)ReadByteIf(PropMask.HasBorderStyle, r);
+                MousePointer = (MousePointer)ReadByteIf(PropMask.HasMousePointer, r);
+                ScrollBars = new FormScrollBarFlags(ReadByteIf(PropMask.HasScrollBars, r));
+                GroupCount = ReadAlignedInt32If(PropMask.HasGroupCount, r);
+                var captionCcb = ReadAlignedCcbIf(PropMask.HasCaption, r); // this seems to be in a different position than indicated in MS's spec?
+                Ignore2AlignedBytesIf(PropMask.HasFont, r);
+                Ignore2AlignedBytesIf(PropMask.HasMouseIcon, r);
+                Cycle = (Cycle)ReadByteIf(PropMask.HasCycle, r);
+                SpecialEffect = (SpecialEffect)ReadByteIf(PropMask.HasSpecialEffect, r);
+                BorderColor = ReadAlignedOleColorIf(PropMask.HasBorderColor, r);
+                Ignore2AlignedBytesIf(PropMask.HasPicture, r);
+                Zoom = ReadAlignedUInt32If(PropMask.HasZoom, r);
+                PictureAlignment = (PictureAlignment)ReadByteIf(PropMask.HasPictureAlignment, r);
+                PictureSizeMode = (PictureSizeMode)ReadByteIf(PropMask.HasPictureSizeMode, r);
+                ShapeCookie = ReadAlignedUInt32If(PropMask.HasShapeCookie, r);
+                DrawBuffer = ReadAlignedUInt32If(PropMask.HasDrawBuffer, r);
+                EndDataBlock(r);
 
-                // ExtraDataBlock
-                ushort extraDataBlockBytes = 0;
-                if (PropMask.HasDisplayedSize) {
-                    DisplayedSize = Tuple.Create(r.ReadInt32(), r.ReadInt32());
-                    extraDataBlockBytes += 8;
-                }
-                if (PropMask.HasLogicalSize) {
-                    LogicalSize = Tuple.Create(r.ReadInt32(), r.ReadInt32());
-                    extraDataBlockBytes += 8;
-                }
-                if (PropMask.HasScrollPosition) {
-                    ScrollPosition = Tuple.Create(r.ReadInt32(), r.ReadInt32());
-                    extraDataBlockBytes += 8;
-                }
-                if (captionLength > 0) {
-                    Caption = (captionCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(captionLength));
-                    extraDataBlockBytes += (ushort)captionLength;
-                }
-                AlignTo(4, st, ref extraDataBlockBytes);
+                BeginExtraDataBlock();
+                DisplayedSize = ReadAlignedCoordsIf(PropMask.HasDisplayedSize, r);
+                LogicalSize = ReadAlignedCoordsIf(PropMask.HasLogicalSize, r);
+                ScrollPosition = ReadAlignedCoordsIf(PropMask.HasScrollPosition, r);
+                Caption = ReadStringFromCcb(captionCcb, r);
+                EndExtraDataBlock(r);
 
-                if (cbForm != 4 + dataBlockBytes + extraDataBlockBytes) {
+                if (cbForm != 4 + DataBlockBytes + ExtraDataBlockBytes)
                     throw new ApplicationException("Error reading 'f' stream in .frx data: expected cbForm size "
-                                                   + $"{4 + dataBlockBytes + extraDataBlockBytes}, but actual size was {cbForm}.");
-                }
+                                                   + $"{4 + DataBlockBytes + ExtraDataBlockBytes}, but actual size was {cbForm}.");
 
                 // StreamData
                 if (PropMask.HasMouseIcon) {
