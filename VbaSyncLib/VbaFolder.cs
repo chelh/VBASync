@@ -414,6 +414,7 @@ namespace VbaSync {
                 projectWm.Add(0x00);
                 projectWm.AddRange(Encoding.Unicode.GetBytes(modName));
                 projectWm.Add(0x00);
+                projectWm.Add(0x00);
             }
             projectWm.AddRange(new byte[] {0x00, 0x00});
             vbaProject.AddStream("PROJECTwm");
