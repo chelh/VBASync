@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using static VbaSync.FrxObjects.StreamDataHelpers;
 
 namespace VbaSync.FrxObjects {
-    class LabelControl : FrxCommon {
+    class LabelControl {
         public byte MinorVersion { get; }
         public byte MajorVersion { get; }
         public LabelPropMask PropMask { get; }
@@ -19,49 +18,44 @@ namespace VbaSync.FrxObjects {
         public SpecialEffect SpecialEffect { get; }
         public string Accelerator { get; }
         public Tuple<int, int> Size { get; }
-        public byte[] Picture { get; } = new byte[0];
-        public byte[] MouseIcon { get; } = new byte[0];
+        public byte[] Picture { get; }
+        public byte[] MouseIcon { get; }
         
         public LabelControl(byte[] b) {
             using (var st = new MemoryStream(b))
-            using (var r = new BinaryReader(st)) {
+            using (var r = new FrxReader(st)) {
                 MinorVersion = r.ReadByte();
                 MajorVersion = r.ReadByte();
 
                 var cbLabel = r.ReadUInt16();
                 PropMask = new LabelPropMask(r.ReadUInt32());
+                
+                // DataBlock
+                ForeColor = PropMask.HasForeColor ? r.ReadOleColor() : null;
+                BackColor = PropMask.HasBackColor ? r.ReadOleColor() : null;
+                VariousPropertyBits = PropMask.HasVariousPropertyBits ? r.ReadUInt32() : 0;
+                var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false);
+                PicturePosition = PropMask.HasPicturePosition ? r.ReadPicturePosition() : PicturePosition.RightTop;
+                MousePointer = PropMask.HasMousePointer ? r.ReadMousePointer() : MousePointer.Default;
+                BorderColor = PropMask.HasBorderColor ? r.ReadOleColor() : null;
+                BorderStyle = PropMask.HasBorderStyle ? r.ReadBorderStyle() : BorderStyle.None;
+                SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
+                if (PropMask.HasPicture) r.Skip2Bytes();
+                Accelerator = PropMask.HasAccelerator ? r.ReadWChar() : "";
+                if (PropMask.HasMouseIcon) r.Skip2Bytes();
 
-                BeginDataBlock();
-                ForeColor = ReadAlignedOleColorIf(PropMask.HasForeColor, r);
-                BackColor = ReadAlignedOleColorIf(PropMask.HasBackColor, r);
-                VariousPropertyBits = ReadAlignedUInt32If(PropMask.HasVariousPropertyBits, r);
-                var captionCcb = ReadAlignedCcbIf(PropMask.HasCaption, r);
-                PicturePosition = (PicturePosition)ReadAlignedUInt32If(PropMask.HasPicturePosition, r);
-                MousePointer = (MousePointer)ReadByteIf(PropMask.HasMousePointer, r);
-                BorderColor = ReadAlignedOleColorIf(PropMask.HasBorderColor, r);
-                BorderStyle = (BorderStyle)ReadAlignedInt16If(PropMask.HasBorderStyle, r);
-                SpecialEffect = (SpecialEffect)ReadAlignedInt16If(PropMask.HasSpecialEffect, r);
-                Ignore2AlignedBytesIf(PropMask.HasPicture, r);
-                Accelerator = ReadAlignedWCharIf(PropMask.HasAccelerator, r);
-                Ignore2AlignedBytesIf(PropMask.HasMouseIcon, r);
-                EndDataBlock(r);
+                // ExtraDataBlock
+                Caption = r.ReadStringFromCcb(captionCcb);
+                Size = PropMask.HasSize ? r.ReadCoords() : Tuple.Create(0, 0);
 
-                BeginExtraDataBlock();
-                Caption = ReadStringFromCcb(captionCcb, r);
-                Size = ReadAlignedCoordsIf(PropMask.HasSize, r);
-                EndExtraDataBlock(r);
-
-                if (cbLabel != 4 + DataBlockBytes + ExtraDataBlockBytes)
+                r.AlignTo(4);
+                if (cbLabel != r.BaseStream.Position - 4)
                     throw new ApplicationException("Error reading 'o' stream in .frx data: expected cbLabel size "
-                                                   + $"{4 + DataBlockBytes + ExtraDataBlockBytes}, but actual size was {cbLabel}.");
+                                                   + $"{r.BaseStream.Position - 4}, but actual size was {cbLabel}.");
 
                 // StreamData
-                if (PropMask.HasPicture) {
-                    Picture = ReadGuidAndPicture(r);
-                }
-                if (PropMask.HasMouseIcon) {
-                    MouseIcon = ReadGuidAndPicture(r);
-                }
+                Picture = PropMask.HasPicture ? r.ReadGuidAndPicture() : new byte[0];
+                MouseIcon = PropMask.HasMouseIcon ? r.ReadGuidAndPicture() : new byte[0];
             }
         }
 
@@ -72,7 +66,7 @@ namespace VbaSync.FrxObjects {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
             return Equals((LabelControl)obj);
@@ -149,7 +143,7 @@ namespace VbaSync.FrxObjects {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
             return Equals((LabelPropMask)obj);

@@ -60,7 +60,7 @@
     <Compile Include="FrxObjects\FormControl.cs" />
     <Compile Include="FrxObjects\CommandButtonControl.cs" />
     <Compile Include="FrxObjects\LabelControl.cs" />
-    <Compile Include="FrxObjects\StreamDataHelpers.cs" />
+    <Compile Include="FrxObjects\FrxReader.cs" />
     <Compile Include="IniFile.cs" />
     <Compile Include="ProjectIni.cs" />
     <Compile Include="VbaFolder.cs" />

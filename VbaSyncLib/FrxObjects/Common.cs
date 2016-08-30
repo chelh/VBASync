@@ -1,144 +1,7 @@
 ﻿using System;
 using System.IO;
-using System.Text;
 
 namespace VbaSync.FrxObjects {
-    abstract class FrxCommon {
-        ushort _dBytes;
-        bool _inD;
-        bool _inX;
-        ushort _xBytes;
-
-        protected ushort DataBlockBytes => _dBytes;
-        protected ushort ExtraDataBlockBytes => _xBytes;
-
-        protected void BeginDataBlock() {
-            _dBytes = 0;
-            _inD = true;
-        }
-
-        protected void BeginExtraDataBlock() {
-            _xBytes = 0;
-            _inX = true;
-        }
-
-        protected void EndDataBlock(BinaryReader r) {
-            AlignTo(4, r.BaseStream);
-            _inD = false;
-        }
-
-        protected void EndExtraDataBlock(BinaryReader r) {
-            AlignTo(4, r.BaseStream);
-            _inX = false;
-        }
-
-        protected byte ReadByteIf(bool b, BinaryReader r, byte ifNot = 0) {
-            if (!b) return ifNot;
-            AboutToRead(1);
-            return r.ReadByte();
-        }
-
-        protected void Ignore2AlignedBytesIf(bool b, BinaryReader r) {
-            if (!b) return;
-            AlignTo(2, r.BaseStream);
-            IgnoreNext(2, r.BaseStream);
-        }
-
-        protected short ReadAlignedInt16If(bool b, BinaryReader r, short ifNot = 0) {
-            if (!b) return ifNot;
-            AlignTo(2, r.BaseStream);
-            AboutToRead(2);
-            return r.ReadInt16();
-        }
-
-        protected ushort ReadAlignedUInt16If(bool b, BinaryReader r, ushort ifNot = 0) {
-            if (!b) return ifNot;
-            AlignTo(2, r.BaseStream);
-            AboutToRead(2);
-            return r.ReadUInt16();
-        }
-
-        protected int ReadAlignedInt32If(bool b, BinaryReader r, int ifNot = 0) {
-            if (!b) return ifNot;
-            AlignTo(4, r.BaseStream);
-            AboutToRead(4);
-            return r.ReadInt32();
-        }
-
-        protected uint ReadAlignedUInt32If(bool b, BinaryReader r, uint ifNot = 0) {
-            if (!b) return ifNot;
-            AlignTo(4, r.BaseStream);
-            AboutToRead(4);
-            return r.ReadUInt32();
-        }
-
-        protected Tuple<int, int> ReadAlignedCoordsIf(bool b, BinaryReader r) {
-            if (!b) return Tuple.Create(0, 0);
-            AlignTo(4, r.BaseStream);
-            AboutToRead(8);
-            return Tuple.Create(r.ReadInt32(), r.ReadInt32());
-        }
-
-        protected Tuple<int, bool> ReadAlignedCcbIf(bool b, BinaryReader r) {
-            if (!b) return Tuple.Create(0, false);
-            AlignTo(4, r.BaseStream);
-            AboutToRead(4);
-            var i = r.ReadInt32();
-            return i < 0 ? Tuple.Create(unchecked((int)(i ^ 0x80000000)), true) : Tuple.Create(i, false);
-        }
-
-        protected OleColor ReadAlignedOleColorIf(bool b, BinaryReader r) {
-            if (!b) return null;
-            AlignTo(4, r.BaseStream);
-            AboutToRead(4);
-            return new OleColor(r.ReadBytes(4));
-        }
-
-        protected string ReadAlignedWCharIf(bool b, BinaryReader r) {
-            if (!b) return "";
-            AlignTo(2, r.BaseStream);
-            AboutToRead(2);
-            return Encoding.Unicode.GetString(r.ReadBytes(2));
-        }
-
-        protected string ReadStringFromCcb(Tuple<int, bool> ccb, BinaryReader r) {
-            if (ccb.Item1 == 0) return "";
-            AboutToRead((ushort)ccb.Item1);
-            var s = (ccb.Item2 ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(ccb.Item1));
-            AlignTo(4, r.BaseStream);
-            return s;
-        }
-
-        void AboutToRead(ushort numBytes) {
-            if (_inD) {
-                _dBytes += numBytes;
-            } else if (_inX) {
-                _xBytes += numBytes;
-            }
-        }
-
-        void AlignTo(ushort alignment, Stream st) {
-            if (_inD) {
-                if (_dBytes%alignment == 0) return;
-                st.Seek(alignment - _dBytes%alignment, SeekOrigin.Current);
-                _dBytes += (ushort)(alignment - _dBytes%alignment);
-            } else if (_inX) {
-                if (_xBytes%alignment == 0) return;
-                st.Seek(alignment - _xBytes%alignment, SeekOrigin.Current);
-                _xBytes += (ushort)(alignment - _xBytes%alignment);
-            }
-        }
-
-        void IgnoreNext(ushort bytes, Stream st) {
-            st.Seek(bytes, SeekOrigin.Current);
-            if (_inD) {
-                _dBytes += bytes;
-            } else if (_inX) {
-                _xBytes += bytes;
-            }
-        }
-    }
-
     class OleColor {
         public OleColorType ColorType { get; }
         public ushort PaletteIndex { get; }
@@ -172,7 +35,7 @@ namespace VbaSync.FrxObjects {
         }
     }
 
-    class TextProps : FrxCommon {
+    class TextProps {
         public byte MinorVersion { get; }
         public byte MajorVersion { get; }
         public TextPropsPropMask PropMask { get; }
@@ -186,26 +49,24 @@ namespace VbaSync.FrxObjects {
 
         public TextProps(byte[] b) {
             using (var st = new MemoryStream(b))
-            using (var r = new BinaryReader(st)) {
+            using (var r = new FrxReader(st)) {
                 MinorVersion = r.ReadByte();
                 MajorVersion = r.ReadByte();
 
                 var cbTextProps = r.ReadUInt16();
                 PropMask = new TextPropsPropMask(r.ReadUInt32());
 
-                BeginDataBlock();
-                var fontNameCcb = ReadAlignedCcbIf(PropMask.HasFontName, r);
-                FontEffects = ReadAlignedUInt32If(PropMask.HasFontEffects, r);
-                FontHeight = ReadAlignedUInt32If(PropMask.HasFontHeight, r);
-                FontCharSet = ReadByteIf(PropMask.HasFontCharSet, r);
-                FontPitchAndFamily = ReadByteIf(PropMask.HasFontPitchAndFamily, r);
-                ParagraphAlign = ReadByteIf(PropMask.HasParagraphAlign, r);
-                FontWeight = ReadAlignedUInt16If(PropMask.HasFontWeight, r);
-                EndDataBlock(r);
+                // DataBlock
+                var fontNameCcb = PropMask.HasFontName ? r.ReadCcb() : Tuple.Create(0, false);
+                FontEffects = PropMask.HasFontEffects ? r.ReadUInt32() : 0;
+                FontHeight = PropMask.HasFontHeight ? r.ReadUInt32() : 0;
+                FontCharSet = PropMask.HasFontCharSet ? r.ReadByte() : (byte)0;
+                FontPitchAndFamily = PropMask.HasFontPitchAndFamily ? r.ReadByte() : (byte)0;
+                ParagraphAlign = PropMask.HasParagraphAlign ? r.ReadByte() : (byte)0;
+                FontWeight = PropMask.HasFontWeight ? r.ReadUInt16() : (ushort)0;
 
-                BeginExtraDataBlock();
-                FontName = ReadStringFromCcb(fontNameCcb, r);
-                EndExtraDataBlock(r);
+                // ExtraDataBlock
+                FontName = r.ReadStringFromCcb(fontNameCcb);
             }
         }
 
@@ -216,7 +77,7 @@ namespace VbaSync.FrxObjects {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
             return Equals((TextProps)obj);
@@ -273,7 +134,7 @@ namespace VbaSync.FrxObjects {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
             return Equals((TextPropsPropMask)obj);

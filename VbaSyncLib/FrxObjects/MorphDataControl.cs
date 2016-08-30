@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using static VbaSync.FrxObjects.StreamDataHelpers;
 
 namespace VbaSync.FrxObjects {
-    class MorphDataControl : FrxCommon {
+    class MorphDataControl {
         public byte MinorVersion { get; }
         public byte MajorVersion { get; }
         public MorphDataPropMask PropMask { get; }
@@ -16,8 +15,8 @@ namespace VbaSync.FrxObjects {
         public MousePointer MousePointer { get; }
         public string Accelerator { get; }
         public Tuple<int, int> Size { get; }
-        public byte[] Picture { get; } = new byte[0];
-        public byte[] MouseIcon { get; } = new byte[0];
+        public byte[] Picture { get; }
+        public byte[] MouseIcon { get; }
         public TextProps TextProps { get; }
         public uint MaxLength { get; }
         public BorderStyle BorderStyle { get; }
@@ -39,73 +38,66 @@ namespace VbaSync.FrxObjects {
         public SpecialEffect SpecialEffect { get; }
         public string Value { get; }
         public string GroupName { get; }
-        public byte[] Remainder { get; } = new byte[0];
+        public byte[] Remainder { get; }
 
         public MorphDataControl(byte[] b) {
             using (var st = new MemoryStream(b))
-            using (var r = new BinaryReader(st)) {
+            using (var r = new FrxReader(st)) {
                 MinorVersion = r.ReadByte();
                 MajorVersion = r.ReadByte();
 
                 var cbMorphData = r.ReadUInt16();
                 PropMask = new MorphDataPropMask(r.ReadUInt64());
 
-                BeginDataBlock();
-                VariousPropertyBits = ReadAlignedUInt32If(PropMask.HasVariousPropertyBits, r);
-                BackColor = ReadAlignedOleColorIf(PropMask.HasBackColor, r);
-                ForeColor = ReadAlignedOleColorIf(PropMask.HasForeColor, r);
-                MaxLength = ReadAlignedUInt32If(PropMask.HasMaxLength, r);
-                BorderStyle = (BorderStyle)ReadByteIf(PropMask.HasBorderStyle, r);
-                ScrollBars = new FormScrollBarFlags(ReadByteIf(PropMask.HasScrollBars, r));
-                DisplayStyle = ReadByteIf(PropMask.HasDisplayStyle, r);
-                MousePointer = (MousePointer)ReadByteIf(PropMask.HasMousePointer, r);
-                PasswordChar = ReadAlignedWCharIf(PropMask.HasPasswordChar, r);
-                ListWidth = ReadAlignedUInt32If(PropMask.HasListWidth, r);
-                BoundColumn = ReadAlignedUInt16If(PropMask.HasBoundColumn, r);
-                TextColumn = ReadAlignedInt16If(PropMask.HasTextColumn, r);
-                ColumnCount = ReadAlignedInt16If(PropMask.HasColumnCount, r);
-                ListRows = ReadAlignedUInt16If(PropMask.HasListRows, r);
-                ColumnInfoCount = ReadAlignedUInt16If(PropMask.HasColumnInfoCount, r);
-                MatchEntry = ReadByteIf(PropMask.HasMatchEntry, r);
-                ListStyle = ReadByteIf(PropMask.HasListStyle, r);
-                ShowDropButtonWhen = ReadByteIf(PropMask.HasShowDropDownWhen, r);
-                DropButtonStyle = ReadByteIf(PropMask.HasDropButtonStyle, r);
-                MultiSelect = ReadByteIf(PropMask.HasMultiSelect, r);
-                var valueCcb = ReadAlignedCcbIf(PropMask.HasValue, r);
-                var captionCcb = ReadAlignedCcbIf(PropMask.HasCaption, r);
-                PicturePosition = (PicturePosition)ReadAlignedUInt32If(PropMask.HasPicturePosition, r);
-                BorderColor = ReadAlignedOleColorIf(PropMask.HasBorderColor, r);
-                SpecialEffect = (SpecialEffect)ReadAlignedUInt32If(PropMask.HasSpecialEffect, r);
-                Ignore2AlignedBytesIf(PropMask.HasMouseIcon, r);
-                Ignore2AlignedBytesIf(PropMask.HasPicture, r);
-                Accelerator = ReadAlignedWCharIf(PropMask.HasAccelerator, r);
-                var groupNameCcb = ReadAlignedCcbIf(PropMask.HasGroupName, r);
-                EndDataBlock(r);
+                // DataBlock
+                VariousPropertyBits = PropMask.HasVariousPropertyBits ? r.ReadUInt32() : 0;
+                BackColor = PropMask.HasBackColor ? r.ReadOleColor() : null;
+                ForeColor = PropMask.HasForeColor ? r.ReadOleColor() : null;
+                MaxLength = PropMask.HasMaxLength ? r.ReadUInt32() : 0;
+                BorderStyle = PropMask.HasBorderStyle ? r.ReadBorderStyle() : BorderStyle.None;
+                ScrollBars = new FormScrollBarFlags(PropMask.HasScrollBars ? r.ReadByte() : (byte)0);
+                DisplayStyle = PropMask.HasDisplayStyle ? r.ReadByte() : (byte)0;
+                MousePointer = PropMask.HasMousePointer ? r.ReadMousePointer() : MousePointer.Default;
+                PasswordChar = PropMask.HasPasswordChar ? r.ReadWChar() : "";
+                ListWidth = PropMask.HasListWidth ? r.ReadUInt32() : 0;
+                BoundColumn = PropMask.HasBoundColumn ? r.ReadUInt16() : (ushort)0;
+                TextColumn = PropMask.HasTextColumn ? r.ReadInt16() : (short)0;
+                ColumnCount = PropMask.HasColumnCount ? r.ReadInt16() : (short)0;
+                ListRows = PropMask.HasListRows ? r.ReadUInt16() : (ushort)0;
+                ColumnInfoCount = PropMask.HasColumnInfoCount ? r.ReadUInt16() : (ushort)0;
+                MatchEntry = PropMask.HasMatchEntry ? r.ReadByte() : (byte)0;
+                ListStyle = PropMask.HasListStyle ? r.ReadByte() : (byte)0;
+                ShowDropButtonWhen = PropMask.HasShowDropDownWhen ? r.ReadByte() : (byte)0;
+                DropButtonStyle = PropMask.HasDropButtonStyle ? r.ReadByte() : (byte)0;
+                MultiSelect = PropMask.HasMultiSelect ? r.ReadByte() : (byte)0;
+                var valueCcb = PropMask.HasValue ? r.ReadCcb() : Tuple.Create(0, false);
+                var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false);
+                PicturePosition = PropMask.HasPicturePosition ? r.ReadPicturePosition() : PicturePosition.RightTop;
+                BorderColor = PropMask.HasBorderColor ? r.ReadOleColor() : null;
+                SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
+                if (PropMask.HasMouseIcon) r.Skip2Bytes();
+                if (PropMask.HasPicture) r.Skip2Bytes();
+                Accelerator = PropMask.HasAccelerator ? r.ReadWChar() : "";
+                var groupNameCcb = PropMask.HasGroupName ? r.ReadCcb() : Tuple.Create(0, false);
 
-                BeginExtraDataBlock();
-                Size = ReadAlignedCoordsIf(PropMask.HasSize, r);
-                Value = ReadStringFromCcb(valueCcb, r);
-                Caption = ReadStringFromCcb(captionCcb, r);
-                GroupName = ReadStringFromCcb(groupNameCcb, r);
-                EndExtraDataBlock(r);
+                // ExtraDataBlock
+                Size = PropMask.HasSize ? r.ReadCoords() : Tuple.Create(0, 0);
+                Value = r.ReadStringFromCcb(valueCcb);
+                Caption = r.ReadStringFromCcb(captionCcb);
+                GroupName = r.ReadStringFromCcb(groupNameCcb);
 
-                if (cbMorphData != 8 + DataBlockBytes + ExtraDataBlockBytes)
+                r.AlignTo(4);
+                if (cbMorphData != r.BaseStream.Position - 4)
                     throw new ApplicationException("Error reading 'o' stream in .frx data: expected cbMorphData size "
-                                                   + $"{8 + DataBlockBytes + ExtraDataBlockBytes}, but actual size was {cbMorphData}.");
+                                                   + $"{r.BaseStream.Position - 4}, but actual size was {cbMorphData}.");
 
                 // StreamData
-                if (PropMask.HasMouseIcon) {
-                    MouseIcon = ReadGuidAndPicture(r);
-                }
-                if (PropMask.HasPicture) {
-                    Picture = ReadGuidAndPicture(r);
-                }
+                MouseIcon = PropMask.HasMouseIcon ? r.ReadGuidAndPicture() : new byte[0];
+                Picture = PropMask.HasPicture ? r.ReadGuidAndPicture() : new byte[0];
 
-                TextProps = ReadTextProps(r);
+                TextProps = r.ReadTextProps();
 
-                if (st.Position < st.Length) {
-                    Remainder = r.ReadBytes((int)(st.Length - st.Position));
-                }
+                Remainder = st.Position < st.Length ? r.Unaligned.ReadBytes((int)(st.Length - st.Position)) : new byte[0];
             }
         }
 
@@ -116,7 +108,7 @@ namespace VbaSync.FrxObjects {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
             return Equals((MorphDataControl)obj);
@@ -251,7 +243,7 @@ namespace VbaSync.FrxObjects {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
             return Equals((MorphDataPropMask)obj);

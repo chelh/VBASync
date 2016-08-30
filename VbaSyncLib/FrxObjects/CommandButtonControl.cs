@@ -1,10 +1,9 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
-using static VbaSync.FrxObjects.StreamDataHelpers;
 
 namespace VbaSync.FrxObjects {
-    class CommandButtonControl : FrxCommon {
+    class CommandButtonControl {
         public byte MinorVersion { get; }
         public byte MajorVersion { get; }
         public CommandButtonPropMask PropMask { get; }
@@ -16,49 +15,44 @@ namespace VbaSync.FrxObjects {
         public MousePointer MousePointer { get; }
         public string Accelerator { get; }
         public Tuple<int, int> Size { get; }
-        public byte[] Picture { get; } = new byte[0];
-        public byte[] MouseIcon { get; } = new byte[0];
+        public byte[] Picture { get; }
+        public byte[] MouseIcon { get; }
         public TextProps TextProps { get; }
 
         public CommandButtonControl(byte[] b) {
             using (var st = new MemoryStream(b))
-            using (var r = new BinaryReader(st)) {
+            using (var r = new FrxReader(st)) {
                 MinorVersion = r.ReadByte();
                 MajorVersion = r.ReadByte();
 
                 var cbCommandButton = r.ReadUInt16();
                 PropMask = new CommandButtonPropMask(r.ReadUInt32());
+                
+                // DataBlock
+                ForeColor = PropMask.HasForeColor ? r.ReadOleColor() : null;
+                BackColor = PropMask.HasBackColor ? r.ReadOleColor() : null;
+                VariousPropertyBits = PropMask.HasVariousPropertyBits ? r.ReadUInt32() : 0;
+                var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false);
+                PicturePosition = PropMask.HasPicturePosition ? r.ReadPicturePosition() : PicturePosition.RightTop;
+                MousePointer = PropMask.HasMousePointer ? r.ReadMousePointer() : MousePointer.Arrow;
+                if(PropMask.HasPicture) r.Skip2Bytes();
+                Accelerator = PropMask.HasAccelerator ? r.ReadWChar() : "";
+                if (PropMask.HasMouseIcon) r.Skip2Bytes();
+                
+                // ExtraDataBlock
+                Caption = r.ReadStringFromCcb(captionCcb);
+                Size = PropMask.HasSize ? r.ReadCoords() : Tuple.Create(0, 0);
 
-                BeginDataBlock();
-                ForeColor = ReadAlignedOleColorIf(PropMask.HasForeColor, r);
-                BackColor = ReadAlignedOleColorIf(PropMask.HasBackColor, r);
-                VariousPropertyBits = ReadAlignedUInt32If(PropMask.HasVariousPropertyBits, r);
-                var captionCcb = ReadAlignedCcbIf(PropMask.HasCaption, r);
-                PicturePosition = (PicturePosition)ReadAlignedUInt32If(PropMask.HasPicturePosition, r);
-                MousePointer = (MousePointer)ReadByteIf(PropMask.HasMousePointer, r);
-                Ignore2AlignedBytesIf(PropMask.HasPicture, r);
-                Accelerator = ReadAlignedWCharIf(PropMask.HasAccelerator, r);
-                Ignore2AlignedBytesIf(PropMask.HasMouseIcon, r);
-                EndDataBlock(r);
-
-                BeginExtraDataBlock();
-                Caption = ReadStringFromCcb(captionCcb, r);
-                Size = ReadAlignedCoordsIf(PropMask.HasSize, r);
-                EndExtraDataBlock(r);
-
-                if (cbCommandButton != 4 + DataBlockBytes + ExtraDataBlockBytes)
+                r.AlignTo(4);
+                if (cbCommandButton != r.BaseStream.Position - 4)
                     throw new ApplicationException("Error reading 'o' stream in .frx data: expected cbCommandButton size "
-                                                   + $"{4 + DataBlockBytes + ExtraDataBlockBytes}, but actual size was {cbCommandButton}.");
+                                                   + $"{r.BaseStream.Position - 4}, but actual size was {cbCommandButton}.");
                 
                 // StreamData
-                if (PropMask.HasPicture) {
-                    Picture = ReadGuidAndPicture(r);
-                }
-                if (PropMask.HasMouseIcon) {
-                    MouseIcon = ReadGuidAndPicture(r);
-                }
+                Picture = PropMask.HasPicture ? r.ReadGuidAndPicture() : new byte[0];
+                MouseIcon = PropMask.HasMouseIcon ? r.ReadGuidAndPicture() : new byte[0];
 
-                TextProps = ReadTextProps(r);
+                TextProps = r.ReadTextProps();
             }
         }
 
@@ -69,7 +63,7 @@ namespace VbaSync.FrxObjects {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
             return Equals((CommandButtonControl)obj);
@@ -139,7 +133,7 @@ namespace VbaSync.FrxObjects {
             if (ReferenceEquals(this, obj)) {
                 return true;
             }
-            if (obj.GetType() != this.GetType()) {
+            if (obj.GetType() != GetType()) {
                 return false;
             }
             return Equals((CommandButtonPropMask)obj);

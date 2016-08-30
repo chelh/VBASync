@@ -2,12 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using static VbaSync.FrxObjects.AlignmentHelpers;
-using static VbaSync.FrxObjects.StreamDataHelpers;
 
 namespace VbaSync.FrxObjects {
-    class FormControl : FrxCommon {
+    class FormControl {
         public byte MinorVersion { get; }
         public byte MajorVersion { get; }
         public FormPropMask PropMask { get; }
@@ -31,99 +28,92 @@ namespace VbaSync.FrxObjects {
         public Tuple<int, int> LogicalSize { get; }
         public Tuple<int, int> ScrollPosition { get; }
         public string Caption { get; }
-        public byte[] MouseIcon { get; } = new byte[0];
+        public byte[] MouseIcon { get; }
         public bool FontIsStdFont { get; }
-        public byte[] Picture { get; } = new byte[0];
+        public byte[] Picture { get; }
         public TextProps FontTextProps { get; }
         public Tuple<short, byte, short, uint, string> FontStdFont { get; }
         public List<byte[]> SiteClassInfos { get; }
         public OleSiteConcreteControl[] Sites { get; }
-        public byte[] Remainder { get; } = new byte[0];
+        public byte[] Remainder { get; }
 
         public FormControl(byte[] b) {
             using (var st = new MemoryStream(b))
-            using (var r = new BinaryReader(st)) {
+            using (var r = new FrxReader(st)) {
                 MinorVersion = r.ReadByte();
                 MajorVersion = r.ReadByte();
 
                 var cbForm = r.ReadUInt16();
                 PropMask = new FormPropMask(r.ReadUInt32());
+                
+                // DataBlock
+                BackColor = PropMask.HasBackColor ? r.ReadOleColor() : null;
+                ForeColor = PropMask.HasForeColor ? r.ReadOleColor() : null;
+                NextAvailableId = PropMask.HasNextAvailableId ? r.ReadUInt32() : 0;
+                BooleanProperties = new FormFlags(PropMask.HasBooleanProperties ? r.ReadUInt32() : 0);
+                BorderStyle = PropMask.HasBorderStyle ? r.ReadBorderStyle() : BorderStyle.None;
+                MousePointer = PropMask.HasMousePointer ? r.ReadMousePointer() : MousePointer.Default;
+                ScrollBars = new FormScrollBarFlags(PropMask.HasScrollBars ? r.ReadByte() : (byte)0);
+                GroupCount = PropMask.HasGroupCount ? r.ReadInt32() : 0;
+                var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false); // this seems to be in a different position than indicated in MS's spec?
+                if (PropMask.HasFont) r.Skip2Bytes();
+                if (PropMask.HasMouseIcon) r.Skip2Bytes();
+                Cycle = PropMask.HasCycle ? r.ReadCycle() : Cycle.AllForms;
+                SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
+                BorderColor = PropMask.HasBorderColor ? r.ReadOleColor() : null;
+                if (PropMask.HasPicture) r.Skip2Bytes();
+                Zoom = PropMask.HasZoom ? r.ReadUInt32() : 0;
+                PictureAlignment = PropMask.HasPictureAlignment ? r.ReadPictureAlignment() : PictureAlignment.TopLeft;
+                PictureSizeMode = PropMask.HasPictureSizeMode ? r.ReadPictureSizeMode() : PictureSizeMode.Clip;
+                ShapeCookie = PropMask.HasShapeCookie ? r.ReadUInt32() : 0;
+                DrawBuffer = PropMask.HasDrawBuffer ? r.ReadUInt32() : 0;
+                
+                // ExtraDataBlock
+                DisplayedSize = PropMask.HasDisplayedSize ? r.ReadCoords() : Tuple.Create(0, 0);
+                LogicalSize = PropMask.HasLogicalSize ? r.ReadCoords() : Tuple.Create(0, 0);
+                ScrollPosition = PropMask.HasScrollPosition ? r.ReadCoords() : Tuple.Create(0, 0);
+                Caption = r.ReadStringFromCcb(captionCcb);
 
-                BeginDataBlock();
-                BackColor = ReadAlignedOleColorIf(PropMask.HasBackColor, r);
-                ForeColor = ReadAlignedOleColorIf(PropMask.HasForeColor, r);
-                NextAvailableId = ReadAlignedUInt32If(PropMask.HasNextAvailableId, r);
-                BooleanProperties = new FormFlags(ReadAlignedUInt32If(PropMask.HasBooleanProperties, r));
-                BorderStyle = (BorderStyle)ReadByteIf(PropMask.HasBorderStyle, r);
-                MousePointer = (MousePointer)ReadByteIf(PropMask.HasMousePointer, r);
-                ScrollBars = new FormScrollBarFlags(ReadByteIf(PropMask.HasScrollBars, r));
-                GroupCount = ReadAlignedInt32If(PropMask.HasGroupCount, r);
-                var captionCcb = ReadAlignedCcbIf(PropMask.HasCaption, r); // this seems to be in a different position than indicated in MS's spec?
-                Ignore2AlignedBytesIf(PropMask.HasFont, r);
-                Ignore2AlignedBytesIf(PropMask.HasMouseIcon, r);
-                Cycle = (Cycle)ReadByteIf(PropMask.HasCycle, r);
-                SpecialEffect = (SpecialEffect)ReadByteIf(PropMask.HasSpecialEffect, r);
-                BorderColor = ReadAlignedOleColorIf(PropMask.HasBorderColor, r);
-                Ignore2AlignedBytesIf(PropMask.HasPicture, r);
-                Zoom = ReadAlignedUInt32If(PropMask.HasZoom, r);
-                PictureAlignment = (PictureAlignment)ReadByteIf(PropMask.HasPictureAlignment, r);
-                PictureSizeMode = (PictureSizeMode)ReadByteIf(PropMask.HasPictureSizeMode, r);
-                ShapeCookie = ReadAlignedUInt32If(PropMask.HasShapeCookie, r);
-                DrawBuffer = ReadAlignedUInt32If(PropMask.HasDrawBuffer, r);
-                EndDataBlock(r);
-
-                BeginExtraDataBlock();
-                DisplayedSize = ReadAlignedCoordsIf(PropMask.HasDisplayedSize, r);
-                LogicalSize = ReadAlignedCoordsIf(PropMask.HasLogicalSize, r);
-                ScrollPosition = ReadAlignedCoordsIf(PropMask.HasScrollPosition, r);
-                Caption = ReadStringFromCcb(captionCcb, r);
-                EndExtraDataBlock(r);
-
-                if (cbForm != 4 + DataBlockBytes + ExtraDataBlockBytes)
+                r.AlignTo(4);
+                if (cbForm != r.BaseStream.Position - 4)
                     throw new ApplicationException("Error reading 'f' stream in .frx data: expected cbForm size "
-                                                   + $"{4 + DataBlockBytes + ExtraDataBlockBytes}, but actual size was {cbForm}.");
+                                                   + $"{r.BaseStream.Position - 4}, but actual size was {cbForm}.");
 
                 // StreamData
-                if (PropMask.HasMouseIcon) {
-                    MouseIcon = ReadGuidAndPicture(r);
-                }
+                MouseIcon = PropMask.HasMouseIcon ? r.ReadGuidAndPicture() : new byte[0];
                 if (PropMask.HasFont) {
-                    FontIsStdFont = GetFontIsStdFont(r);
+                    FontIsStdFont = r.GetFontIsStdFont();
                     if (FontIsStdFont) {
-                        FontStdFont = ReadStdFont(r);
+                        FontStdFont = r.ReadStdFont();
                     } else {
-                        FontTextProps = ReadTextProps(r);
+                        FontTextProps = r.ReadTextProps();
                     }
                 }
-                if (PropMask.HasPicture) {
-                    Picture = ReadGuidAndPicture(r);
-                }
+                Picture = PropMask.HasPicture ? r.ReadGuidAndPicture() : new byte[0];
 
                 // FormSiteData
                 SiteClassInfos = new List<byte[]>();
                 ushort siteClassInfoCount = 0;
                 if (!PropMask.HasBooleanProperties || BooleanProperties.ClassTablePersisted) {
-                    siteClassInfoCount = r.ReadUInt16();
+                    siteClassInfoCount = r.Unaligned.ReadUInt16();
                 }
                 for (var i = 0; i < siteClassInfoCount; i++) {
                     st.Seek(2, SeekOrigin.Current); // skip Version
-                    SiteClassInfos.Add(r.ReadBytes(r.ReadUInt16()));
+                    SiteClassInfos.Add(r.Unaligned.ReadBytes(r.Unaligned.ReadUInt16()));
                 }
-                var siteCount = r.ReadUInt32();
-                var cbSites = r.ReadUInt32();
-                uint sitesBytes = 0;
+                var siteCount = r.Unaligned.ReadUInt32();
+                var cbSites = r.Unaligned.ReadUInt32();
+                var sitesStartPos = r.BaseStream.Position;
                 var depths = new byte[siteCount];
                 var types = new byte[siteCount];
                 var siteDepthsLeft = siteCount;
                 while (siteDepthsLeft > 0) {
-                    var thisDepth = r.ReadByte();
-                    var thisType = r.ReadByte();
-                    sitesBytes += 2;
+                    var thisDepth = r.Unaligned.ReadByte();
+                    var thisType = r.Unaligned.ReadByte();
                     var thisCount = (byte)1;
                     if ((thisType & 0x80) == 0x80) {
                         thisCount = (byte)(thisType ^ 0x80);
-                        thisType = r.ReadByte();
-                        sitesBytes += 1;
+                        thisType = r.Unaligned.ReadByte();
                     }
                     for (var i = 0; i < thisCount; i++) {
                         var siteIdx = siteCount - siteDepthsLeft;
@@ -132,23 +122,20 @@ namespace VbaSync.FrxObjects {
                         siteDepthsLeft--;
                     }
                 }
-                AlignTo(4, st, ref sitesBytes);
+                var rem = (r.BaseStream.Position - sitesStartPos)%4;
+                if (rem != 0) r.BaseStream.Seek(4 - rem, SeekOrigin.Current); // add ArrayPadding
                 Sites = new OleSiteConcreteControl[siteCount];
                 for (var i = 0; i < siteCount; i++) {
-                    IgnoreNext(2, st, ref sitesBytes); // ignore Version
-                    var cbSite = r.ReadUInt16();
-                    sitesBytes += 2;
-                    Sites[i] = new OleSiteConcreteControl(r.ReadBytes(cbSite));
-                    sitesBytes += cbSite;
+                    r.BaseStream.Seek(2, SeekOrigin.Current); // ignore Version
+                    var cbSite = r.Unaligned.ReadUInt16();
+                    Sites[i] = new OleSiteConcreteControl(r.Unaligned.ReadBytes(cbSite));
                 }
-                if (cbSites != sitesBytes) {
+                if (cbSites != r.BaseStream.Position - sitesStartPos) {
                     throw new ApplicationException("Error reading 'f' stream in .frx data: expected cbSites size "
-                        + $"{sitesBytes} but actual size was {cbSites}.");
+                        + $"{r.BaseStream.Position - sitesStartPos} but actual size was {cbSites}.");
                 }
 
-                if (st.Position < st.Length) {
-                    Remainder = r.ReadBytes((int)(st.Length - st.Position));
-                }
+                Remainder = st.Position < st.Length ? r.Unaligned.ReadBytes((int)(st.Length - st.Position)) : new byte[0];
             }
         }
 
@@ -220,112 +207,32 @@ namespace VbaSync.FrxObjects {
 
         public OleSiteConcreteControl(byte[] b) {
             using (var st = new MemoryStream(b))
-            using (var r = new BinaryReader(st)) {
+            using (var r = new FrxReader(st)) {
                 PropMask = new SitePropMask(r.ReadUInt32());
 
-                // SiteDataBlock
-                ushort dataBlockBytes = 0;
-                var nameLength = 0;
-                var nameCompressed = false;
-                if (PropMask.HasName) {
-                    nameLength = CcbToLength(r.ReadInt32(), out nameCompressed);
-                    dataBlockBytes += 4;
-                }
-                var tagLength = 0;
-                var tagCompressed = false;
-                if (PropMask.HasTag) {
-                    tagLength = CcbToLength(r.ReadInt32(), out tagCompressed);
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasId) {
-                    Id = r.ReadInt32();
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasHelpContextId) {
-                    HelpContextId = r.ReadInt32();
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasBitFlags) {
-                    BitFlags = r.ReadUInt32();
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasObjectStreamSize) {
-                    ObjectStreamSize = r.ReadUInt32();
-                    dataBlockBytes += 4;
-                }
-                if (PropMask.HasTabIndex) {
-                    TabIndex = r.ReadInt16();
-                    dataBlockBytes += 2;
-                }
-                if (PropMask.HasClsidCacheIndex) {
-                    ClsidCacheIndex = r.ReadInt16();
-                    dataBlockBytes += 2;
-                }
-                if (PropMask.HasGroupId) {
-                    GroupId = r.ReadUInt16();
-                    dataBlockBytes += 2;
-                }
-                AlignTo(4, st, ref dataBlockBytes);
-                var controlTipTextLength = 0;
-                var controlTipTextCompressed = false;
-                if (PropMask.HasControlTipText) {
-                    controlTipTextLength = CcbToLength(r.ReadInt32(), out controlTipTextCompressed);
-                    dataBlockBytes += 4;
-                }
-                var runtimeLicKeyLength = 0;
-                var runtimeLicKeyCompressed = false;
-                if (PropMask.HasRuntimeLicKey) {
-                    runtimeLicKeyLength = CcbToLength(r.ReadInt32(), out runtimeLicKeyCompressed);
-                    dataBlockBytes += 4;
-                }
-                var controlSourceLength = 0;
-                var controlSourceCompressed = false;
-                if (PropMask.HasControlSource) {
-                    controlSourceLength = CcbToLength(r.ReadInt32(), out controlSourceCompressed);
-                    dataBlockBytes += 4;
-                }
-                var rowSourceLength = 0;
-                var rowSourceCompressed = false;
-                if (PropMask.HasRowSource) {
-                    rowSourceLength = CcbToLength(r.ReadInt32(), out rowSourceCompressed);
-                    dataBlockBytes += 4;
-                }
+                // DataBlock
+                var nameCcb = PropMask.HasName ? r.ReadCcb() : Tuple.Create(0, false);
+                var tagCcb = PropMask.HasTag ? r.ReadCcb() : Tuple.Create(0, false);
+                Id = PropMask.HasId ? r.ReadInt32() : 0;
+                HelpContextId = PropMask.HasHelpContextId ? r.ReadInt32() : 0;
+                BitFlags = PropMask.HasBitFlags ? r.ReadUInt32() : 0;
+                ObjectStreamSize = PropMask.HasObjectStreamSize ? r.ReadUInt32() : 0;
+                TabIndex = PropMask.HasTabIndex ? r.ReadInt16() : (short)0;
+                ClsidCacheIndex = PropMask.HasClsidCacheIndex ? r.ReadInt16() : (short)0;
+                GroupId = PropMask.HasGroupId ? r.ReadUInt16() : (ushort)0;
+                var controlTipTextCcb = PropMask.HasControlTipText ? r.ReadCcb() : Tuple.Create(0, false);
+                var runtimeLicKeyCcb = PropMask.HasRuntimeLicKey ? r.ReadCcb() : Tuple.Create(0, false);
+                var controlSourceCcb = PropMask.HasControlSource ? r.ReadCcb() : Tuple.Create(0, false);
+                var rowSourceCcb = PropMask.HasRowSource ? r.ReadCcb() : Tuple.Create(0, false);
 
-                // SiteExtraDataBlock
-                ushort extraDataBlockBytes = 0;
-                if (nameLength > 0) {
-                    Name = (nameCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(nameLength));
-                    extraDataBlockBytes += (ushort)nameLength;
-                    AlignTo(4, st, ref extraDataBlockBytes);
-                }
-                if (tagLength > 0) {
-                    Tag = (tagCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(tagLength));
-                    extraDataBlockBytes += (ushort)tagLength;
-                    AlignTo(4, st, ref extraDataBlockBytes);
-                }
-                if (PropMask.HasPosition) {
-                    SitePosition = Tuple.Create(r.ReadInt32(), r.ReadInt32());
-                }
-                if (controlTipTextLength > 0) {
-                    ControlTipText = (controlTipTextCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(controlTipTextLength));
-                    extraDataBlockBytes += (ushort)controlTipTextLength;
-                    AlignTo(4, st, ref extraDataBlockBytes);
-                }
-                if (runtimeLicKeyLength > 0) {
-                    RuntimeLicKey = (runtimeLicKeyCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(runtimeLicKeyLength));
-                    extraDataBlockBytes += (ushort)runtimeLicKeyLength;
-                    AlignTo(4, st, ref extraDataBlockBytes);
-                }
-                if (controlSourceLength > 0) {
-                    ControlSource = (controlSourceCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(controlSourceLength));
-                    extraDataBlockBytes += (ushort)controlSourceLength;
-                    AlignTo(4, st, ref extraDataBlockBytes);
-                }
-                if (rowSourceLength > 0) {
-                    RowSource = (rowSourceCompressed ? Encoding.UTF8 : Encoding.Unicode).GetString(r.ReadBytes(rowSourceLength));
-                    extraDataBlockBytes += (ushort)rowSourceLength;
-                    AlignTo(4, st, ref extraDataBlockBytes);
-                }
+                // ExtraDataBlock
+                Name = r.ReadStringFromCcb(nameCcb);
+                Tag = r.ReadStringFromCcb(tagCcb);
+                SitePosition = PropMask.HasPosition ? r.ReadCoords() : Tuple.Create(0, 0);
+                ControlTipText = r.ReadStringFromCcb(controlTipTextCcb);
+                RuntimeLicKey = r.ReadStringFromCcb(runtimeLicKeyCcb);
+                ControlSource = r.ReadStringFromCcb(controlSourceCcb);
+                RowSource = r.ReadStringFromCcb(rowSourceCcb);
 
                 if (st.Position < st.Length) throw new ApplicationException("Expected end of OleSiteConcreteControl.");
             }
