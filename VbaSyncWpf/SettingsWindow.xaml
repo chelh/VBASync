@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VbaSync" xmlns:props="clr-namespace:VbaSync.Properties"
         mc:Ignorable="d" x:ClassModifier="internal" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
+        Icon="Icons/VBA Sync Simple.ico"
         Title="{x:Static props:Resources.SWTitle}"
         Width="300"
         Height="200"
