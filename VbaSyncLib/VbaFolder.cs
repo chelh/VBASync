@@ -247,19 +247,22 @@ namespace VbaSync {
                         var breakLoop = false;
                         switch (split[0]?.ToUpperInvariant()) {
                             case "MODULE":
-                                modules.First(m => m.Name == split[1]).Type = ModuleType.Standard;
+                                modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
+                                    .Type = ModuleType.Standard;
                                 break;
                             case "DOCUMENT":
                                 var split2 = split[1].Split('/');
-                                var mod = modules.First(m => m.Name == split2[0]);
+                                var mod = modules.First(m => string.Equals(m.Name, split2[0], StringComparison.InvariantCultureIgnoreCase));
                                 mod.Type = ModuleType.StaticClass;
                                 mod.Version = uint.Parse(split2[1].Substring(2), NumberStyles.HexNumber);
                                 break;
                             case "CLASS":
-                                modules.First(m => m.Name == split[1]).Type = ModuleType.Class;
+                                modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
+                                    .Type = ModuleType.Class;
                                 break;
                             case "BASECLASS":
-                                modules.First(m => m.Name == split[1]).Type = ModuleType.Form;
+                                modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
+                                    .Type = ModuleType.Form;
                                 break;
                             default:
                                 if (line.Equals("[Workspace]", StringComparison.InvariantCultureIgnoreCase)) {
