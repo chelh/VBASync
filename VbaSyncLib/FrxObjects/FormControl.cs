@@ -36,7 +36,6 @@ namespace VbaSync.FrxObjects {
                 ScrollBars = new FormScrollBarFlags(PropMask.HasScrollBars ? r.ReadByte() : (byte)0);
                 GroupCount = PropMask.HasGroupCount ? r.ReadInt32() : 0;
                 // captionCcb is possibly here instead of where it's indicated in [MS-OFORMS]?
-                if (PropMask.HasFont) r.Skip2Bytes();
                 if (PropMask.HasMouseIcon) r.Skip2Bytes();
                 Cycle = PropMask.HasCycle ? r.ReadCycle() : Cycle.AllForms;
                 SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
