@@ -35,12 +35,14 @@ namespace VbaSync.FrxObjects {
                 MousePointer = PropMask.HasMousePointer ? r.ReadMousePointer() : MousePointer.Default;
                 ScrollBars = new FormScrollBarFlags(PropMask.HasScrollBars ? r.ReadByte() : (byte)0);
                 GroupCount = PropMask.HasGroupCount ? r.ReadInt32() : 0;
-                var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false); // this seems to be in a different position than indicated in MS's spec?
+                // captionCcb is possibly here instead of where it's indicated in [MS-OFORMS]?
                 if (PropMask.HasFont) r.Skip2Bytes();
                 if (PropMask.HasMouseIcon) r.Skip2Bytes();
                 Cycle = PropMask.HasCycle ? r.ReadCycle() : Cycle.AllForms;
                 SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
                 BorderColor = PropMask.HasBorderColor ? r.ReadOleColor() : null;
+                var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false);
+                if (PropMask.HasFont) r.Skip2Bytes();
                 if (PropMask.HasPicture) r.Skip2Bytes();
                 Zoom = PropMask.HasZoom ? r.ReadUInt32() : 0;
                 PictureAlignment = PropMask.HasPictureAlignment ? r.ReadPictureAlignment() : PictureAlignment.TopLeft;
