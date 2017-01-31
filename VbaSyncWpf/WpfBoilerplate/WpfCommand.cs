@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Input;
-
-namespace VbaSync {
+﻿namespace VbaSync {
     //public class WpfCommand : ICommand {
     //    private readonly Predicate<object> _canExecute;
     //    private readonly Action<object> _execute;

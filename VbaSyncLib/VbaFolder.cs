@@ -11,7 +11,7 @@ using System.Text;
 
 namespace VbaSync {
     public class VbaFolder : IDisposable {
-        bool _disposed;
+        private bool _disposed;
 
         public VbaFolder(string path, IDictionary<string, string> compareModules) {
             if (string.IsNullOrEmpty(path)) {
@@ -328,6 +328,10 @@ namespace VbaSync {
             }
         }
 
+        ~VbaFolder() {
+            Dispose(false);
+        }
+
         public string FolderPath { get; }
         public Dictionary<string, Tuple<string, ModuleType>> ModuleTexts { get; }
 
@@ -526,7 +530,7 @@ namespace VbaSync {
                         break;
                 }
             }
-            
+
             cf.Save(Path.Combine(FolderPath, "vbaProject.bin"));
 
             if (Path.GetFileName(filePath).Equals("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase)) {
@@ -571,7 +575,51 @@ namespace VbaSync {
             }
         }
 
-        static string GetAttribute(string moduleText, string attribName) {
+        private static void CopyCfStreamsExcept(CFStorage src, CFStorage dest, string excludeName) {
+            src.VisitEntries(i => {
+                if (i.Name?.Equals(excludeName, StringComparison.InvariantCultureIgnoreCase) ?? false) {
+                    return;
+                }
+                if (i.IsStorage) {
+                    dest.AddStorage(i.Name);
+                    CopyCfStreamsExcept((CFStorage)i, dest.GetStorage(i.Name), null);
+                } else {
+                    dest.AddStream(i.Name);
+                    dest.GetStream(i.Name).SetData(((CFStream)i).GetData());
+                }
+            }, false);
+        }
+
+        private static byte[] DecompressStream(CFStream sm, uint offset = 0) {
+            try {
+                var cd = new byte[sm.Size - offset];
+                sm.Read(cd, offset, cd.Length);
+                return CompoundDocumentCompression.DecompressPart(cd);
+            } catch (Exception ex) {
+                throw new ApplicationException($"Error while decompressing stream '{sm.Name}': {ex.Message}", ex);
+            }
+        }
+
+        private static void DeleteBlankLinesFromEnd(IList<string> ls) {
+            for (var i = ls.Count - 1; i >= 0; i--) {
+                if (string.IsNullOrEmpty(ls[i])) {
+                    ls.RemoveAt(i);
+                } else {
+                    return;
+                }
+            }
+        }
+
+        private static void DeleteStorageChildren(CFStorage target) {
+            target.VisitEntries(i => {
+                if (i.IsStorage) {
+                    DeleteStorageChildren((CFStorage)i);
+                }
+                target.Delete(i.Name);
+            }, false);
+        }
+
+        private static string GetAttribute(string moduleText, string attribName) {
             using (var sr = new StringReader(moduleText)) {
                 string line;
                 while ((line = sr.ReadLine()) != null) {
@@ -592,7 +640,7 @@ namespace VbaSync {
             return null;
         }
 
-        static uint? GetAttributeUInt(string moduleText, string attribName) {
+        private static uint? GetAttributeUInt(string moduleText, string attribName) {
             uint i;
             if (uint.TryParse(GetAttribute(moduleText, attribName), out i)) {
                 return i;
@@ -600,21 +648,24 @@ namespace VbaSync {
             return null;
         }
 
-        void Dispose(bool explicitCall) {
-            if (_disposed) {
-                return;
+        private static string GetPrepend(Module mod, CFStorage vbaProject, Encoding enc) {
+            switch (mod.Type) {
+            case ModuleType.Class:
+            case ModuleType.StaticClass:
+                return "VERSION 1.0 CLASS\r\nBEGIN\r\n  MultiUse = -1  'True\r\nEND\r\n";
+            case ModuleType.Form:
+                var vbFrameLines = enc.GetString(vbaProject.GetStorage(mod.StreamName).GetStream("\x0003VBFrame").GetData())
+                    .Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                vbFrameLines.Insert(2, $"   OleObjectBlob   =   \"{mod.Name}.frx\":0000");
+                return string.Join("\r\n", vbFrameLines) + "\r\n";
+            case ModuleType.Standard:
+                return "";
+            default:
+                throw new ApplicationException("Unrecognized module type");
             }
-
-            if (explicitCall) {
-                //_fs?.Dispose();
-            }
-
-            Directory.Delete(FolderPath, true);
-
-            _disposed = true;
         }
 
-        static string SeparateClassCode(string wholeFile) {
+        private static string SeparateClassCode(string wholeFile) {
             using (var sr = new StringReader(wholeFile)) {
                 var firstLine = true;
                 string line;
@@ -631,7 +682,7 @@ namespace VbaSync {
             }
         }
 
-        static string SeparateVbFrame(string wholeFile, out string vbFrame) {
+        private static string SeparateVbFrame(string wholeFile, out string vbFrame) {
             var frmB = new StringBuilder();
             using (var sr = new StringReader(wholeFile)) {
                 string line;
@@ -648,72 +699,21 @@ namespace VbaSync {
             }
         }
 
-        static void CopyCfStreamsExcept(CFStorage src, CFStorage dest, string excludeName) {
-            src.VisitEntries(i => {
-                if (i.Name?.Equals(excludeName, StringComparison.InvariantCultureIgnoreCase) ?? false) {
-                    return;
-                }
-                if (i.IsStorage) {
-                    dest.AddStorage(i.Name);
-                    CopyCfStreamsExcept((CFStorage)i, dest.GetStorage(i.Name), null);
-                } else {
-                    dest.AddStream(i.Name);
-                    dest.GetStream(i.Name).SetData(((CFStream)i).GetData());
-                }
-            }, false);
-        }
-
-        static void DeleteStorageChildren(CFStorage target) {
-            target.VisitEntries(i => {
-                if (i.IsStorage) {
-                    DeleteStorageChildren((CFStorage)i);
-                }
-                target.Delete(i.Name);
-            }, false);
-        }
-
-        static byte[] DecompressStream(CFStream sm, uint offset = 0) {
-            try {
-                var cd = new byte[sm.Size - offset];
-                sm.Read(cd, offset, cd.Length);
-                return CompoundDocumentCompression.DecompressPart(cd);
-            } catch (Exception ex) {
-                throw new ApplicationException($"Error while decompressing stream '{sm.Name}': {ex.Message}", ex);
+        private void Dispose(bool explicitCall) {
+            if (_disposed) {
+                return;
             }
-        }
 
-        static string GetPrepend(Module mod, CFStorage vbaProject, Encoding enc) {
-            switch (mod.Type) {
-                case ModuleType.Class:
-                case ModuleType.StaticClass:
-                    return "VERSION 1.0 CLASS\r\nBEGIN\r\n  MultiUse = -1  'True\r\nEND\r\n";
-                case ModuleType.Form:
-                    var vbFrameLines = enc.GetString(vbaProject.GetStorage(mod.StreamName).GetStream("\x0003VBFrame").GetData())
-                        .Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
-                    vbFrameLines.Insert(2, $"   OleObjectBlob   =   \"{mod.Name}.frx\":0000");
-                    return string.Join("\r\n", vbFrameLines) + "\r\n";
-                case ModuleType.Standard:
-                    return "";
-                default:
-                    throw new ApplicationException("Unrecognized module type");
+            if (explicitCall) {
+                //_fs?.Dispose();
             }
+
+            Directory.Delete(FolderPath, true);
+
+            _disposed = true;
         }
 
-        static void DeleteBlankLinesFromEnd(IList<string> ls) {
-            for (var i = ls.Count - 1; i >= 0; i--) {
-                if (string.IsNullOrEmpty(ls[i])) {
-                    ls.RemoveAt(i);
-                } else {
-                    return;
-                }
-            }
-        }
-
-        ~VbaFolder() {
-            Dispose(false);
-        }
-
-        class Module {
+        private class Module {
             public string DocString { get; set; }
             public uint? HelpContext { get; set; }
             public string Name { get; set; }
@@ -767,12 +767,12 @@ namespace VbaSync {
                 ret.AddRange(BitConverter.GetBytes((short)0x002B));
                 ret.AddRange(BitConverter.GetBytes(0)); // module terminator
                 return ret;
-            } 
+            }
 
             public override string ToString() => Name;
         }
 
-        abstract class Reference {
+        private abstract class Reference {
             public string Name { get; set; }
 
             public virtual IList<byte> GetBytes(Encoding projEncoding) {
@@ -792,13 +792,13 @@ namespace VbaSync {
             public override string ToString() => Name;
         }
 
-        class ReferenceControl : Reference {
-            public string LibIdTwiddled { get; set; }
+        private class ReferenceControl : Reference {
+            public uint Cookie { get; set; }
             public string LibIdExtended { get; set; }
+            public string LibIdTwiddled { get; set; }
             public string NameRecordExtended { get; set; }
             public string OriginalLibId { get; set; }
             public Guid OriginalTypeLib { get; set; }
-            public uint Cookie { get; set; }
 
             public override IList<byte> GetBytes(Encoding projEncoding) {
                 var ret = new List<byte>();
@@ -857,30 +857,7 @@ namespace VbaSync {
             }
         }
 
-        class ReferenceRegistered : Reference {
-            public string LibId { get; set; }
-
-            public override IList<byte> GetBytes(Encoding projEncoding) {
-                var ret = new List<byte>();
-                ret.AddRange(base.GetBytes(projEncoding));
-                var libIdBytes = projEncoding.GetBytes(LibId);
-                ret.AddRange(BitConverter.GetBytes((short)0x000D));
-                ret.AddRange(BitConverter.GetBytes(libIdBytes.Length + 10));
-                ret.AddRange(BitConverter.GetBytes(libIdBytes.Length));
-                ret.AddRange(libIdBytes);
-                ret.AddRange(BitConverter.GetBytes(0));
-                ret.AddRange(BitConverter.GetBytes((short)0));
-                return ret;
-            }
-
-            public override List<string> GetConfigStrings() {
-                return new List<string> {
-                    $"LibId={LibId}"
-                };
-            }
-        }
-
-        class ReferenceProject : Reference {
+        private class ReferenceProject : Reference {
             public string LibIdAbsolute { get; set; }
             public string LibIdRelative { get; set; }
             public Version Version { get; set; }
@@ -906,6 +883,29 @@ namespace VbaSync {
                     $"LibIdAbsolute={LibIdAbsolute}",
                     $"LibIdRelative={LibIdRelative}",
                     $"Version={Version}"
+                };
+            }
+        }
+
+        private class ReferenceRegistered : Reference {
+            public string LibId { get; set; }
+
+            public override IList<byte> GetBytes(Encoding projEncoding) {
+                var ret = new List<byte>();
+                ret.AddRange(base.GetBytes(projEncoding));
+                var libIdBytes = projEncoding.GetBytes(LibId);
+                ret.AddRange(BitConverter.GetBytes((short)0x000D));
+                ret.AddRange(BitConverter.GetBytes(libIdBytes.Length + 10));
+                ret.AddRange(BitConverter.GetBytes(libIdBytes.Length));
+                ret.AddRange(libIdBytes);
+                ret.AddRange(BitConverter.GetBytes(0));
+                ret.AddRange(BitConverter.GetBytes((short)0));
+                return ret;
+            }
+
+            public override List<string> GetConfigStrings() {
+                return new List<string> {
+                    $"LibId={LibId}"
                 };
             }
         }

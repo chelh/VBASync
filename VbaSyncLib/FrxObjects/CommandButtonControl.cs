@@ -3,22 +3,7 @@ using System.IO;
 using System.Linq;
 
 namespace VbaSync.FrxObjects {
-    class CommandButtonControl {
-        public byte MinorVersion { get; }
-        public byte MajorVersion { get; }
-        public CommandButtonPropMask PropMask { get; }
-        public OleColor ForeColor { get; }
-        public OleColor BackColor { get; }
-        public uint VariousPropertyBits { get; }
-        public string Caption { get; }
-        public PicturePosition PicturePosition { get; }
-        public MousePointer MousePointer { get; }
-        public string Accelerator { get; }
-        public Tuple<int, int> Size { get; }
-        public byte[] Picture { get; }
-        public byte[] MouseIcon { get; }
-        public TextProps TextProps { get; }
-
+    internal class CommandButtonControl {
         public CommandButtonControl(byte[] b) {
             using (var st = new MemoryStream(b))
             using (var r = new FrxReader(st)) {
@@ -27,7 +12,7 @@ namespace VbaSync.FrxObjects {
 
                 var cbCommandButton = r.ReadUInt16();
                 PropMask = new CommandButtonPropMask(r.ReadUInt32());
-                
+
                 // DataBlock
                 ForeColor = PropMask.HasForeColor ? r.ReadOleColor() : null;
                 BackColor = PropMask.HasBackColor ? r.ReadOleColor() : null;
@@ -35,19 +20,20 @@ namespace VbaSync.FrxObjects {
                 var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false);
                 PicturePosition = PropMask.HasPicturePosition ? r.ReadPicturePosition() : PicturePosition.RightTop;
                 MousePointer = PropMask.HasMousePointer ? r.ReadMousePointer() : MousePointer.Arrow;
-                if(PropMask.HasPicture) r.Skip2Bytes();
+                if (PropMask.HasPicture) r.Skip2Bytes();
                 Accelerator = PropMask.HasAccelerator ? r.ReadWChar() : "";
                 if (PropMask.HasMouseIcon) r.Skip2Bytes();
-                
+
                 // ExtraDataBlock
                 Caption = r.ReadStringFromCcb(captionCcb);
                 Size = PropMask.HasSize ? r.ReadCoords() : Tuple.Create(0, 0);
 
                 r.AlignTo(4);
-                if (cbCommandButton != r.BaseStream.Position - 4)
+                if (cbCommandButton != r.BaseStream.Position - 4) {
                     throw new ApplicationException("Error reading 'o' stream in .frx data: expected cbCommandButton size "
                                                    + $"{r.BaseStream.Position - 4}, but actual size was {cbCommandButton}.");
-                
+                }
+
                 // StreamData
                 Picture = PropMask.HasPicture ? r.ReadGuidAndPicture() : new byte[0];
                 MouseIcon = PropMask.HasMouseIcon ? r.ReadGuidAndPicture() : new byte[0];
@@ -55,6 +41,21 @@ namespace VbaSync.FrxObjects {
                 TextProps = r.ReadTextProps();
             }
         }
+
+        public string Accelerator { get; }
+        public OleColor BackColor { get; }
+        public string Caption { get; }
+        public OleColor ForeColor { get; }
+        public byte MajorVersion { get; }
+        public byte MinorVersion { get; }
+        public byte[] MouseIcon { get; }
+        public MousePointer MousePointer { get; }
+        public byte[] Picture { get; }
+        public PicturePosition PicturePosition { get; }
+        public CommandButtonPropMask PropMask { get; }
+        public Tuple<int, int> Size { get; }
+        public TextProps TextProps { get; }
+        public uint VariousPropertyBits { get; }
 
         public override bool Equals(object obj) {
             if (ReferenceEquals(null, obj)) {
@@ -67,14 +68,6 @@ namespace VbaSync.FrxObjects {
                 return false;
             }
             return Equals((CommandButtonControl)obj);
-        }
-
-        protected bool Equals(CommandButtonControl other) {
-            return Picture.SequenceEqual(other.Picture) && MouseIcon.SequenceEqual(other.MouseIcon) && MinorVersion == other.MinorVersion &&
-                   MajorVersion == other.MajorVersion && Equals(PropMask, other.PropMask) && Equals(ForeColor, other.ForeColor) &&
-                   Equals(BackColor, other.BackColor) && VariousPropertyBits == other.VariousPropertyBits && string.Equals(Caption, other.Caption) &&
-                   PicturePosition == other.PicturePosition && MousePointer == other.MousePointer && string.Equals(Accelerator, other.Accelerator) &&
-                   Equals(Size, other.Size) && Equals(TextProps, other.TextProps);
         }
 
         public override int GetHashCode() {
@@ -96,21 +89,17 @@ namespace VbaSync.FrxObjects {
                 return hashCode;
             }
         }
+
+        protected bool Equals(CommandButtonControl other) {
+            return Picture.SequenceEqual(other.Picture) && MouseIcon.SequenceEqual(other.MouseIcon) && MinorVersion == other.MinorVersion
+                   && MajorVersion == other.MajorVersion && Equals(PropMask, other.PropMask) && Equals(ForeColor, other.ForeColor)
+                   && Equals(BackColor, other.BackColor) && VariousPropertyBits == other.VariousPropertyBits && string.Equals(Caption, other.Caption)
+                   && PicturePosition == other.PicturePosition && MousePointer == other.MousePointer && string.Equals(Accelerator, other.Accelerator)
+                   && Equals(Size, other.Size) && Equals(TextProps, other.TextProps);
+        }
     }
 
-    class CommandButtonPropMask {
-        public bool HasForeColor { get; }
-        public bool HasBackColor { get; }
-        public bool HasVariousPropertyBits { get; }
-        public bool HasCaption { get; }
-        public bool HasPicturePosition { get; }
-        public bool HasSize { get; }
-        public bool HasMousePointer { get; }
-        public bool HasPicture { get; }
-        public bool HasAccelerator { get; }
-        public bool TakeFocusOnClick { get; }
-        public bool HasMouseIcon { get; }
-
+    internal class CommandButtonPropMask {
         public CommandButtonPropMask(uint i) {
             Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
             HasForeColor = bit(0);
@@ -126,6 +115,18 @@ namespace VbaSync.FrxObjects {
             HasMouseIcon = bit(10);
         }
 
+        public bool HasAccelerator { get; }
+        public bool HasBackColor { get; }
+        public bool HasCaption { get; }
+        public bool HasForeColor { get; }
+        public bool HasMouseIcon { get; }
+        public bool HasMousePointer { get; }
+        public bool HasPicture { get; }
+        public bool HasPicturePosition { get; }
+        public bool HasSize { get; }
+        public bool HasVariousPropertyBits { get; }
+        public bool TakeFocusOnClick { get; }
+
         public override bool Equals(object obj) {
             if (ReferenceEquals(null, obj)) {
                 return false;
@@ -139,28 +140,28 @@ namespace VbaSync.FrxObjects {
             return Equals((CommandButtonPropMask)obj);
         }
 
-        protected bool Equals(CommandButtonPropMask other) {
-            return HasForeColor == other.HasForeColor && HasBackColor == other.HasBackColor && HasVariousPropertyBits == other.HasVariousPropertyBits &&
-                   HasCaption == other.HasCaption && HasPicturePosition == other.HasPicturePosition && HasSize == other.HasSize &&
-                   HasMousePointer == other.HasMousePointer && HasPicture == other.HasPicture && HasAccelerator == other.HasAccelerator &&
-                   TakeFocusOnClick == other.TakeFocusOnClick && HasMouseIcon == other.HasMouseIcon;
-        }
-
         public override int GetHashCode() {
             unchecked {
                 var hashCode = HasForeColor.GetHashCode();
-                hashCode = (hashCode*397) ^ HasBackColor.GetHashCode();
-                hashCode = (hashCode*397) ^ HasVariousPropertyBits.GetHashCode();
-                hashCode = (hashCode*397) ^ HasCaption.GetHashCode();
-                hashCode = (hashCode*397) ^ HasPicturePosition.GetHashCode();
-                hashCode = (hashCode*397) ^ HasSize.GetHashCode();
-                hashCode = (hashCode*397) ^ HasMousePointer.GetHashCode();
-                hashCode = (hashCode*397) ^ HasPicture.GetHashCode();
-                hashCode = (hashCode*397) ^ HasAccelerator.GetHashCode();
-                hashCode = (hashCode*397) ^ TakeFocusOnClick.GetHashCode();
-                hashCode = (hashCode*397) ^ HasMouseIcon.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasBackColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasVariousPropertyBits.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasCaption.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasPicturePosition.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasSize.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasMousePointer.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasPicture.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasAccelerator.GetHashCode();
+                hashCode = (hashCode * 397) ^ TakeFocusOnClick.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasMouseIcon.GetHashCode();
                 return hashCode;
             }
+        }
+
+        protected bool Equals(CommandButtonPropMask other) {
+            return HasForeColor == other.HasForeColor && HasBackColor == other.HasBackColor && HasVariousPropertyBits == other.HasVariousPropertyBits
+                   && HasCaption == other.HasCaption && HasPicturePosition == other.HasPicturePosition && HasSize == other.HasSize
+                   && HasMousePointer == other.HasMousePointer && HasPicture == other.HasPicture && HasAccelerator == other.HasAccelerator
+                   && TakeFocusOnClick == other.TakeFocusOnClick && HasMouseIcon == other.HasMouseIcon;
         }
     }
 }

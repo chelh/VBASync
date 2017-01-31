@@ -1,5 +1,6 @@
-﻿using System;
-using Ookii.Dialogs.Wpf;
+﻿using Ookii.Dialogs.Wpf;
+using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
@@ -7,14 +8,12 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
-using System.ComponentModel;
-using System.Windows.Controls;
 
 namespace VbaSync {
-    partial class MainWindow {
-        readonly IsolatedStorageFile _store;
-        bool _doUpdateIncludeAll = true;
-        VbaFolder _evf;
+    internal partial class MainWindow {
+        private readonly IsolatedStorageFile _store;
+        private bool _doUpdateIncludeAll = true;
+        private VbaFolder _evf;
 
         public MainWindow() {
             InitializeComponent();
@@ -24,48 +23,67 @@ namespace VbaSync {
             _store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
         }
 
-        ISession Session => (ISession)DataContext;
+        private ISession Session => (ISession)DataContext;
 
-        void QuietRefreshIfInputsOk() {
-            if (!File.Exists(Session.FilePath) || !Directory.Exists(Session.FolderPath)) {
+        private void applyButton_Click(object sender, RoutedEventArgs e) {
+            var vm = ChangesGrid.DataContext as ChangesViewModel;
+            if (vm == null) {
                 return;
             }
-            try {
-                refreshButton_Click(null, null);
-            } catch {
-                ChangesGrid.DataContext = null;
+            if (Session.Action == ActionType.Extract) {
+                foreach (var p in vm.Where(p => p.Commit).ToArray()) {
+                    var fileName = p.ModuleName + ModuleProcessing.ExtensionFromType(p.ModuleType);
+                    switch (p.ChangeType) {
+                    case ChangeType.DeleteFile:
+                        File.Delete(Path.Combine(Session.FolderPath, fileName));
+                        if (p.ModuleType == ModuleType.Form) {
+                            File.Delete(Path.Combine(Session.FolderPath, p.ModuleName + ".frx"));
+                        }
+                        break;
+                    case ChangeType.ChangeFormControls:
+                        File.Copy(Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), true);
+                        break;
+                    default:
+                        File.Copy(Path.Combine(_evf.FolderPath, fileName), Path.Combine(Session.FolderPath, fileName), true);
+                        if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form) {
+                            File.Copy(Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), true);
+                        }
+                        break;
+                    }
+                    vm.Remove(p);
+                }
+            } else {
+                foreach (var p in vm.Where(p => p.Commit).ToArray()) {
+                    var fileName = p.ModuleName + ModuleProcessing.ExtensionFromType(p.ModuleType);
+                    switch (p.ChangeType) {
+                    case ChangeType.DeleteFile:
+                        File.Delete(Path.Combine(_evf.FolderPath, fileName));
+                        if (p.ModuleType == ModuleType.Form) {
+                            File.Delete(Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"));
+                        }
+                        break;
+                    case ChangeType.ChangeFormControls:
+                        File.Copy(Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), true);
+                        break;
+                    default:
+                        File.Copy(Path.Combine(Session.FolderPath, fileName), Path.Combine(_evf.FolderPath, fileName), true);
+                        if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form) {
+                            File.Copy(Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), true);
+                        }
+                        break;
+                    }
+                    vm.Remove(p);
+                }
+                _evf.Write(Session.FilePath);
             }
+            UpdateIncludeAllBox();
         }
 
-        void okButton_Click(object sender, RoutedEventArgs e) {
-            applyButton_Click(null, null);
+        private void cancelButton_Click(object sender, RoutedEventArgs e) {
             Application.Current.Shutdown();
         }
 
-        void cancelButton_Click(object sender, RoutedEventArgs e) {
-            Application.Current.Shutdown();
-        }
-
-        void fileBrowseButton_Click(object sender, RoutedEventArgs e) {
-            var dlg = new VistaOpenFileDialog {
-                Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
-                    + $"{Properties.Resources.MWOpenAllSupported}|*.doc;*.dot;*.xls;*.xlt;*.docm;*.dotm;*.docb;*.xlsm;*.xla;*.xlam;*.xlsb;"
-                    + "*.pptm;*.potm;*.ppam;*.ppsm;*.sldm;*.docx;*.dotx;*.xlsx;*.xltx;*.pptx;*.potx;*.ppsx;*.sldx;*.otm;*.bin|"
-                    + $"{Properties.Resources.MWOpenWord97}|*.doc;*.dot|"
-                    + $"{Properties.Resources.MWOpenExcel97}|*.xls;*.xlt;*.xla|"
-                    + $"{Properties.Resources.MWOpenWord07}|*.docx;*.docm;*.dotx;*.dotm;*.docb|"
-                    + $"{Properties.Resources.MWOpenExcel07}|*.xlsx;*.xlsm;*.xltx;*.xltm;*.xlsb;*.xlam|"
-                    + $"{Properties.Resources.MWOpenPpt07}|*.pptx;*.pptm;*.potx;*.potm;*.ppam;*.ppsx;*.ppsm;*.sldx;*.sldm|"
-                    + $"{Properties.Resources.MWOpenOutlook}|*.otm|"
-                    + $"{Properties.Resources.MWOpenSAlone}|*.bin",
-                FilterIndex = 2
-            };
-            if (dlg.ShowDialog() == true) {
-                Session.FilePath = dlg.FileName;
-            }
-        }
-
-        void changesGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
+        private void changesGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
             var sel = (Patch)ChangesGrid.SelectedItem;
             var fileName = sel.ModuleName + (sel.ChangeType != ChangeType.ChangeFormControls ? ModuleProcessing.ExtensionFromType(sel.ModuleType) : ".frx");
             string oldPath;
@@ -95,7 +113,104 @@ namespace VbaSync {
             }
         }
 
-        void refreshButton_Click(object sender, RoutedEventArgs e) {
+        private void ExitMenu_Click(object sender, RoutedEventArgs e) {
+            cancelButton_Click(null, null);
+        }
+
+        private void FileBrowseBox_PreviewKeyDown(object sender, KeyEventArgs e) {
+            if (e.Key == Key.Enter) {
+                OkButton.Focus();
+            }
+        }
+
+        private void fileBrowseButton_Click(object sender, RoutedEventArgs e) {
+            var dlg = new VistaOpenFileDialog {
+                Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
+                    + $"{Properties.Resources.MWOpenAllSupported}|*.doc;*.dot;*.xls;*.xlt;*.docm;*.dotm;*.docb;*.xlsm;*.xla;*.xlam;*.xlsb;"
+                    + "*.pptm;*.potm;*.ppam;*.ppsm;*.sldm;*.docx;*.dotx;*.xlsx;*.xltx;*.pptx;*.potx;*.ppsx;*.sldx;*.otm;*.bin|"
+                    + $"{Properties.Resources.MWOpenWord97}|*.doc;*.dot|"
+                    + $"{Properties.Resources.MWOpenExcel97}|*.xls;*.xlt;*.xla|"
+                    + $"{Properties.Resources.MWOpenWord07}|*.docx;*.docm;*.dotx;*.dotm;*.docb|"
+                    + $"{Properties.Resources.MWOpenExcel07}|*.xlsx;*.xlsm;*.xltx;*.xltm;*.xlsb;*.xlam|"
+                    + $"{Properties.Resources.MWOpenPpt07}|*.pptx;*.pptm;*.potx;*.potm;*.ppam;*.ppsx;*.ppsm;*.sldx;*.sldm|"
+                    + $"{Properties.Resources.MWOpenOutlook}|*.otm|"
+                    + $"{Properties.Resources.MWOpenSAlone}|*.bin",
+                FilterIndex = 2
+            };
+            if (dlg.ShowDialog() == true) {
+                Session.FilePath = dlg.FileName;
+            }
+        }
+
+        private void FolderBrowseBox_PreviewKeyDown(object sender, KeyEventArgs e) {
+            if (e.Key == Key.Enter) {
+                OkButton.Focus();
+            }
+        }
+
+        private void folderBrowseButton_Click(object sender, RoutedEventArgs e) {
+            var dlg = new VistaFolderBrowserDialog();
+            if (dlg.ShowDialog() == true) {
+                Session.FolderPath = dlg.SelectedPath;
+            }
+        }
+
+        private void includeAllBox_Click(object sender, RoutedEventArgs e) {
+            var vm = ChangesGrid.DataContext as ChangesViewModel;
+            if (vm == null || IncludeAllBox.IsChecked == null) {
+                return;
+            }
+            try {
+                _doUpdateIncludeAll = false;
+                foreach (var ch in vm) {
+                    ch.Commit = IncludeAllBox.IsChecked.Value;
+                }
+            } finally {
+                _doUpdateIncludeAll = true;
+            }
+            ChangesGrid.Items.Refresh();
+        }
+
+        private void LoadIni(AppIniFile ini) {
+            Session.Action = ini.GetActionType("General", "ActionType") ?? ActionType.Extract;
+            Session.FolderPath = ini.GetString("General", "FolderPath");
+            Session.FilePath = ini.GetString("General", "FilePath");
+            Session.DiffTool = ini.GetString("DiffTool", "Path");
+            Session.DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"";
+        }
+
+        private void LoadLastMenu_Click(object sender, RoutedEventArgs e) {
+            LoadIni(new AppIniFile(_store, "LastSession.ini", Encoding.UTF8));
+        }
+
+        private void LoadSessionMenu_Click(object sender, RoutedEventArgs e) {
+            var dlg = new VistaOpenFileDialog {
+                Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
+                    + $"{Properties.Resources.MWOpenSession}|*.ini",
+                FilterIndex = 2
+            };
+            if (dlg.ShowDialog() == true) {
+                LoadIni(new AppIniFile(dlg.FileName, Encoding.UTF8));
+            }
+        }
+
+        private void okButton_Click(object sender, RoutedEventArgs e) {
+            applyButton_Click(null, null);
+            Application.Current.Shutdown();
+        }
+
+        private void QuietRefreshIfInputsOk() {
+            if (!File.Exists(Session.FilePath) || !Directory.Exists(Session.FolderPath)) {
+                return;
+            }
+            try {
+                refreshButton_Click(null, null);
+            } catch {
+                ChangesGrid.DataContext = null;
+            }
+        }
+
+        private void refreshButton_Click(object sender, RoutedEventArgs e) {
             if (string.IsNullOrEmpty(Session.FolderPath) || string.IsNullOrEmpty(Session.FilePath)) {
                 return;
             }
@@ -115,91 +230,40 @@ namespace VbaSync {
             UpdateIncludeAllBox();
         }
 
-        void applyButton_Click(object sender, RoutedEventArgs e) {
-            var vm = ChangesGrid.DataContext as ChangesViewModel;
-            if (vm == null) {
-                return;
-            }
-            if (Session.Action == ActionType.Extract) {
-                foreach (var p in vm.Where(p => p.Commit).ToArray()) {
-                    var fileName = p.ModuleName + ModuleProcessing.ExtensionFromType(p.ModuleType);
-                    switch (p.ChangeType) {
-                        case ChangeType.DeleteFile:
-                            File.Delete(Path.Combine(Session.FolderPath, fileName));
-                            if (p.ModuleType == ModuleType.Form) {
-                                File.Delete(Path.Combine(Session.FolderPath, p.ModuleName + ".frx"));
-                            }
-                            break;
-                        case ChangeType.ChangeFormControls:
-                            File.Copy(Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), true);
-                            break;
-                        default:
-                            File.Copy(Path.Combine(_evf.FolderPath, fileName), Path.Combine(Session.FolderPath, fileName), true);
-                            if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form) {
-                                File.Copy(Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), true);
-                            }
-                            break;
-                    }
-                    vm.Remove(p);
-                }
-            } else {
-                foreach (var p in vm.Where(p => p.Commit).ToArray()) {
-                    var fileName = p.ModuleName + ModuleProcessing.ExtensionFromType(p.ModuleType);
-                    switch (p.ChangeType) {
-                        case ChangeType.DeleteFile:
-                            File.Delete(Path.Combine(_evf.FolderPath, fileName));
-                            if (p.ModuleType == ModuleType.Form) {
-                                File.Delete(Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"));
-                            }
-                            break;
-                        case ChangeType.ChangeFormControls:
-                            File.Copy(Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), true);
-                            break;
-                        default:
-                            File.Copy(Path.Combine(Session.FolderPath, fileName), Path.Combine(_evf.FolderPath, fileName), true);
-                            if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form) {
-                                File.Copy(Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), true);
-                            }
-                            break;
-                    }
-                    vm.Remove(p);
-                }
-                _evf.Write(Session.FilePath);
-            }
-            UpdateIncludeAllBox();
+        private void SaveSession(Stream st) {
+            var actionTypeText = Session.Action == ActionType.Extract ? "Extract" : "Publish";
+            var nl = Environment.NewLine;
+            var buf = Encoding.UTF8.GetBytes($"ActionType={actionTypeText}{nl}"
+                                             + $"FolderPath=\"{Session.FolderPath}\"{nl}"
+                                             + $"FilePath=\"{Session.FilePath}\"{nl}{nl}"
+                                             + $"[DiffTool]{nl}"
+                                             + $"Path=\"{Session.DiffTool}\"{nl}"
+                                             + $"Parameters=\"{Session.DiffToolParameters}\"{nl}");
+            st.Write(buf, 0, buf.Length);
         }
 
-        void folderBrowseButton_Click(object sender, RoutedEventArgs e) {
-            var dlg = new VistaFolderBrowserDialog();
+        private void SaveSessionMenu_Click(object sender, RoutedEventArgs e) {
+            var dlg = new VistaSaveFileDialog {
+                Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
+                    + $"{Properties.Resources.MWOpenSession}|*.ini",
+                FilterIndex = 2
+            };
             if (dlg.ShowDialog() == true) {
-                Session.FolderPath = dlg.SelectedPath;
-            }
-        }
-
-        void Window_Closed(object sender, EventArgs e) {
-            _evf?.Dispose();
-            using (var st = new IsolatedStorageFileStream("LastSession.ini", FileMode.OpenOrCreate, FileAccess.Write, _store)) {
-                SaveSession(st);
-            }
-        }
-
-        void includeAllBox_Click(object sender, RoutedEventArgs e) {
-            var vm = ChangesGrid.DataContext as ChangesViewModel;
-            if (vm == null || IncludeAllBox.IsChecked == null) {
-                return;
-            }
-            try {
-                _doUpdateIncludeAll = false;
-                foreach (var ch in vm) {
-                    ch.Commit = IncludeAllBox.IsChecked.Value;
+                var path = dlg.FileName;
+                if (!Path.HasExtension(path)) {
+                    path += ".ini";
                 }
-            } finally {
-                _doUpdateIncludeAll = true;
+                using (var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write)) {
+                    SaveSession(fs);
+                }
             }
-            ChangesGrid.Items.Refresh();
         }
 
-        void UpdateIncludeAllBox() {
+        private void SettingsMenu_Click(object sender, RoutedEventArgs e) {
+            new SettingsWindow(Session, s => DataContext = s).ShowDialog();
+        }
+
+        private void UpdateIncludeAllBox() {
             if (!_doUpdateIncludeAll) {
                 return;
             }
@@ -213,7 +277,14 @@ namespace VbaSync {
             }
         }
 
-        void Window_Loaded(object sender, RoutedEventArgs e) {
+        private void Window_Closed(object sender, EventArgs e) {
+            _evf?.Dispose();
+            using (var st = new IsolatedStorageFileStream("LastSession.ini", FileMode.OpenOrCreate, FileAccess.Write, _store)) {
+                SaveSession(st);
+            }
+        }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e) {
             var ini = new AppIniFile(_store, "LastSession.ini", Encoding.UTF8);
 
             // don't persist these settings
@@ -250,78 +321,6 @@ namespace VbaSync {
                     okButton_Click(null, null);
                 }
             }
-        }
-
-        void SettingsMenu_Click(object sender, RoutedEventArgs e) {
-            new SettingsWindow(Session, s => DataContext = s).ShowDialog();
-        }
-
-        void ExitMenu_Click(object sender, RoutedEventArgs e) {
-            cancelButton_Click(null, null);
-        }
-
-        void SaveSessionMenu_Click(object sender, RoutedEventArgs e) {
-            var dlg = new VistaSaveFileDialog {
-                Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
-                    + $"{Properties.Resources.MWOpenSession}|*.ini",
-                FilterIndex = 2
-            };
-            if (dlg.ShowDialog() == true) {
-                var path = dlg.FileName;
-                if (!Path.HasExtension(path)) {
-                    path += ".ini";
-                }
-                using (var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write)) {
-                    SaveSession(fs);
-                }
-            }
-        }
-
-        void LoadIni(AppIniFile ini) {
-            Session.Action = ini.GetActionType("General", "ActionType") ?? ActionType.Extract;
-            Session.FolderPath = ini.GetString("General", "FolderPath");
-            Session.FilePath = ini.GetString("General", "FilePath");
-            Session.DiffTool = ini.GetString("DiffTool", "Path");
-            Session.DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"";
-        }
-
-        void SaveSession(Stream st) {
-            var actionTypeText = Session.Action == ActionType.Extract ? "Extract" : "Publish";
-            var nl = Environment.NewLine;
-            var buf = Encoding.UTF8.GetBytes($"ActionType={actionTypeText}{nl}"
-                                             + $"FolderPath=\"{Session.FolderPath}\"{nl}"
-                                             + $"FilePath=\"{Session.FilePath}\"{nl}{nl}"
-                                             + $"[DiffTool]{nl}"
-                                             + $"Path=\"{Session.DiffTool}\"{nl}"
-                                             + $"Parameters=\"{Session.DiffToolParameters}\"{nl}");
-            st.Write(buf, 0, buf.Length);
-        }
-
-        void FolderBrowseBox_PreviewKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Enter) {
-                OkButton.Focus();
-            }
-        }
-
-        void FileBrowseBox_PreviewKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Enter) {
-                OkButton.Focus();
-            }
-        }
-
-        void LoadSessionMenu_Click(object sender, RoutedEventArgs e) {
-            var dlg = new VistaOpenFileDialog {
-                Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
-                    + $"{Properties.Resources.MWOpenSession}|*.ini",
-                FilterIndex = 2
-            };
-            if (dlg.ShowDialog() == true) {
-                LoadIni(new AppIniFile(dlg.FileName, Encoding.UTF8));
-            }
-        }
-
-        void LoadLastMenu_Click(object sender, RoutedEventArgs e) {
-            LoadIni(new AppIniFile(_store, "LastSession.ini", Encoding.UTF8));
         }
     }
 }

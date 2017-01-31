@@ -3,8 +3,8 @@ using System.IO;
 using System.Text;
 
 namespace VbaSync.FrxObjects {
-    class FrxReader : IDisposable {
-        static readonly Guid StdFontGuid = new Guid(0x0BE35203, 0x8F91, 0x11CE,
+    internal class FrxReader : IDisposable {
+        private static readonly Guid StdFontGuid = new Guid(0x0BE35203, 0x8F91, 0x11CE,
             0x9D, 0xE3, 0x00, 0xAA, 0x00, 0x4B, 0xB8, 0x51);
 
         public FrxReader(Stream st) {

@@ -1,13 +1,24 @@
-﻿using System;
+﻿using OpenMcdf;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using OpenMcdf;
 using VbaSync.FrxObjects;
 
 namespace VbaSync {
     public static class Lib {
+        public static bool FrxFilesAreDifferent(string frxPath1, string frxPath2, out string explain) {
+            var frxBytes1 = File.ReadAllBytes(frxPath1);
+            var frxBytes2 = File.ReadAllBytes(frxPath2);
+            using (var frxCfStream1 = new MemoryStream(frxBytes1, 24, frxBytes1.Length - 24, false))
+            using (var frxCfStream2 = new MemoryStream(frxBytes2, 24, frxBytes2.Length - 24, false))
+            using (var cf1 = new CompoundFile(frxCfStream1))
+            using (var cf2 = new CompoundFile(frxCfStream2)) {
+                return CfStoragesAreDifferent(cf1.RootStorage, cf2.RootStorage, out explain);
+            }
+        }
+
         public static IList<KeyValuePair<string, Tuple<string, ModuleType>>> GetFolderModules(string folderPath) {
             var modulesText = new Dictionary<string, Tuple<string, ModuleType>>();
             var extensions = new[] { ".bas", ".cls", ".frm" };
@@ -83,34 +94,7 @@ namespace VbaSync {
             }
         }
 
-        static IEnumerable<Patch> GetFrxChanges(string oldFolder, string newFolder, IEnumerable<string> frmModules) {
-            foreach (var modName in frmModules) {
-                var oldFrxPath = Path.Combine(oldFolder, modName + ".frx");
-                var newFrxPath = Path.Combine(newFolder, modName + ".frx");
-                string explain;
-                if (!File.Exists(oldFrxPath) && !File.Exists(newFrxPath)) {
-                } else if (File.Exists(oldFrxPath) && !File.Exists(newFrxPath)) {
-                    yield return Patch.MakeFrxDeletion(modName);
-                } else if (!File.Exists(oldFrxPath) && File.Exists(newFrxPath)) {
-                    yield return Patch.MakeFrxChange(modName);
-                } else if (FrxFilesAreDifferent(oldFrxPath, newFrxPath, out explain)) {
-                    yield return Patch.MakeFrxChange(modName);
-                }
-            }
-        }
-
-        public static bool FrxFilesAreDifferent(string frxPath1, string frxPath2, out string explain) {
-            var frxBytes1 = File.ReadAllBytes(frxPath1);
-            var frxBytes2 = File.ReadAllBytes(frxPath2);
-            using (var frxCfStream1 = new MemoryStream(frxBytes1, 24, frxBytes1.Length - 24, false))
-            using (var frxCfStream2 = new MemoryStream(frxBytes2, 24, frxBytes2.Length - 24, false))
-            using (var cf1 = new CompoundFile(frxCfStream1))
-            using (var cf2 = new CompoundFile(frxCfStream2)) {
-                return CfStoragesAreDifferent(cf1.RootStorage, cf2.RootStorage, out explain);
-            }
-        }
-
-        static bool CfStoragesAreDifferent(CFStorage s1, CFStorage s2, out string explain) {
+        private static bool CfStoragesAreDifferent(CFStorage s1, CFStorage s2, out string explain) {
             var s1Names = new List<Tuple<string, bool>>();
             var s2Names = new List<Tuple<string, bool>>();
             s1.VisitEntries(i => s1Names.Add(Tuple.Create(i.Name, i.IsStorage)), false);
@@ -143,32 +127,32 @@ namespace VbaSync {
                         var o1Range = o1.Range(idx, site.ObjectStreamSize);
                         var o2Range = o2.Range(idx, site.ObjectStreamSize);
                         switch (site.ClsidCacheIndex) {
-                            case 15: // MorphData
-                            case 26: // CheckBox
-                            case 25: // ComboBox
-                            case 24: // ListBox
-                            case 27: // OptionButton
-                            case 23: // TextBox
-                            case 28: // ToggleButton
-                                if (!new MorphDataControl(o1Range).Equals(new MorphDataControl(o2Range))) {
-                                    return true;
-                                }
-                                break;
-                            case 17: // CommandButton
-                                if (!new CommandButtonControl(o1Range).Equals(new CommandButtonControl(o2Range))) {
-                                    return true;
-                                }
-                                break;
-                            case 21: // Label
-                                if (!new LabelControl(o1Range).Equals(new LabelControl(o2Range))) {
-                                    return true;
-                                }
-                                break;
-                            default:
-                                if (!o1Range.SequenceEqual(o2Range)) {
-                                    return true;
-                                }
-                                break;
+                        case 15: // MorphData
+                        case 26: // CheckBox
+                        case 25: // ComboBox
+                        case 24: // ListBox
+                        case 27: // OptionButton
+                        case 23: // TextBox
+                        case 28: // ToggleButton
+                            if (!new MorphDataControl(o1Range).Equals(new MorphDataControl(o2Range))) {
+                                return true;
+                            }
+                            break;
+                        case 17: // CommandButton
+                            if (!new CommandButtonControl(o1Range).Equals(new CommandButtonControl(o2Range))) {
+                                return true;
+                            }
+                            break;
+                        case 21: // Label
+                            if (!new LabelControl(o1Range).Equals(new LabelControl(o2Range))) {
+                                return true;
+                            }
+                            break;
+                        default:
+                            if (!o1Range.SequenceEqual(o2Range)) {
+                                return true;
+                            }
+                            break;
                         }
                         idx += site.ObjectStreamSize;
                     }
@@ -181,14 +165,30 @@ namespace VbaSync {
             return false;
         }
 
-        static IEnumerable<Patch> GetDeletedModuleChanges(
+        private static IEnumerable<Patch> GetDeletedModuleChanges(
                 IList<KeyValuePair<string, Tuple<string, ModuleType>>> oldModules,
                 IList<KeyValuePair<string, Tuple<string, ModuleType>>> newModules) {
             var deleted = oldModules.Select(kvp => kvp.Key).Except(newModules.Select(kvp => kvp.Key));
             return oldModules.Where(kvp => deleted.Contains(kvp.Key)).Select(m => Patch.MakeDeletion(m.Key, m.Value.Item2, m.Value.Item1));
         }
 
-        static IEnumerable<Patch> GetNewModuleChanges(
+        private static IEnumerable<Patch> GetFrxChanges(string oldFolder, string newFolder, IEnumerable<string> frmModules) {
+            foreach (var modName in frmModules) {
+                var oldFrxPath = Path.Combine(oldFolder, modName + ".frx");
+                var newFrxPath = Path.Combine(newFolder, modName + ".frx");
+                string explain;
+                if (!File.Exists(oldFrxPath) && !File.Exists(newFrxPath)) {
+                } else if (File.Exists(oldFrxPath) && !File.Exists(newFrxPath)) {
+                    yield return Patch.MakeFrxDeletion(modName);
+                } else if (!File.Exists(oldFrxPath) && File.Exists(newFrxPath)) {
+                    yield return Patch.MakeFrxChange(modName);
+                } else if (FrxFilesAreDifferent(oldFrxPath, newFrxPath, out explain)) {
+                    yield return Patch.MakeFrxChange(modName);
+                }
+            }
+        }
+
+        private static IEnumerable<Patch> GetNewModuleChanges(
                 IList<KeyValuePair<string, Tuple<string, ModuleType>>> oldModules,
                 IList<KeyValuePair<string, Tuple<string, ModuleType>>> newModules) {
             var inserted = newModules.Select(kvp => kvp.Key).Except(oldModules.Select(kvp => kvp.Key));

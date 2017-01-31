@@ -4,39 +4,19 @@ using System.IO;
 using System.Linq;
 
 namespace VbaSync.FrxObjects {
-    class FormControl {
-        public byte MinorVersion { get; }
-        public byte MajorVersion { get; }
-        public FormPropMask PropMask { get; }
-        public OleColor BackColor { get; }
-        public OleColor ForeColor { get; }
-        public uint NextAvailableId { get; }
-        public FormFlags BooleanProperties { get; }
-        public BorderStyle BorderStyle { get; }
-        public MousePointer MousePointer { get; }
-        public FormScrollBarFlags ScrollBars { get; }
-        public int GroupCount { get; }
-        public Cycle Cycle { get; }
-        public SpecialEffect SpecialEffect { get; }
-        public OleColor BorderColor { get; }
-        public uint Zoom { get; }
-        public PictureAlignment PictureAlignment { get; }
-        public PictureSizeMode PictureSizeMode { get; }
-        public uint ShapeCookie { get; }
-        public uint DrawBuffer { get; }
-        public Tuple<int, int> DisplayedSize { get; }
-        public Tuple<int, int> LogicalSize { get; }
-        public Tuple<int, int> ScrollPosition { get; }
-        public string Caption { get; }
-        public byte[] MouseIcon { get; }
-        public bool FontIsStdFont { get; }
-        public byte[] Picture { get; }
-        public TextProps FontTextProps { get; }
-        public Tuple<short, byte, short, uint, string> FontStdFont { get; }
-        public List<byte[]> SiteClassInfos { get; }
-        public OleSiteConcreteControl[] Sites { get; }
-        public byte[] Remainder { get; }
+    internal enum Cycle {
+        AllForms = 0x00,
+        CurrentForm = 0x02
+    }
 
+    internal enum FormScrollBars {
+        None = 0x00,
+        Horizontal = 0x01,
+        Vertical = 0x02,
+        Both = 0x03
+    }
+
+    internal class FormControl {
         public FormControl(byte[] b) {
             using (var st = new MemoryStream(b))
             using (var r = new FrxReader(st)) {
@@ -45,7 +25,7 @@ namespace VbaSync.FrxObjects {
 
                 var cbForm = r.ReadUInt16();
                 PropMask = new FormPropMask(r.ReadUInt32());
-                
+
                 // DataBlock
                 BackColor = PropMask.HasBackColor ? r.ReadOleColor() : null;
                 ForeColor = PropMask.HasForeColor ? r.ReadOleColor() : null;
@@ -67,7 +47,7 @@ namespace VbaSync.FrxObjects {
                 PictureSizeMode = PropMask.HasPictureSizeMode ? r.ReadPictureSizeMode() : PictureSizeMode.Clip;
                 ShapeCookie = PropMask.HasShapeCookie ? r.ReadUInt32() : 0;
                 DrawBuffer = PropMask.HasDrawBuffer ? r.ReadUInt32() : 0;
-                
+
                 // ExtraDataBlock
                 DisplayedSize = PropMask.HasDisplayedSize ? r.ReadCoords() : Tuple.Create(0, 0);
                 LogicalSize = PropMask.HasLogicalSize ? r.ReadCoords() : Tuple.Create(0, 0);
@@ -75,9 +55,10 @@ namespace VbaSync.FrxObjects {
                 Caption = r.ReadStringFromCcb(captionCcb);
 
                 r.AlignTo(4);
-                if (cbForm != r.BaseStream.Position - 4)
+                if (cbForm != r.BaseStream.Position - 4) {
                     throw new ApplicationException("Error reading 'f' stream in .frx data: expected cbForm size "
                                                    + $"{r.BaseStream.Position - 4}, but actual size was {cbForm}.");
+                }
 
                 // StreamData
                 MouseIcon = PropMask.HasMouseIcon ? r.ReadGuidAndPicture() : new byte[0];
@@ -122,7 +103,7 @@ namespace VbaSync.FrxObjects {
                         siteDepthsLeft--;
                     }
                 }
-                var rem = (r.BaseStream.Position - sitesStartPos)%4;
+                var rem = (r.BaseStream.Position - sitesStartPos) % 4;
                 if (rem != 0) r.BaseStream.Seek(4 - rem, SeekOrigin.Current); // add ArrayPadding
                 Sites = new OleSiteConcreteControl[siteCount];
                 for (var i = 0; i < siteCount; i++) {
@@ -139,6 +120,38 @@ namespace VbaSync.FrxObjects {
             }
         }
 
+        public OleColor BackColor { get; }
+        public FormFlags BooleanProperties { get; }
+        public OleColor BorderColor { get; }
+        public BorderStyle BorderStyle { get; }
+        public string Caption { get; }
+        public Cycle Cycle { get; }
+        public Tuple<int, int> DisplayedSize { get; }
+        public uint DrawBuffer { get; }
+        public bool FontIsStdFont { get; }
+        public Tuple<short, byte, short, uint, string> FontStdFont { get; }
+        public TextProps FontTextProps { get; }
+        public OleColor ForeColor { get; }
+        public int GroupCount { get; }
+        public Tuple<int, int> LogicalSize { get; }
+        public byte MajorVersion { get; }
+        public byte MinorVersion { get; }
+        public byte[] MouseIcon { get; }
+        public MousePointer MousePointer { get; }
+        public uint NextAvailableId { get; }
+        public byte[] Picture { get; }
+        public PictureAlignment PictureAlignment { get; }
+        public PictureSizeMode PictureSizeMode { get; }
+        public FormPropMask PropMask { get; }
+        public byte[] Remainder { get; }
+        public FormScrollBarFlags ScrollBars { get; }
+        public Tuple<int, int> ScrollPosition { get; }
+        public uint ShapeCookie { get; }
+        public List<byte[]> SiteClassInfos { get; }
+        public OleSiteConcreteControl[] Sites { get; }
+        public SpecialEffect SpecialEffect { get; }
+        public uint Zoom { get; }
+
         public override bool Equals(object o) {
             var other = o as FormControl;
             if (other == null || !(MinorVersion == other.MinorVersion && MajorVersion == other.MajorVersion && Equals(PropMask, other.PropMask)
@@ -150,7 +163,10 @@ namespace VbaSync.FrxObjects {
                   && Equals(DisplayedSize, other.DisplayedSize) && Equals(LogicalSize, other.LogicalSize) && Equals(ScrollPosition, other.ScrollPosition)
                   && string.Equals(Caption, other.Caption) && MouseIcon.SequenceEqual(other.MouseIcon) && FontIsStdFont == other.FontIsStdFont
                   && Picture.SequenceEqual(other.Picture) && Equals(FontTextProps, other.FontTextProps) && Equals(FontStdFont, other.FontStdFont)
-                  && Sites.SequenceEqual(other.Sites) && Remainder.SequenceEqual(other.Remainder))) return false;
+                  && Sites.SequenceEqual(other.Sites) && Remainder.SequenceEqual(other.Remainder))) {
+                return false;
+            }
+
             if (SiteClassInfos.Count != other.SiteClassInfos.Count) return false;
             return !SiteClassInfos.Where((t, i) => !t.SequenceEqual(other.SiteClassInfos[i])).Any();
         }
@@ -188,23 +204,166 @@ namespace VbaSync.FrxObjects {
         }
     }
 
-    class OleSiteConcreteControl {
-        public SitePropMask PropMask { get; }
-        public string Name { get; }
-        public string Tag { get; }
-        public int Id { get; }
-        public int HelpContextId { get; }
-        public uint BitFlags { get; }
-        public uint ObjectStreamSize { get; }
-        public short TabIndex { get; }
-        public short ClsidCacheIndex { get; }
-        public ushort GroupId { get; }
-        public string ControlTipText { get; }
-        public string RuntimeLicKey { get; }
-        public string ControlSource { get; }
-        public string RowSource { get; }
-        Tuple<int, int> SitePosition { get; }
+    internal class FormFlags {
+        public FormFlags(uint i) {
+            Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
+            Enabled = bit(2);
+            DesignExtenderPropertiesPersisted = bit(14);
+            ClassTablePersisted = !bit(15);
+        }
 
+        public bool ClassTablePersisted { get; }
+        public bool DesignExtenderPropertiesPersisted { get; }
+        public bool Enabled { get; }
+
+        public override bool Equals(object o) {
+            var other = o as FormFlags;
+            return other != null && Enabled == other.Enabled && DesignExtenderPropertiesPersisted == other.DesignExtenderPropertiesPersisted
+                && ClassTablePersisted == other.ClassTablePersisted;
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = Enabled.GetHashCode();
+                hashCode = (hashCode * 397) ^ DesignExtenderPropertiesPersisted.GetHashCode();
+                hashCode = (hashCode * 397) ^ ClassTablePersisted.GetHashCode();
+                return hashCode;
+            }
+        }
+    }
+
+    internal class FormPropMask {
+        public FormPropMask(uint i) {
+            Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
+            HasBackColor = bit(1);
+            HasForeColor = bit(2);
+            HasNextAvailableId = bit(3);
+            HasBooleanProperties = bit(6);
+            HasBorderStyle = bit(7);
+            HasMousePointer = bit(8);
+            HasScrollBars = bit(9);
+            HasDisplayedSize = bit(10);
+            HasLogicalSize = bit(11);
+            HasScrollPosition = bit(12);
+            HasGroupCount = bit(13);
+            HasMouseIcon = bit(15);
+            HasCycle = bit(16);
+            HasSpecialEffect = bit(17);
+            HasBorderColor = bit(18);
+            HasCaption = bit(19);
+            HasFont = bit(20);
+            HasPicture = bit(21);
+            HasZoom = bit(22);
+            HasPictureAlignment = bit(23);
+            PictureTiling = bit(24);
+            HasPictureSizeMode = bit(25);
+            HasShapeCookie = bit(26);
+            HasDrawBuffer = bit(27);
+        }
+
+        public bool HasBackColor { get; }
+        public bool HasBooleanProperties { get; }
+        public bool HasBorderColor { get; }
+        public bool HasBorderStyle { get; }
+        public bool HasCaption { get; }
+        public bool HasCycle { get; }
+        public bool HasDisplayedSize { get; }
+        public bool HasDrawBuffer { get; }
+        public bool HasFont { get; }
+        public bool HasForeColor { get; }
+        public bool HasGroupCount { get; }
+        public bool HasLogicalSize { get; }
+        public bool HasMouseIcon { get; }
+        public bool HasMousePointer { get; }
+        public bool HasNextAvailableId { get; }
+        public bool HasPicture { get; }
+        public bool HasPictureAlignment { get; }
+        public bool HasPictureSizeMode { get; }
+        public bool HasScrollBars { get; }
+        public bool HasScrollPosition { get; }
+        public bool HasShapeCookie { get; }
+        public bool HasSpecialEffect { get; }
+        public bool HasZoom { get; }
+        public bool PictureTiling { get; }
+
+        public override bool Equals(object o) {
+            var other = o as FormPropMask;
+            return other != null && HasBackColor == other.HasBackColor && HasForeColor == other.HasForeColor && HasNextAvailableId == other.HasNextAvailableId
+                   && HasBooleanProperties == other.HasBooleanProperties && HasBorderStyle == other.HasBorderStyle && HasMousePointer == other.HasMousePointer
+                   && HasScrollBars == other.HasScrollBars && HasDisplayedSize == other.HasDisplayedSize && HasLogicalSize == other.HasLogicalSize
+                   && HasScrollPosition == other.HasScrollPosition && HasGroupCount == other.HasGroupCount && HasMouseIcon == other.HasMouseIcon
+                   && HasCycle == other.HasCycle && HasSpecialEffect == other.HasSpecialEffect && HasBorderColor == other.HasBorderColor
+                   && HasCaption == other.HasCaption && HasFont == other.HasFont && HasPicture == other.HasPicture && HasZoom == other.HasZoom
+                   && HasPictureAlignment == other.HasPictureAlignment && PictureTiling == other.PictureTiling && HasPictureSizeMode == other.HasPictureSizeMode
+                   && HasShapeCookie == other.HasShapeCookie && HasDrawBuffer == other.HasDrawBuffer;
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = HasBackColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasForeColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasNextAvailableId.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasBooleanProperties.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasBorderStyle.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasMousePointer.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasScrollBars.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasDisplayedSize.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasLogicalSize.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasScrollPosition.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasGroupCount.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasMouseIcon.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasCycle.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasSpecialEffect.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasBorderColor.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasCaption.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasFont.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasPicture.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasZoom.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasPictureAlignment.GetHashCode();
+                hashCode = (hashCode * 397) ^ PictureTiling.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasPictureSizeMode.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasShapeCookie.GetHashCode();
+                hashCode = (hashCode * 397) ^ HasDrawBuffer.GetHashCode();
+                return hashCode;
+            }
+        }
+    }
+
+    internal class FormScrollBarFlags {
+        public FormScrollBarFlags(byte b) {
+            Func<int, bool> bit = j => (b & (1 << j)) != 0;
+            Horizontal = bit(0);
+            Vertical = bit(1);
+            KeepHorizontal = bit(2);
+            KeepVertical = bit(3);
+            KeepLeft = bit(4);
+        }
+
+        public bool Horizontal { get; }
+        public bool KeepHorizontal { get; }
+        public bool KeepLeft { get; }
+        public bool KeepVertical { get; }
+        public bool Vertical { get; }
+
+        public override bool Equals(object o) {
+            var other = o as FormScrollBarFlags;
+            return other != null && Horizontal == other.Horizontal && Vertical == other.Vertical && KeepHorizontal == other.KeepHorizontal
+                && KeepVertical == other.KeepVertical && KeepLeft == other.KeepLeft;
+        }
+
+        public override int GetHashCode() {
+            unchecked {
+                var hashCode = Horizontal.GetHashCode();
+                hashCode = (hashCode * 397) ^ Vertical.GetHashCode();
+                hashCode = (hashCode * 397) ^ KeepHorizontal.GetHashCode();
+                hashCode = (hashCode * 397) ^ KeepVertical.GetHashCode();
+                hashCode = (hashCode * 397) ^ KeepLeft.GetHashCode();
+                return hashCode;
+            }
+        }
+    }
+
+    internal class OleSiteConcreteControl {
         public OleSiteConcreteControl(byte[] b) {
             using (var st = new MemoryStream(b))
             using (var r = new FrxReader(st)) {
@@ -238,6 +397,22 @@ namespace VbaSync.FrxObjects {
             }
         }
 
+        public uint BitFlags { get; }
+        public short ClsidCacheIndex { get; }
+        public string ControlSource { get; }
+        public string ControlTipText { get; }
+        public ushort GroupId { get; }
+        public int HelpContextId { get; }
+        public int Id { get; }
+        public string Name { get; }
+        public uint ObjectStreamSize { get; }
+        public SitePropMask PropMask { get; }
+        public string RowSource { get; }
+        public string RuntimeLicKey { get; }
+        public short TabIndex { get; }
+        public string Tag { get; }
+        private Tuple<int, int> SitePosition { get; }
+
         public override bool Equals(object o) {
             var other = o as OleSiteConcreteControl;
             return other != null && Equals(PropMask, other.PropMask) && string.Equals(Name, other.Name) && string.Equals(Tag, other.Tag) && Id == other.Id
@@ -269,193 +444,7 @@ namespace VbaSync.FrxObjects {
         }
     }
 
-    enum Cycle {
-        AllForms = 0x00,
-        CurrentForm = 0x02
-    }
-
-    class FormFlags {
-        public bool Enabled { get; }
-        public bool DesignExtenderPropertiesPersisted { get; }
-        public bool ClassTablePersisted { get; }
-
-        public FormFlags(uint i) {
-            Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
-            Enabled = bit(2);
-            DesignExtenderPropertiesPersisted = bit(14);
-            ClassTablePersisted = !bit(15);
-        }
-
-        public override bool Equals(object o) {
-            var other = o as FormFlags;
-            return other != null && Enabled == other.Enabled && DesignExtenderPropertiesPersisted == other.DesignExtenderPropertiesPersisted
-                && ClassTablePersisted == other.ClassTablePersisted;
-        }
-
-        public override int GetHashCode() {
-            unchecked {
-                var hashCode = Enabled.GetHashCode();
-                hashCode = (hashCode*397) ^ DesignExtenderPropertiesPersisted.GetHashCode();
-                hashCode = (hashCode*397) ^ ClassTablePersisted.GetHashCode();
-                return hashCode;
-            }
-        }
-    }
-
-    enum FormScrollBars {
-        None = 0x00,
-        Horizontal = 0x01,
-        Vertical = 0x02,
-        Both = 0x03
-    }
-
-    class FormScrollBarFlags {
-        public bool Horizontal { get; }
-        public bool Vertical { get; }
-        public bool KeepHorizontal { get; }
-        public bool KeepVertical { get; }
-        public bool KeepLeft { get; }
-
-        public FormScrollBarFlags(byte b) {
-            Func<int, bool> bit = j => (b & (1 << j)) != 0;
-            Horizontal = bit(0);
-            Vertical = bit(1);
-            KeepHorizontal = bit(2);
-            KeepVertical = bit(3);
-            KeepLeft = bit(4);
-        }
-
-        public override bool Equals(object o) {
-            var other = o as FormScrollBarFlags;
-            return other != null && Horizontal == other.Horizontal && Vertical == other.Vertical && KeepHorizontal == other.KeepHorizontal
-                && KeepVertical == other.KeepVertical && KeepLeft == other.KeepLeft;
-        }
-
-        public override int GetHashCode() {
-            unchecked {
-                var hashCode = Horizontal.GetHashCode();
-                hashCode = (hashCode*397) ^ Vertical.GetHashCode();
-                hashCode = (hashCode*397) ^ KeepHorizontal.GetHashCode();
-                hashCode = (hashCode*397) ^ KeepVertical.GetHashCode();
-                hashCode = (hashCode*397) ^ KeepLeft.GetHashCode();
-                return hashCode;
-            }
-        }
-    }
-
-    class FormPropMask {
-        public bool HasBackColor { get; }
-        public bool HasForeColor { get; }
-        public bool HasNextAvailableId { get; }
-        public bool HasBooleanProperties { get; }
-        public bool HasBorderStyle { get; }
-        public bool HasMousePointer { get; }
-        public bool HasScrollBars { get; }
-        public bool HasDisplayedSize { get; }
-        public bool HasLogicalSize { get; }
-        public bool HasScrollPosition { get; }
-        public bool HasGroupCount { get; }
-        public bool HasMouseIcon { get; }
-        public bool HasCycle { get; }
-        public bool HasSpecialEffect { get; }
-        public bool HasBorderColor { get; }
-        public bool HasCaption { get; }
-        public bool HasFont { get; }
-        public bool HasPicture { get; }
-        public bool HasZoom { get; }
-        public bool HasPictureAlignment { get; }
-        public bool PictureTiling { get; }
-        public bool HasPictureSizeMode { get; }
-        public bool HasShapeCookie { get; }
-        public bool HasDrawBuffer { get; }
-
-        public FormPropMask(uint i) {
-            Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
-            HasBackColor = bit(1);
-            HasForeColor = bit(2);
-            HasNextAvailableId = bit(3);
-            HasBooleanProperties = bit(6);
-            HasBorderStyle = bit(7);
-            HasMousePointer = bit(8);
-            HasScrollBars = bit(9);
-            HasDisplayedSize = bit(10);
-            HasLogicalSize = bit(11);
-            HasScrollPosition = bit(12);
-            HasGroupCount = bit(13);
-            HasMouseIcon = bit(15);
-            HasCycle = bit(16);
-            HasSpecialEffect = bit(17);
-            HasBorderColor = bit(18);
-            HasCaption = bit(19);
-            HasFont = bit(20);
-            HasPicture = bit(21);
-            HasZoom = bit(22);
-            HasPictureAlignment = bit(23);
-            PictureTiling = bit(24);
-            HasPictureSizeMode = bit(25);
-            HasShapeCookie = bit(26);
-            HasDrawBuffer = bit(27);
-        }
-
-        public override bool Equals(object o) {
-            var other = o as FormPropMask;
-            return other != null && HasBackColor == other.HasBackColor && HasForeColor == other.HasForeColor && HasNextAvailableId == other.HasNextAvailableId
-                   && HasBooleanProperties == other.HasBooleanProperties && HasBorderStyle == other.HasBorderStyle && HasMousePointer == other.HasMousePointer
-                   && HasScrollBars == other.HasScrollBars && HasDisplayedSize == other.HasDisplayedSize && HasLogicalSize == other.HasLogicalSize
-                   && HasScrollPosition == other.HasScrollPosition && HasGroupCount == other.HasGroupCount && HasMouseIcon == other.HasMouseIcon
-                   && HasCycle == other.HasCycle && HasSpecialEffect == other.HasSpecialEffect && HasBorderColor == other.HasBorderColor
-                   && HasCaption == other.HasCaption && HasFont == other.HasFont && HasPicture == other.HasPicture && HasZoom == other.HasZoom
-                   && HasPictureAlignment == other.HasPictureAlignment && PictureTiling == other.PictureTiling && HasPictureSizeMode == other.HasPictureSizeMode
-                   && HasShapeCookie == other.HasShapeCookie && HasDrawBuffer == other.HasDrawBuffer;
-        }
-
-        public override int GetHashCode() {
-            unchecked {
-                var hashCode = HasBackColor.GetHashCode();
-                hashCode = (hashCode*397) ^ HasForeColor.GetHashCode();
-                hashCode = (hashCode*397) ^ HasNextAvailableId.GetHashCode();
-                hashCode = (hashCode*397) ^ HasBooleanProperties.GetHashCode();
-                hashCode = (hashCode*397) ^ HasBorderStyle.GetHashCode();
-                hashCode = (hashCode*397) ^ HasMousePointer.GetHashCode();
-                hashCode = (hashCode*397) ^ HasScrollBars.GetHashCode();
-                hashCode = (hashCode*397) ^ HasDisplayedSize.GetHashCode();
-                hashCode = (hashCode*397) ^ HasLogicalSize.GetHashCode();
-                hashCode = (hashCode*397) ^ HasScrollPosition.GetHashCode();
-                hashCode = (hashCode*397) ^ HasGroupCount.GetHashCode();
-                hashCode = (hashCode*397) ^ HasMouseIcon.GetHashCode();
-                hashCode = (hashCode*397) ^ HasCycle.GetHashCode();
-                hashCode = (hashCode*397) ^ HasSpecialEffect.GetHashCode();
-                hashCode = (hashCode*397) ^ HasBorderColor.GetHashCode();
-                hashCode = (hashCode*397) ^ HasCaption.GetHashCode();
-                hashCode = (hashCode*397) ^ HasFont.GetHashCode();
-                hashCode = (hashCode*397) ^ HasPicture.GetHashCode();
-                hashCode = (hashCode*397) ^ HasZoom.GetHashCode();
-                hashCode = (hashCode*397) ^ HasPictureAlignment.GetHashCode();
-                hashCode = (hashCode*397) ^ PictureTiling.GetHashCode();
-                hashCode = (hashCode*397) ^ HasPictureSizeMode.GetHashCode();
-                hashCode = (hashCode*397) ^ HasShapeCookie.GetHashCode();
-                hashCode = (hashCode*397) ^ HasDrawBuffer.GetHashCode();
-                return hashCode;
-            }
-        }
-    }
-
-    class SitePropMask {
-        public bool HasName { get; }
-        public bool HasTag { get; }
-        public bool HasId { get; }
-        public bool HasHelpContextId { get; }
-        public bool HasBitFlags { get; }
-        public bool HasObjectStreamSize { get; }
-        public bool HasTabIndex { get; }
-        public bool HasClsidCacheIndex { get; }
-        public bool HasPosition { get; }
-        public bool HasGroupId { get; }
-        public bool HasControlTipText { get; }
-        public bool HasRuntimeLicKey { get; }
-        public bool HasControlSource { get; }
-        public bool HasRowSource { get; }
-
+    internal class SitePropMask {
         public SitePropMask(uint i) {
             Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
             HasName = bit(0);
@@ -473,6 +462,21 @@ namespace VbaSync.FrxObjects {
             HasControlSource = bit(13);
             HasRowSource = bit(14);
         }
+
+        public bool HasBitFlags { get; }
+        public bool HasClsidCacheIndex { get; }
+        public bool HasControlSource { get; }
+        public bool HasControlTipText { get; }
+        public bool HasGroupId { get; }
+        public bool HasHelpContextId { get; }
+        public bool HasId { get; }
+        public bool HasName { get; }
+        public bool HasObjectStreamSize { get; }
+        public bool HasPosition { get; }
+        public bool HasRowSource { get; }
+        public bool HasRuntimeLicKey { get; }
+        public bool HasTabIndex { get; }
+        public bool HasTag { get; }
 
         public override bool Equals(object o) {
             var other = o as SitePropMask;

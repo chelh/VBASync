@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 
 namespace VbaSync {
-    class ProjectIni : IniFile {
-        readonly List<string> _moduleStrings = new List<string>();
+    internal class ProjectIni : IniFile {
+        private readonly List<string> _moduleStrings = new List<string>();
 
-        public ProjectIni(string filePath, Encoding encoding = null) : base(filePath, encoding) {}
+        public ProjectIni(string filePath, Encoding encoding = null) : base(filePath, encoding) {
+        }
 
         public string GetConstantsString()
             => string.Join(" : ", Dict.Keys.Where(s => s.StartsWith("Constants\0")).Select(s => $"{s.Substring(10)} = {Dict[s]}"));

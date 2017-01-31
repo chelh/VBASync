@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace VbaSync {
     public static class ModuleProcessing {
-        static bool _inBlock;
+        private static bool _inBlock;
 
         public static string ExtensionFromType(ModuleType type) {
             switch (type) {
@@ -81,7 +81,7 @@ namespace VbaSync {
             return ModuleType.Class;
         }
 
-        static bool LineIsContent(string line) {
+        private static bool LineIsContent(string line) {
             // must set _inBlock to false before using this
             var trimLine = line?.TrimStart();
             if (string.IsNullOrWhiteSpace(trimLine) || trimLine.StartsWith("Version", StringComparison.InvariantCultureIgnoreCase)
@@ -98,6 +98,5 @@ namespace VbaSync {
             }
             return !_inBlock;
         }
-
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Windows.Data;
+﻿using System.Windows.Data;
 
 namespace VbaSync {
     public static class WpfStatic {

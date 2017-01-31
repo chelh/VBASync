@@ -1,10 +1,10 @@
 ﻿namespace VbaSync {
     public class MainViewModel : ViewModelBase, ISession {
-        ActionType _action = ActionType.Extract;
-        string _diffTool;
-        string _diffToolParameters;
-        string _filePath;
-        string _folderPath;
+        private ActionType _action;
+        private string _diffTool;
+        private string _diffToolParameters;
+        private string _filePath;
+        private string _folderPath;
 
         public ActionType Action {
             get { return _action; }

@@ -137,7 +137,25 @@ using System.Collections.Generic;
 using System.Text;
 
 namespace VbaSync {
-    static class VbaDiffer {
+    internal enum Edit {
+        None,
+        DeleteRight,
+        DeleteLeft,
+        InsertDown,
+        InsertUp
+    }
+
+    internal enum LineState {
+        New,
+        Normal,
+        Quoted,
+        Comment,
+        CommentAwaitE,
+        CommentAwaitM,
+        CommentAwaitSpace
+    }
+
+    internal static class VbaDiffer {
         public static DiffResult CreateVbaDiffs(string oldText, string newText) {
             if (oldText == null)
                 throw new ArgumentNullException(nameof(oldText));
@@ -188,114 +206,7 @@ namespace VbaSync {
             return new DiffResult(modOld.Pieces, modNew.Pieces, lineDiffs);
         }
 
-        static EditLengthResult CalculateEditLength(int[] a, int startA, int endA, int[] b, int startB, int endB, int[] forwardDiagonal, int[] reverseDiagonal) {
-            if (null == a)
-                throw new ArgumentNullException(nameof(a));
-            if (null == b)
-                throw new ArgumentNullException(nameof(b));
-
-            if (a.Length == 0 && b.Length == 0) {
-                return new EditLengthResult();
-            }
-
-            var n = endA - startA;
-            var m = endB - startB;
-            var max = m + n + 1;
-            var half = max / 2;
-            var delta = n - m;
-            var deltaEven = delta % 2 == 0;
-            forwardDiagonal[1 + half] = 0;
-            reverseDiagonal[1 + half] = n + 1;
-
-            for (var d = 0; d <= half; d++) {
-                // forward D-path
-                Edit lastEdit;
-                for (var k = -d; k <= d; k += 2) {
-                    var kIndex = k + half;
-                    int x;
-                    if (k == -d || (k != d && forwardDiagonal[kIndex - 1] < forwardDiagonal[kIndex + 1])) {
-                        x = forwardDiagonal[kIndex + 1]; // y up    move down from previous diagonal
-                        lastEdit = Edit.InsertDown;
-                    } else {
-                        x = forwardDiagonal[kIndex - 1] + 1; // x up     move right from previous diagonal
-                        lastEdit = Edit.DeleteRight;
-                    }
-                    var y = x - k;
-                    var startX = x;
-                    var startY = y;
-                    while (x < n && y < m && a[x + startA] == b[y + startB]) {
-                        x += 1;
-                        y += 1;
-                    }
-
-                    forwardDiagonal[kIndex] = x;
-
-                    if (!deltaEven) {
-                        if (k - delta >= -d + 1 && k - delta <= d - 1) {
-                            var revKIndex = k - delta + half;
-                            var revX = reverseDiagonal[revKIndex];
-                            var revY = revX - k;
-                            if (revX <= x && revY <= y) {
-                                return new EditLengthResult {
-                                    EditLength = 2*d - 1,
-                                    StartX = startX + startA,
-                                    StartY = startY + startB,
-                                    EndX = x + startA,
-                                    EndY = y + startB,
-                                    LastEdit = lastEdit
-                                };
-                            }
-                        }
-                    }
-                }
-
-                // reverse D-path
-                for (var k = -d; k <= d; k += 2) {
-                    var kIndex = k + half;
-                    int x;
-                    if (k == -d || (k != d && reverseDiagonal[kIndex + 1] <= reverseDiagonal[kIndex - 1])) {
-                        x = reverseDiagonal[kIndex + 1] - 1; // move left from k+1 diagonal
-                        lastEdit = Edit.DeleteLeft;
-                    } else {
-                        x = reverseDiagonal[kIndex - 1]; //move up from k-1 diagonal
-                        lastEdit = Edit.InsertUp;
-                    }
-                    var y = x - (k + delta);
-
-                    var endX = x;
-                    var endY = y;
-                    
-                    while (x > 0 && y > 0 && a[startA + x - 1] == b[startB + y - 1]) {
-                        x -= 1;
-                        y -= 1;
-                    }
-                    
-                    reverseDiagonal[kIndex] = x;
-
-                    if (deltaEven) {
-                        if (k + delta >= -d && k + delta <= d) {
-                            var forKIndex = k + delta + half;
-                            var forX = forwardDiagonal[forKIndex];
-                            var forY = forX - (k + delta);
-                            if (forX >= x && forY >= y) {
-                                return new EditLengthResult {
-                                    EditLength = 2*d,
-                                    StartX = x + startA,
-                                    StartY = y + startB,
-                                    EndX = endX + startA,
-                                    EndY = endY + startB,
-                                    LastEdit = lastEdit
-                                };
-                            }
-                        }
-                    }
-                }
-            }
-            
-            throw new Exception("Should never get here");
-        }
-
-        static void BuildModificationData(ModificationData a, ModificationData b) {
+        private static void BuildModificationData(ModificationData a, ModificationData b) {
             var n = a.HashedPieces.Length;
             var m = b.HashedPieces.Length;
             var max = m + n + 1;
@@ -304,8 +215,7 @@ namespace VbaSync {
             BuildModificationData(a, 0, n, b, 0, m, forwardDiagonal, reverseDiagonal);
         }
 
-        static void BuildModificationData(ModificationData a, int startA, int endA, ModificationData b, int startB, int endB, int[] forwardDiagonal, int[] reverseDiagonal) {
-
+        private static void BuildModificationData(ModificationData a, int startA, int endA, ModificationData b, int startB, int endB, int[] forwardDiagonal, int[] reverseDiagonal) {
             while (startA < endA && startB < endB && a.HashedPieces[startA].Equals(b.HashedPieces[startB])) {
                 startA++;
                 startB++;
@@ -342,8 +252,8 @@ namespace VbaSync {
             }
         }
 
-        static void BuildPieceHashes(IDictionary<string, int> pieceHash, ModificationData data) {
-            var pieces = string.IsNullOrEmpty(data.RawData) ? new string[0] : data.RawData.Split(new [] {"\r\n"}, StringSplitOptions.None);
+        private static void BuildPieceHashes(IDictionary<string, int> pieceHash, ModificationData data) {
+            var pieces = string.IsNullOrEmpty(data.RawData) ? new string[0] : data.RawData.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
             data.Pieces = pieces;
             data.HashedPieces = new int[pieces.Length];
@@ -362,7 +272,114 @@ namespace VbaSync {
             }
         }
 
-        static string UppercaseVbaSymbols(string s, ref bool startInComment) {
+        private static EditLengthResult CalculateEditLength(int[] a, int startA, int endA, int[] b, int startB, int endB, int[] forwardDiagonal, int[] reverseDiagonal) {
+            if (a == null)
+                throw new ArgumentNullException(nameof(a));
+            if (b == null)
+                throw new ArgumentNullException(nameof(b));
+
+            if (a.Length == 0 && b.Length == 0) {
+                return new EditLengthResult();
+            }
+
+            var n = endA - startA;
+            var m = endB - startB;
+            var max = m + n + 1;
+            var half = max / 2;
+            var delta = n - m;
+            var deltaEven = delta % 2 == 0;
+            forwardDiagonal[1 + half] = 0;
+            reverseDiagonal[1 + half] = n + 1;
+
+            for (var d = 0; d <= half; d++) {
+                // forward D-path
+                Edit lastEdit;
+                for (var k = -d; k <= d; k += 2) {
+                    var kIndex = k + half;
+                    int x;
+                    if (k == -d || (k != d && forwardDiagonal[kIndex - 1] < forwardDiagonal[kIndex + 1])) {
+                        x = forwardDiagonal[kIndex + 1]; // y up    move down from previous diagonal
+                        lastEdit = Edit.InsertDown;
+                    } else {
+                        x = forwardDiagonal[kIndex - 1] + 1; // x up     move right from previous diagonal
+                        lastEdit = Edit.DeleteRight;
+                    }
+                    var y = x - k;
+                    var startX = x;
+                    var startY = y;
+                    while (x < n && y < m && a[x + startA] == b[y + startB]) {
+                        ++x;
+                        ++y;
+                    }
+
+                    forwardDiagonal[kIndex] = x;
+
+                    if (!deltaEven) {
+                        if (k - delta >= -d + 1 && k - delta <= d - 1) {
+                            var revKIndex = k - delta + half;
+                            var revX = reverseDiagonal[revKIndex];
+                            var revY = revX - k;
+                            if (revX <= x && revY <= y) {
+                                return new EditLengthResult {
+                                    EditLength = (2 * d) - 1,
+                                    StartX = startX + startA,
+                                    StartY = startY + startB,
+                                    EndX = x + startA,
+                                    EndY = y + startB,
+                                    LastEdit = lastEdit
+                                };
+                            }
+                        }
+                    }
+                }
+
+                // reverse D-path
+                for (var k = -d; k <= d; k += 2) {
+                    var kIndex = k + half;
+                    int x;
+                    if (k == -d || (k != d && reverseDiagonal[kIndex + 1] <= reverseDiagonal[kIndex - 1])) {
+                        x = reverseDiagonal[kIndex + 1] - 1; // move left from k+1 diagonal
+                        lastEdit = Edit.DeleteLeft;
+                    } else {
+                        x = reverseDiagonal[kIndex - 1]; //move up from k-1 diagonal
+                        lastEdit = Edit.InsertUp;
+                    }
+                    var y = x - (k + delta);
+
+                    var endX = x;
+                    var endY = y;
+
+                    while (x > 0 && y > 0 && a[startA + x - 1] == b[startB + y - 1]) {
+                        --x;
+                        --y;
+                    }
+
+                    reverseDiagonal[kIndex] = x;
+
+                    if (deltaEven) {
+                        if (k + delta >= -d && k + delta <= d) {
+                            var forKIndex = k + delta + half;
+                            var forX = forwardDiagonal[forKIndex];
+                            var forY = forX - (k + delta);
+                            if (forX >= x && forY >= y) {
+                                return new EditLengthResult {
+                                    EditLength = 2*d,
+                                    StartX = x + startA,
+                                    StartY = y + startB,
+                                    EndX = endX + startA,
+                                    EndY = endY + startB,
+                                    LastEdit = lastEdit
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+
+            throw new Exception("Should never get here");
+        }
+
+        private static string UppercaseVbaSymbols(string s, ref bool startInComment) {
             var sb = new StringBuilder(s.Length);
             var ls = startInComment ? LineState.Comment : LineState.New;
             startInComment = false;
@@ -437,69 +454,49 @@ namespace VbaSync {
         }
     }
 
-    class DiffBlock {
-        public int DeleteStartA { get; }
-        public int DeleteCountA { get; }
-        public int InsertStartB { get; }
-        public int InsertCountB { get; }
-
+    internal class DiffBlock {
         public DiffBlock(int deleteStartA, int deleteCountA, int insertStartB, int insertCountB) {
             DeleteStartA = deleteStartA;
             DeleteCountA = deleteCountA;
             InsertStartB = insertStartB;
             InsertCountB = insertCountB;
         }
+
+        public int DeleteCountA { get; }
+        public int DeleteStartA { get; }
+        public int InsertCountB { get; }
+        public int InsertStartB { get; }
     }
 
-    class DiffResult {
-        public string[] PiecesOld { get; }
-        public string[] PiecesNew { get; }
-        public IList<DiffBlock> DiffBlocks { get; }
-
+    internal class DiffResult {
         public DiffResult(string[] peicesOld, string[] piecesNew, IList<DiffBlock> blocks) {
             PiecesOld = peicesOld;
             PiecesNew = piecesNew;
             DiffBlocks = blocks;
         }
+
+        public IList<DiffBlock> DiffBlocks { get; }
+        public string[] PiecesNew { get; }
+        public string[] PiecesOld { get; }
     }
 
-    enum Edit {
-        None,
-        DeleteRight,
-        DeleteLeft,
-        InsertDown,
-        InsertUp
-    }
-
-    class EditLengthResult {
+    internal class EditLengthResult {
         public int EditLength { get; set; }
-
-        public int StartX { get; set; }
         public int EndX { get; set; }
-        public int StartY { get; set; }
         public int EndY { get; set; }
-
         public Edit LastEdit { get; set; }
+        public int StartX { get; set; }
+        public int StartY { get; set; }
     }
 
-    class ModificationData {
-        public int[] HashedPieces { get; set; }
-        public string RawData { get; }
-        public bool[] Modifications { get; set; }
-        public string[] Pieces { get; set; }
-
+    internal class ModificationData {
         public ModificationData(string str) {
             RawData = str;
         }
-    }
 
-    enum LineState {
-        New,
-        Normal,
-        Quoted,
-        Comment,
-        CommentAwaitE,
-        CommentAwaitM,
-        CommentAwaitSpace
+        public int[] HashedPieces { get; set; }
+        public bool[] Modifications { get; set; }
+        public string[] Pieces { get; set; }
+        public string RawData { get; }
     }
 }

@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace VbaSync {
-    static class Extensions {
+    internal static class Extensions {
         public static byte[] Range(this byte[] src, uint start, uint size) {
             var ret = new byte[size];
             if (size > 0) {

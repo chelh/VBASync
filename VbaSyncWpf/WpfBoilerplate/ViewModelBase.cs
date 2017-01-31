@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
-using System.Runtime.CompilerServices;
 
 namespace VbaSync {
     public class ViewModelBase : INotifyPropertyChanged {

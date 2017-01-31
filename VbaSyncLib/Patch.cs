@@ -1,17 +1,9 @@
-﻿using System.IO;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 
 namespace VbaSync {
-    public enum ModuleType {
-        Standard,
-        StaticClass,
-        Class,
-        Form,
-        Ini
-    }
-
     public enum ChangeType {
         AddFile,
         MoveFile,
@@ -30,7 +22,22 @@ namespace VbaSync {
         Project
     }
 
-    struct SideBySideArgs {
+    public enum ModuleType {
+        Standard,
+        StaticClass,
+        Class,
+        Form,
+        Ini
+    }
+
+    internal struct Chunk {
+        public int NewStartLine;
+        public string NewText;
+        public int OldStartLine;
+        public string OldText;
+    }
+
+    internal struct SideBySideArgs {
         public string Name;
         public string NewText;
         public ModuleType NewType;
@@ -38,19 +45,12 @@ namespace VbaSync {
         public ModuleType OldType;
     }
 
-    struct Chunk {
-        public int NewStartLine;
-        public string NewText;
-        public int OldStartLine;
-        public string OldText;
-    }
-
     public class Patch {
-        readonly List<Chunk> _chunks;
-        bool _commit;
+        private readonly List<Chunk> _chunks;
+        private bool _commit;
 
-        Patch(ModuleType moduleType, string moduleName, ChangeType changeType,
-                string description = "", bool commit = true, IEnumerable<Chunk> chunks = null) {
+        private Patch(ModuleType moduleType, string moduleName, ChangeType changeType,
+                      string description = "", bool commit = true, IEnumerable<Chunk> chunks = null) {
             ModuleType = moduleType;
             ModuleName = moduleName;
             ChangeType = changeType;
@@ -66,9 +66,10 @@ namespace VbaSync {
             get { return _commit; }
             set {
                 _commit = value;
-                CommitChanged?.Invoke(null, new PropertyChangedEventArgs("Commit"));
+                CommitChanged?.Invoke(null, new PropertyChangedEventArgs(nameof(Commit)));
             }
         }
+
         public string Description { get; }
         public string ModuleName { get; }
         public ModuleType ModuleType { get; }
@@ -109,7 +110,7 @@ namespace VbaSync {
             }
         }
 
-        static int CountStringLines(string s) {
+        private static int CountStringLines(string s) {
             int i = 0;
             using (var r = new StringReader(s)) {
                 while (r.ReadLine() != null) {
@@ -119,7 +120,7 @@ namespace VbaSync {
             return i;
         }
 
-        static string GetEnumDescription(object v) {
+        private static string GetEnumDescription(object v) {
             dynamic attr = v.GetType().GetMember(v.ToString())[0]
                     ?.GetCustomAttributes(typeof(DescriptionAttribute), false)[0];
             return attr?.Description ?? v.ToString();

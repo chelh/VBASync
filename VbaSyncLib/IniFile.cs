@@ -8,7 +8,8 @@ using System.Text;
 namespace VbaSync {
     public class IniFile {
         protected readonly Dictionary<string, string> Dict = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-        readonly Encoding _encoding;
+
+        private readonly Encoding _encoding;
 
         public IniFile(IsolatedStorageFile store, string fileName, Encoding encoding = null) {
             _encoding = encoding ?? Encoding.Default;
@@ -99,7 +100,7 @@ namespace VbaSync {
             return null;
         }
 
-        void ProcessString(string s) {
+        private void ProcessString(string s) {
             var sr = new StringReader(s);
             var subject = "General";
             string line;
