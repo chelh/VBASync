@@ -1,8 +1,9 @@
 ﻿using Ookii.Dialogs.Wpf;
 using System;
 using System.Windows;
+using VbaSync;
 
-namespace VbaSync {
+namespace VBASync.WPF {
     internal partial class SettingsWindow {
         private readonly Action<ISession> _replaceSession;
 

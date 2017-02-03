@@ -1,4 +1,6 @@
-﻿namespace VbaSync {
+﻿using VbaSync;
+
+namespace VBASync.WPF {
     public class MainViewModel : ViewModelBase, ISession {
         private ActionType _action;
         private string _diffTool;

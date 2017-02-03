@@ -1,6 +1,7 @@
 ﻿using System.Windows.Data;
+using VbaSync;
 
-namespace VbaSync {
+namespace VBASync.WPF {
     public static class WpfStatic {
         public static readonly WpfConverter ChangeTypeToDescriptionOneWay = new WpfConverter(
             v => {

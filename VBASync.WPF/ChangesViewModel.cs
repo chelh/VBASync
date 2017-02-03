@@ -1,8 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Media;
+using VbaSync;
 
-namespace VbaSync {
+namespace VBASync.WPF {
     public class ChangesViewModel : ObservableCollection<Patch> {
         public ChangesViewModel(IEnumerable<Patch> a) : base(a) {
         }

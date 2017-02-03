@@ -7,7 +7,7 @@
     <ProjectGuid>{DE38EFA6-B533-41B6-846B-94F432D8AD10}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>VbaSync</RootNamespace>
+    <RootNamespace>VBASync.WPF</RootNamespace>
     <AssemblyName>VBA Sync Tool</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -74,8 +74,7 @@
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="WpfBoilerplate\ViewModelBase.cs" />
-    <Compile Include="WpfBoilerplate\WpfCommand.cs" />
+    <Compile Include="ViewModelBase.cs" />
     <Compile Include="WpfStatic.cs" />
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -85,7 +84,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="WpfBoilerplate\WpfConverter.cs" />
+    <Compile Include="WpfConverter.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>

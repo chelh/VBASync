@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace VbaSync {
+namespace VBASync.WPF {
     public class ViewModelBase : INotifyPropertyChanged {
         public event PropertyChangedEventHandler PropertyChanged;
 

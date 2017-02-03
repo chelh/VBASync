@@ -8,8 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using VbaSync;
 
-namespace VbaSync {
+namespace VBASync.WPF {
     internal partial class MainWindow {
         private readonly IsolatedStorageFile _store;
         private bool _doUpdateIncludeAll = true;
