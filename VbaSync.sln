@@ -1,11 +1,19 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.25123.0
+VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VbaSyncWpf", "VbaSyncWpf\VbaSyncWpf.csproj", "{DE38EFA6-B533-41B6-846B-94F432D8AD10}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBASync.WPF", "VBASync.WPF\VBASync.WPF.csproj", "{DE38EFA6-B533-41B6-846B-94F432D8AD10}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VbaSyncLib", "VbaSyncLib\VbaSyncLib.csproj", "{035BAE2F-ED96-48B9-980E-3236E9239061}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Loose files", "Loose files", "{C787BBEE-9AF4-4E60-923E-C67ECB69356F}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+		VBACompressionCodec.dll = VBACompressionCodec.dll
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -1,0 +1,28 @@
+﻿<Application x:Class="VbaSync.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:ClassModifier="internal"
+             xmlns:local="clr-namespace:VbaSync"
+             StartupUri="MainWindow.xaml" Startup="Application_Startup">
+    <Application.Resources>
+        <Style x:Key="Level1" TargetType="{x:Type FrameworkElement}">
+            <Setter Property="Margin" Value="4,8,0,0" />
+        </Style>
+        <Style x:Key="Level1Close" TargetType="{x:Type FrameworkElement}">
+            <Setter Property="Margin" Value="4,4,0,0" />
+        </Style>
+        <Style x:Key="Level1VeryClose" TargetType="{x:Type FrameworkElement}">
+            <Setter Property="Margin" Value="4,2,0,0" />
+        </Style>
+        <Style x:Key="Level1Solid" TargetType="{x:Type FrameworkElement}">
+            <Setter Property="Margin" Value="4,0,0,0" />
+        </Style>
+        <Style x:Key="Level2" TargetType="{x:Type FrameworkElement}">
+            <Setter Property="Margin" Value="20,4,0,0" />
+        </Style>
+        <Style x:Key="ExpanderChild" TargetType="{x:Type FrameworkElement}">
+            <Setter Property="Margin" Value="16,4,0,0" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+        </Style>
+    </Application.Resources>
+</Application>
