@@ -46,8 +46,8 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="VbaCompressionCodec">
-      <HintPath>..\..\VbaCompressionCodec.dll</HintPath>
+    <Reference Include="VBACompressionCodec">
+      <HintPath>..\VBACompressionCodec.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
