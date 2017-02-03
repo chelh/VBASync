@@ -28,7 +28,7 @@ You can save and load session settings from the **File** menu. Settings are save
 <h2>Contributing</h2>
 I appreciate any code contributions, but am especially interested in translations and [issue #1](https://github.com/chelh/VBASync/issues/1) (Access database support).
 
-To build the tool, you will need to download another project of mine, [VBACompressionCodec](https://github.com/chelh/VBACompressionCodec), and use it as a reference.
+To build the tool, you will need to download [`VBACompressionCodec.dll`](https://github.com/chelh/VBACompressionCodec/releases), and drop it in the solution’s root directory.
 
 <h2>License</h2>
 Copyright &copy; 2017 Chelsea Hughes
