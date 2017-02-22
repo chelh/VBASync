@@ -74,15 +74,3 @@ You may redistribute it subject to these restrictions:
 This software is provided “as-is,” without any express or
 implied warranty. In no event will I be held liable for any damages
 arising from the use of this software.
-
-In addition to the above, this software is also protected by an
-ancient Assyrian curse:
-
-*Whosoever removes my name from this work*  
-*May he sow a thousand, but reap only one*  
-*May one hundred ewes not satisfy one spring lamb*  
-*May one hundred cows not satisfy one calf*  
-*May one hundred women not satisfy one child*  
-*May one hundred bakers not fill up one oven*  
-*May the gleaners glean from rubbish pits*  
-*May illness, plague, and insomnia not disappear from his land!*
