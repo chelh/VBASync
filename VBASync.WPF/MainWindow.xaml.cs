@@ -8,7 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
-using VbaSync;
+using VBASync.Model;
 
 namespace VBASync.WPF {
     internal partial class MainWindow {
@@ -26,7 +26,7 @@ namespace VBASync.WPF {
 
         private ISession Session => (ISession)DataContext;
 
-        private void applyButton_Click(object sender, RoutedEventArgs e) {
+        private void ApplyButton_Click(object sender, RoutedEventArgs e) {
             var vm = ChangesGrid.DataContext as ChangesViewModel;
             if (vm == null) {
                 return;
@@ -80,11 +80,11 @@ namespace VBASync.WPF {
             UpdateIncludeAllBox();
         }
 
-        private void cancelButton_Click(object sender, RoutedEventArgs e) {
+        private void CancelButton_Click(object sender, RoutedEventArgs e) {
             Application.Current.Shutdown();
         }
 
-        private void changesGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
+        private void ChangesGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
             var sel = (Patch)ChangesGrid.SelectedItem;
             var fileName = sel.ModuleName + (sel.ChangeType != ChangeType.ChangeFormControls ? ModuleProcessing.ExtensionFromType(sel.ModuleType) : ".frx");
             string oldPath;
@@ -97,8 +97,7 @@ namespace VBASync.WPF {
                 newPath = Path.Combine(Session.FolderPath, fileName);
             }
             if (sel.ChangeType == ChangeType.ChangeFormControls) {
-                string explain;
-                Lib.FrxFilesAreDifferent(oldPath, newPath, out explain);
+                Lib.FrxFilesAreDifferent(oldPath, newPath, out var explain);
                 MessageBox.Show(explain, "FRX file difference", MessageBoxButton.OK, MessageBoxImage.Information);
             } else {
                 var diffExePath = Environment.ExpandEnvironmentVariables(Session.DiffTool);
@@ -115,7 +114,7 @@ namespace VBASync.WPF {
         }
 
         private void ExitMenu_Click(object sender, RoutedEventArgs e) {
-            cancelButton_Click(null, null);
+            CancelButton_Click(null, null);
         }
 
         private void FileBrowseBox_PreviewKeyDown(object sender, KeyEventArgs e) {
@@ -124,7 +123,7 @@ namespace VBASync.WPF {
             }
         }
 
-        private void fileBrowseButton_Click(object sender, RoutedEventArgs e) {
+        private void FileBrowseButton_Click(object sender, RoutedEventArgs e) {
             var dlg = new VistaOpenFileDialog {
                 Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
                     + $"{Properties.Resources.MWOpenAllSupported}|*.doc;*.dot;*.xls;*.xlt;*.docm;*.dotm;*.docb;*.xlsm;*.xla;*.xlam;*.xlsb;"
@@ -149,14 +148,14 @@ namespace VBASync.WPF {
             }
         }
 
-        private void folderBrowseButton_Click(object sender, RoutedEventArgs e) {
+        private void FolderBrowseButton_Click(object sender, RoutedEventArgs e) {
             var dlg = new VistaFolderBrowserDialog();
             if (dlg.ShowDialog() == true) {
                 Session.FolderPath = dlg.SelectedPath;
             }
         }
 
-        private void includeAllBox_Click(object sender, RoutedEventArgs e) {
+        private void IncludeAllBox_Click(object sender, RoutedEventArgs e) {
             var vm = ChangesGrid.DataContext as ChangesViewModel;
             if (vm == null || IncludeAllBox.IsChecked == null) {
                 return;
@@ -195,8 +194,8 @@ namespace VBASync.WPF {
             }
         }
 
-        private void okButton_Click(object sender, RoutedEventArgs e) {
-            applyButton_Click(null, null);
+        private void OkButton_Click(object sender, RoutedEventArgs e) {
+            ApplyButton_Click(null, null);
             Application.Current.Shutdown();
         }
 
@@ -205,13 +204,13 @@ namespace VBASync.WPF {
                 return;
             }
             try {
-                refreshButton_Click(null, null);
+                RefreshButton_Click(null, null);
             } catch {
                 ChangesGrid.DataContext = null;
             }
         }
 
-        private void refreshButton_Click(object sender, RoutedEventArgs e) {
+        private void RefreshButton_Click(object sender, RoutedEventArgs e) {
             if (string.IsNullOrEmpty(Session.FolderPath) || string.IsNullOrEmpty(Session.FilePath)) {
                 return;
             }
@@ -300,13 +299,13 @@ namespace VBASync.WPF {
             var autoRunSwitch = false;
             for (var i = 1; i < args.Length; i++) {
                 switch (args[i].ToUpperInvariant()) {
-                    case "-R":
-                    case "/R":
-                        autoRunSwitch = true;
-                        break;
-                    default:
-                        ini.AddFile(args[i]);
-                        break;
+                case "-R":
+                case "/R":
+                    autoRunSwitch = true;
+                    break;
+                default:
+                    ini.AddFile(args[i]);
+                    break;
                 }
             }
 
@@ -317,9 +316,9 @@ namespace VBASync.WPF {
             Session.DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"";
 
             if (!string.IsNullOrEmpty(Session.FolderPath) && !string.IsNullOrEmpty(Session.FilePath)) {
-                refreshButton_Click(null, null);
+                RefreshButton_Click(null, null);
                 if (autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false)) {
-                    okButton_Click(null, null);
+                    OkButton_Click(null, null);
                 }
             }
         }

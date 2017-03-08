@@ -1,7 +1,7 @@
 ﻿using Ookii.Dialogs.Wpf;
 using System;
 using System.Windows;
-using VbaSync;
+using VBASync.Model;
 
 namespace VBASync.WPF {
     internal partial class SettingsWindow {

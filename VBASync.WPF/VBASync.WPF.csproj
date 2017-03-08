@@ -123,9 +123,9 @@
     <Resource Include="Icons\ModuleIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\VbaSyncLib\VbaSyncLib.csproj">
+    <ProjectReference Include="..\VBASync.Model\VBASync.Model.csproj">
       <Project>{035bae2f-ed96-48b9-980e-3236e9239061}</Project>
-      <Name>VbaSyncLib</Name>
+      <Name>VBASync.Model</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -1,4 +1,4 @@
-﻿using VbaSync;
+﻿using VBASync.Model;
 
 namespace VBASync.WPF {
     public class MainViewModel : ViewModelBase, ISession {
