@@ -57,7 +57,7 @@ in translations and [issue #1](https://github.com/chelh/VBASync/issues/1)
 
 To build the tool, you will need to download
 [`VBACompressionCodec.dll`](https://github.com/chelh/VBACompressionCodec/releases),
-and drop it in the solution’s root directory.
+and drop it in the `src/` directory.
 
 <h2>License</h2>
 Copyright © 2017 Chelsea Hughes
