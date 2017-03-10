@@ -48,7 +48,7 @@ the command-line. I recommend launching VBA Sync Tool from a shortcut,
 to avoid having to specify the folder and file each time you need
 to synchronize.
 
-<img src='http://i.imgur.com/90wPjmt.png' alt='VBA Sync Tool after selecting folder and file locations' />
+<img src='http://i.imgur.com/9dGaj7S.png' alt='VBA Sync Tool after selecting folder and file locations' />
 
 <h2>Contributing</h2>
 I appreciate any code contributions, but am especially interested

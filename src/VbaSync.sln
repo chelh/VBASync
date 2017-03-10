@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.26228.4
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBASync.WPF", "VBASync.WPF\VBASync.WPF.csproj", "{DE38EFA6-B533-41B6-846B-94F432D8AD10}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBASync.Model", "VBASync.Model\VBASync.Model.csproj", "{035BAE2F-ED96-48B9-980E-3236E9239061}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Loose files", "Loose files", "{C787BBEE-9AF4-4E60-923E-C67ECB69356F}"
+	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
+		LICENSE.md = LICENSE.md
+		README.md = README.md
+		VBACompressionCodec.dll = VBACompressionCodec.dll
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DE38EFA6-B533-41B6-846B-94F432D8AD10}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE38EFA6-B533-41B6-846B-94F432D8AD10}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE38EFA6-B533-41B6-846B-94F432D8AD10}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE38EFA6-B533-41B6-846B-94F432D8AD10}.Release|Any CPU.Build.0 = Release|Any CPU
+		{035BAE2F-ED96-48B9-980E-3236E9239061}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{035BAE2F-ED96-48B9-980E-3236E9239061}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{035BAE2F-ED96-48B9-980E-3236E9239061}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{035BAE2F-ED96-48B9-980E-3236E9239061}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
