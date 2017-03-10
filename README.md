@@ -55,9 +55,9 @@ I appreciate any code contributions, but am especially interested
 in translations and [issue #1](https://github.com/chelh/VBASync/issues/1)
 (Access database support).
 
-To build the tool, you will need to download
+To build the tool, you will need Visual Studio 2017. You will also need to download
 [`VBACompressionCodec.dll`](https://github.com/chelh/VBACompressionCodec/releases),
-and drop it in the `src/` directory.
+and drop it in the `src` directory.
 
 <h2>License</h2>
 Copyright © 2017 Chelsea Hughes
