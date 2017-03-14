@@ -20,7 +20,11 @@ namespace VBASync.Model.FrxObjects
         public void AlignTo(ushort alignment)
         {
             var rem = BaseStream.Position % alignment;
-            if (rem == 0) return;
+            if (rem == 0)
+            {
+                return;
+            }
+
             BaseStream.Seek(alignment - rem, SeekOrigin.Current);
         }
 
@@ -84,7 +88,11 @@ namespace VBASync.Model.FrxObjects
 
         public string ReadStringFromCcb(Tuple<int, bool> ccb)
         {
-            if (ccb.Item1 == 0) return "";
+            if (ccb.Item1 == 0)
+            {
+                return "";
+            }
+
             AlignTo(4);
             var s = (ccb.Item2 ? Encoding.UTF8 : Encoding.Unicode).GetString(Unaligned.ReadBytes(ccb.Item1));
             AlignTo(4);

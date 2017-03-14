@@ -36,19 +36,19 @@ namespace VBASync.Model
 
     internal struct Chunk
     {
-        public int NewStartLine;
-        public string NewText;
-        public int OldStartLine;
-        public string OldText;
+        public int NewStartLine { get; set; }
+        public string NewText { get; set; }
+        public int OldStartLine { get; set; }
+        public string OldText { get; set; }
     }
 
     internal struct SideBySideArgs
     {
-        public string Name;
-        public string NewText;
-        public ModuleType NewType;
-        public string OldText;
-        public ModuleType OldType;
+        public string Name { get; set; }
+        public string NewText { get; set; }
+        public ModuleType NewType { get; set; }
+        public string OldText { get; set; }
+        public ModuleType OldType { get; set; }
     }
 
     public class Patch
@@ -130,7 +130,7 @@ namespace VBASync.Model
 
         private static int CountStringLines(string s)
         {
-            int i = 0;
+            var i = 0;
             using (var r = new StringReader(s))
             {
                 while (r.ReadLine() != null)

@@ -163,9 +163,14 @@ namespace VBASync.Model
         public static DiffResult CreateVbaDiffs(string oldText, string newText)
         {
             if (oldText == null)
+            {
                 throw new ArgumentNullException(nameof(oldText));
+            }
+
             if (newText == null)
+            {
                 throw new ArgumentNullException(nameof(newText));
+            }
 
             var pieceHash = new Dictionary<string, int>();
             var lineDiffs = new List<DiffBlock>();
@@ -198,10 +203,14 @@ namespace VBASync.Model
                 var beginB = posB;
 
                 while (posA < piecesALength && modOld.Modifications[posA])
+                {
                     posA++;
+                }
 
                 while (posB < piecesBLength && modNew.Modifications[posB])
+                {
                     posB++;
+                }
 
                 var deleteCount = posA - beginA;
                 var insertCount = posB - beginB;
@@ -237,22 +246,32 @@ namespace VBASync.Model
                 endB--;
             }
 
-            int aLength = endA - startA;
-            int bLength = endB - startB;
+            var aLength = endA - startA;
+            var bLength = endB - startB;
             if (aLength > 0 && bLength > 0)
             {
-                EditLengthResult res = CalculateEditLength(a.HashedPieces, startA, endA, b.HashedPieces, startB, endB, forwardDiagonal, reverseDiagonal);
+                var res = CalculateEditLength(a.HashedPieces, startA, endA, b.HashedPieces, startB, endB, forwardDiagonal, reverseDiagonal);
                 if (res.EditLength <= 0)
+                {
                     return;
+                }
 
                 if (res.LastEdit == Edit.DeleteRight && res.StartX - 1 > startA)
+                {
                     a.Modifications[--res.StartX] = true;
+                }
                 else if (res.LastEdit == Edit.InsertDown && res.StartY - 1 > startB)
+                {
                     b.Modifications[--res.StartY] = true;
+                }
                 else if (res.LastEdit == Edit.DeleteLeft && res.EndX < endA)
+                {
                     a.Modifications[res.EndX++] = true;
-                else if (res.LastEdit == Edit.InsertUp && res.EndY < endB)
+                }
+                else
+                {
                     b.Modifications[res.EndY++] = true;
+                }
 
                 BuildModificationData(a, startA, res.StartX, b, startB, res.StartY, forwardDiagonal, reverseDiagonal);
                 BuildModificationData(a, res.EndX, endA, b, res.EndY, endB, forwardDiagonal, reverseDiagonal);
@@ -260,12 +279,16 @@ namespace VBASync.Model
             else if (aLength > 0)
             {
                 for (var i = startA; i < endA; i++)
+                {
                     a.Modifications[i] = true;
+                }
             }
             else if (bLength > 0)
             {
                 for (var i = startB; i < endB; i++)
+                {
                     b.Modifications[i] = true;
+                }
             }
         }
 
@@ -297,9 +320,14 @@ namespace VBASync.Model
         private static EditLengthResult CalculateEditLength(int[] a, int startA, int endA, int[] b, int startB, int endB, int[] forwardDiagonal, int[] reverseDiagonal)
         {
             if (a == null)
+            {
                 throw new ArgumentNullException(nameof(a));
+            }
+
             if (b == null)
+            {
                 throw new ArgumentNullException(nameof(b));
+            }
 
             if (a.Length == 0 && b.Length == 0)
             {

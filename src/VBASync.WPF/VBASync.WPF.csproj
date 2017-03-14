@@ -169,6 +169,15 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets'))" />
   </Target>
+  <PropertyGroup>
+    <PostBuildEvent>if exist "$(SolutionDir)..\dist\" rd /s /q "$(SolutionDir)..\dist\"
+mkdir "$(SolutionDir)..\dist\"
+copy /Y "$(TargetPath)" "$(SolutionDir)..\dist\"
+copy /Y "$(ProjectDir)LICENSE.txt" "$(SolutionDir)..\dist\"
+mkdir "$(SolutionDir)..\dist\3RDPARTY"
+copy /Y "$(ProjectDir)3RDPARTY\*" "$(SolutionDir)..\dist\3RDPARTY\"
+copy /Y "$(SolutionDir)VBACompressionCodec.dll" "$(SolutionDir)..\dist\"</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

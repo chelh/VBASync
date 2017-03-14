@@ -42,13 +42,25 @@ namespace VBASync.Model.FrxObjects
                 ScrollBars = new FormScrollBarFlags(PropMask.HasScrollBars ? r.ReadByte() : (byte)0);
                 GroupCount = PropMask.HasGroupCount ? r.ReadInt32() : 0;
                 // captionCcb is possibly here instead of where it's indicated in [MS-OFORMS]?
-                if (PropMask.HasMouseIcon) r.Skip2Bytes();
+                if (PropMask.HasMouseIcon)
+                {
+                    r.Skip2Bytes();
+                }
+
                 Cycle = PropMask.HasCycle ? r.ReadCycle() : Cycle.AllForms;
                 SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
                 BorderColor = PropMask.HasBorderColor ? r.ReadOleColor() : null;
                 var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false);
-                if (PropMask.HasFont) r.Skip2Bytes();
-                if (PropMask.HasPicture) r.Skip2Bytes();
+                if (PropMask.HasFont)
+                {
+                    r.Skip2Bytes();
+                }
+
+                if (PropMask.HasPicture)
+                {
+                    r.Skip2Bytes();
+                }
+
                 Zoom = PropMask.HasZoom ? r.ReadUInt32() : 0;
                 PictureAlignment = PropMask.HasPictureAlignment ? r.ReadPictureAlignment() : PictureAlignment.TopLeft;
                 PictureSizeMode = PropMask.HasPictureSizeMode ? r.ReadPictureSizeMode() : PictureSizeMode.Clip;
@@ -121,7 +133,11 @@ namespace VBASync.Model.FrxObjects
                     }
                 }
                 var rem = (r.BaseStream.Position - sitesStartPos) % 4;
-                if (rem != 0) r.BaseStream.Seek(4 - rem, SeekOrigin.Current); // add ArrayPadding
+                if (rem != 0)
+                {
+                    r.BaseStream.Seek(4 - rem, SeekOrigin.Current); // add ArrayPadding
+                }
+
                 Sites = new OleSiteConcreteControl[siteCount];
                 for (var i = 0; i < siteCount; i++)
                 {
@@ -188,7 +204,11 @@ namespace VBASync.Model.FrxObjects
                 return false;
             }
 
-            if (SiteClassInfos.Count != other.SiteClassInfos.Count) return false;
+            if (SiteClassInfos.Count != other.SiteClassInfos.Count)
+            {
+                return false;
+            }
+
             return !SiteClassInfos.Where((t, i) => !t.SequenceEqual(other.SiteClassInfos[i])).Any();
         }
 
@@ -434,7 +454,10 @@ namespace VBASync.Model.FrxObjects
                 ControlSource = r.ReadStringFromCcb(controlSourceCcb);
                 RowSource = r.ReadStringFromCcb(rowSourceCcb);
 
-                if (st.Position < st.Length) throw new ApplicationException("Expected end of OleSiteConcreteControl.");
+                if (st.Position < st.Length)
+                {
+                    throw new ApplicationException("Expected end of OleSiteConcreteControl.");
+                }
             }
         }
 

@@ -83,7 +83,10 @@ namespace VBASync.Model.FrxObjects
         public OleColor(byte[] b)
         {
             if (b.Length != 4)
+            {
                 throw new ArgumentException($"Error creating {nameof(OleColor)}. Expected 4 bytes but got {b.Length}.", nameof(b));
+            }
+
             Blue = b[0];
             Green = b[1];
             Red = b[2];
