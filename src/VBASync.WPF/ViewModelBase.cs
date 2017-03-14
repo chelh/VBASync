@@ -1,12 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 
-namespace VBASync.WPF {
-    public class ViewModelBase : INotifyPropertyChanged {
+namespace VBASync.WPF
+{
+    public class ViewModelBase : INotifyPropertyChanged
+    {
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected bool SetField<T>(ref T field, T value,
-                string propertyName) {
+                string propertyName)
+        {
             if (EqualityComparer<T>.Default.Equals(field, value))
                 return false;
             field = value;

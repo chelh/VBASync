@@ -2,11 +2,15 @@
 using System.IO;
 using System.Linq;
 
-namespace VBASync.Model.FrxObjects {
-    internal class MorphDataControl {
-        public MorphDataControl(byte[] b) {
+namespace VBASync.Model.FrxObjects
+{
+    internal class MorphDataControl
+    {
+        public MorphDataControl(byte[] b)
+        {
             using (var st = new MemoryStream(b))
-            using (var r = new FrxReader(st)) {
+            using (var r = new FrxReader(st))
+            {
                 MinorVersion = r.ReadByte();
                 MajorVersion = r.ReadByte();
 
@@ -51,7 +55,8 @@ namespace VBASync.Model.FrxObjects {
                 GroupName = r.ReadStringFromCcb(groupNameCcb);
 
                 r.AlignTo(4);
-                if (cbMorphData != r.BaseStream.Position - 4) {
+                if (cbMorphData != r.BaseStream.Position - 4)
+                {
                     throw new ApplicationException("Error reading 'o' stream in .frx data: expected cbMorphData size "
                                                    + $"{r.BaseStream.Position - 4}, but actual size was {cbMorphData}.");
                 }
@@ -102,21 +107,27 @@ namespace VBASync.Model.FrxObjects {
         public string Value { get; }
         public uint VariousPropertyBits { get; }
 
-        public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
                 return false;
             }
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, obj))
+            {
                 return true;
             }
-            if (obj.GetType() != GetType()) {
+            if (obj.GetType() != GetType())
+            {
                 return false;
             }
             return Equals((MorphDataControl)obj);
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = MinorVersion.GetHashCode();
                 hashCode = (hashCode * 397) ^ MajorVersion.GetHashCode();
                 hashCode = (hashCode * 397) ^ (PropMask?.GetHashCode() ?? 0);
@@ -156,7 +167,8 @@ namespace VBASync.Model.FrxObjects {
             }
         }
 
-        protected bool Equals(MorphDataControl other) {
+        protected bool Equals(MorphDataControl other)
+        {
             return MinorVersion == other.MinorVersion && MajorVersion == other.MajorVersion && Equals(PropMask, other.PropMask)
                    && Equals(ForeColor, other.ForeColor) && Equals(BackColor, other.BackColor) && VariousPropertyBits == other.VariousPropertyBits
                    && string.Equals(Caption, other.Caption) && PicturePosition == other.PicturePosition && MousePointer == other.MousePointer
@@ -171,8 +183,10 @@ namespace VBASync.Model.FrxObjects {
         }
     }
 
-    internal class MorphDataPropMask {
-        public MorphDataPropMask(ulong i) {
+    internal class MorphDataPropMask
+    {
+        public MorphDataPropMask(ulong i)
+        {
             Func<int, bool> bit = j => (i & ((ulong)1 << j)) != 0;
             HasVariousPropertyBits = bit(0);
             HasBackColor = bit(1);
@@ -237,21 +251,27 @@ namespace VBASync.Model.FrxObjects {
         public bool HasValue { get; }
         public bool HasVariousPropertyBits { get; }
 
-        public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
                 return false;
             }
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, obj))
+            {
                 return true;
             }
-            if (obj.GetType() != GetType()) {
+            if (obj.GetType() != GetType())
+            {
                 return false;
             }
             return Equals((MorphDataPropMask)obj);
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = HasVariousPropertyBits.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasBackColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasForeColor.GetHashCode();
@@ -286,7 +306,8 @@ namespace VBASync.Model.FrxObjects {
             }
         }
 
-        protected bool Equals(MorphDataPropMask other) {
+        protected bool Equals(MorphDataPropMask other)
+        {
             return HasVariousPropertyBits == other.HasVariousPropertyBits && HasBackColor == other.HasBackColor && HasForeColor == other.HasForeColor
                    && HasMaxLength == other.HasMaxLength && HasBorderStyle == other.HasBorderStyle && HasScrollBars == other.HasScrollBars
                    && HasDisplayStyle == other.HasDisplayStyle && HasMousePointer == other.HasMousePointer && HasSize == other.HasSize

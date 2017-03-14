@@ -1,13 +1,16 @@
 ﻿using System;
 using System.IO;
 
-namespace VBASync.Model.FrxObjects {
-    internal enum BorderStyle {
+namespace VBASync.Model.FrxObjects
+{
+    internal enum BorderStyle
+    {
         None = 0x00,
         Single = 0x01
     }
 
-    internal enum MousePointer {
+    internal enum MousePointer
+    {
         Default = 0x00,
         Arrow = 0x01,
         Cross = 0x02,
@@ -25,14 +28,16 @@ namespace VBASync.Model.FrxObjects {
         Custom = 0x63
     }
 
-    internal enum OleColorType {
+    internal enum OleColorType
+    {
         Default = 0x00,
         PaletteEntry = 0x01,
         RgbColor = 0x02,
         SystemPalette = 0x80
     }
 
-    internal enum PictureAlignment {
+    internal enum PictureAlignment
+    {
         TopLeft = 0x00,
         TopRight = 0x01,
         Center = 0x02,
@@ -40,7 +45,8 @@ namespace VBASync.Model.FrxObjects {
         BottomRight = 0x04
     }
 
-    internal enum PicturePosition {
+    internal enum PicturePosition
+    {
         RightTop = 0x00000002,
         BelowLeft = 0x00000006,
         BelowCenter = 0x00010007,
@@ -56,13 +62,15 @@ namespace VBASync.Model.FrxObjects {
         LeftBottom = 0x00080006
     }
 
-    internal enum PictureSizeMode {
+    internal enum PictureSizeMode
+    {
         Clip = 0x00,
         Stretch = 0x01,
         Zoom = 0x03
     }
 
-    internal enum SpecialEffect {
+    internal enum SpecialEffect
+    {
         Flat = 0x00,
         Raised = 0x01,
         Sunken = 0x02,
@@ -70,8 +78,10 @@ namespace VBASync.Model.FrxObjects {
         Bump = 0x06
     }
 
-    internal class OleColor {
-        public OleColor(byte[] b) {
+    internal class OleColor
+    {
+        public OleColor(byte[] b)
+        {
             if (b.Length != 4)
                 throw new ArgumentException($"Error creating {nameof(OleColor)}. Expected 4 bytes but got {b.Length}.", nameof(b));
             Blue = b[0];
@@ -86,13 +96,16 @@ namespace VBASync.Model.FrxObjects {
         public byte Green { get; }
         public ushort PaletteIndex { get; }
         public byte Red { get; }
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             var other = obj as OleColor;
             return other != null && ColorType == other.ColorType && Red == other.Red && Blue == other.Blue && Green == other.Green;
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = (int)ColorType;
                 hashCode = (hashCode * 397) ^ Red.GetHashCode();
                 hashCode = (hashCode * 397) ^ Blue.GetHashCode();
@@ -102,10 +115,13 @@ namespace VBASync.Model.FrxObjects {
         }
     }
 
-    internal class TextProps {
-        public TextProps(byte[] b) {
+    internal class TextProps
+    {
+        public TextProps(byte[] b)
+        {
             using (var st = new MemoryStream(b))
-            using (var r = new FrxReader(st)) {
+            using (var r = new FrxReader(st))
+            {
                 MinorVersion = r.ReadByte();
                 MajorVersion = r.ReadByte();
 
@@ -137,21 +153,27 @@ namespace VBASync.Model.FrxObjects {
         public byte ParagraphAlign { get; }
         public TextPropsPropMask PropMask { get; }
 
-        public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
                 return false;
             }
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, obj))
+            {
                 return true;
             }
-            if (obj.GetType() != GetType()) {
+            if (obj.GetType() != GetType())
+            {
                 return false;
             }
             return Equals((TextProps)obj);
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = MinorVersion.GetHashCode();
                 hashCode = (hashCode * 397) ^ MajorVersion.GetHashCode();
                 hashCode = (hashCode * 397) ^ (PropMask?.GetHashCode() ?? 0);
@@ -166,7 +188,8 @@ namespace VBASync.Model.FrxObjects {
             }
         }
 
-        protected bool Equals(TextProps other) {
+        protected bool Equals(TextProps other)
+        {
             return MinorVersion == other.MinorVersion && MajorVersion == other.MajorVersion && Equals(PropMask, other.PropMask)
                    && FontEffects == other.FontEffects && FontHeight == other.FontHeight && FontCharSet == other.FontCharSet
                    && FontPitchAndFamily == other.FontPitchAndFamily && ParagraphAlign == other.ParagraphAlign && FontWeight == other.FontWeight
@@ -174,8 +197,10 @@ namespace VBASync.Model.FrxObjects {
         }
     }
 
-    internal class TextPropsPropMask {
-        public TextPropsPropMask(uint i) {
+    internal class TextPropsPropMask
+    {
+        public TextPropsPropMask(uint i)
+        {
             Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
             HasFontName = bit(0);
             HasFontEffects = bit(1);
@@ -194,21 +219,27 @@ namespace VBASync.Model.FrxObjects {
         public bool HasFontWeight { get; }
         public bool HasParagraphAlign { get; }
 
-        public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
                 return false;
             }
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, obj))
+            {
                 return true;
             }
-            if (obj.GetType() != GetType()) {
+            if (obj.GetType() != GetType())
+            {
                 return false;
             }
             return Equals((TextPropsPropMask)obj);
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = HasFontName.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasFontEffects.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasFontHeight.GetHashCode();
@@ -220,7 +251,8 @@ namespace VBASync.Model.FrxObjects {
             }
         }
 
-        protected bool Equals(TextPropsPropMask other) {
+        protected bool Equals(TextPropsPropMask other)
+        {
             return HasFontName == other.HasFontName && HasFontEffects == other.HasFontEffects && HasFontHeight == other.HasFontHeight
                    && HasFontCharSet == other.HasFontCharSet && HasFontPitchAndFamily == other.HasFontPitchAndFamily
                    && HasParagraphAlign == other.HasParagraphAlign && HasFontWeight == other.HasFontWeight;

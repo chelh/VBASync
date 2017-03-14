@@ -136,8 +136,10 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace VBASync.Model {
-    internal enum Edit {
+namespace VBASync.Model
+{
+    internal enum Edit
+    {
         None = 0,
         DeleteRight = 1,
         DeleteLeft = 2,
@@ -145,7 +147,8 @@ namespace VBASync.Model {
         InsertUp = 4
     }
 
-    internal enum LineState {
+    internal enum LineState
+    {
         New = 0,
         Normal = 1,
         Quoted = 2,
@@ -155,8 +158,10 @@ namespace VBASync.Model {
         CommentAwaitSpace = 6
     }
 
-    internal static class VbaDiffer {
-        public static DiffResult CreateVbaDiffs(string oldText, string newText) {
+    internal static class VbaDiffer
+    {
+        public static DiffResult CreateVbaDiffs(string oldText, string newText)
+        {
             if (oldText == null)
                 throw new ArgumentNullException(nameof(oldText));
             if (newText == null)
@@ -178,11 +183,13 @@ namespace VBASync.Model {
             var posA = 0;
             var posB = 0;
 
-            do {
+            do
+            {
                 while (posA < piecesALength
                        && posB < piecesBLength
                        && !modOld.Modifications[posA]
-                       && !modNew.Modifications[posB]) {
+                       && !modNew.Modifications[posB])
+                {
                     posA++;
                     posB++;
                 }
@@ -198,7 +205,8 @@ namespace VBASync.Model {
 
                 var deleteCount = posA - beginA;
                 var insertCount = posB - beginB;
-                if (deleteCount > 0 || insertCount > 0) {
+                if (deleteCount > 0 || insertCount > 0)
+                {
                     lineDiffs.Add(new DiffBlock(beginA, deleteCount, beginB, insertCount));
                 }
             } while (posA < piecesALength && posB < piecesBLength);
@@ -206,7 +214,8 @@ namespace VBASync.Model {
             return new DiffResult(modOld.Pieces, modNew.Pieces, lineDiffs);
         }
 
-        private static void BuildModificationData(ModificationData a, ModificationData b) {
+        private static void BuildModificationData(ModificationData a, ModificationData b)
+        {
             var n = a.HashedPieces.Length;
             var m = b.HashedPieces.Length;
             var max = m + n + 1;
@@ -215,19 +224,23 @@ namespace VBASync.Model {
             BuildModificationData(a, 0, n, b, 0, m, forwardDiagonal, reverseDiagonal);
         }
 
-        private static void BuildModificationData(ModificationData a, int startA, int endA, ModificationData b, int startB, int endB, int[] forwardDiagonal, int[] reverseDiagonal) {
-            while (startA < endA && startB < endB && a.HashedPieces[startA].Equals(b.HashedPieces[startB])) {
+        private static void BuildModificationData(ModificationData a, int startA, int endA, ModificationData b, int startB, int endB, int[] forwardDiagonal, int[] reverseDiagonal)
+        {
+            while (startA < endA && startB < endB && a.HashedPieces[startA].Equals(b.HashedPieces[startB]))
+            {
                 startA++;
                 startB++;
             }
-            while (startA < endA && startB < endB && a.HashedPieces[endA - 1].Equals(b.HashedPieces[endB - 1])) {
+            while (startA < endA && startB < endB && a.HashedPieces[endA - 1].Equals(b.HashedPieces[endB - 1]))
+            {
                 endA--;
                 endB--;
             }
 
             int aLength = endA - startA;
             int bLength = endB - startB;
-            if (aLength > 0 && bLength > 0) {
+            if (aLength > 0 && bLength > 0)
+            {
                 EditLengthResult res = CalculateEditLength(a.HashedPieces, startA, endA, b.HashedPieces, startB, endB, forwardDiagonal, reverseDiagonal);
                 if (res.EditLength <= 0)
                     return;
@@ -243,16 +256,21 @@ namespace VBASync.Model {
 
                 BuildModificationData(a, startA, res.StartX, b, startB, res.StartY, forwardDiagonal, reverseDiagonal);
                 BuildModificationData(a, res.EndX, endA, b, res.EndY, endB, forwardDiagonal, reverseDiagonal);
-            } else if (aLength > 0) {
+            }
+            else if (aLength > 0)
+            {
                 for (var i = startA; i < endA; i++)
                     a.Modifications[i] = true;
-            } else if (bLength > 0) {
+            }
+            else if (bLength > 0)
+            {
                 for (var i = startB; i < endB; i++)
                     b.Modifications[i] = true;
             }
         }
 
-        private static void BuildPieceHashes(IDictionary<string, int> pieceHash, ModificationData data) {
+        private static void BuildPieceHashes(IDictionary<string, int> pieceHash, ModificationData data)
+        {
             var pieces = string.IsNullOrEmpty(data.RawData) ? new string[0] : data.RawData.Split(new[] { "\r\n" }, StringSplitOptions.None);
 
             data.Pieces = pieces;
@@ -260,25 +278,31 @@ namespace VBASync.Model {
             data.Modifications = new bool[pieces.Length];
 
             var startInComment = false;
-            for (var i = 0; i < pieces.Length; i++) {
+            for (var i = 0; i < pieces.Length; i++)
+            {
                 var piece = UppercaseVbaSymbols(pieces[i], ref startInComment);
 
-                if (pieceHash.ContainsKey(piece)) {
+                if (pieceHash.ContainsKey(piece))
+                {
                     data.HashedPieces[i] = pieceHash[piece];
-                } else {
+                }
+                else
+                {
                     data.HashedPieces[i] = pieceHash.Count;
                     pieceHash[piece] = pieceHash.Count;
                 }
             }
         }
 
-        private static EditLengthResult CalculateEditLength(int[] a, int startA, int endA, int[] b, int startB, int endB, int[] forwardDiagonal, int[] reverseDiagonal) {
+        private static EditLengthResult CalculateEditLength(int[] a, int startA, int endA, int[] b, int startB, int endB, int[] forwardDiagonal, int[] reverseDiagonal)
+        {
             if (a == null)
                 throw new ArgumentNullException(nameof(a));
             if (b == null)
                 throw new ArgumentNullException(nameof(b));
 
-            if (a.Length == 0 && b.Length == 0) {
+            if (a.Length == 0 && b.Length == 0)
+            {
                 return new EditLengthResult();
             }
 
@@ -291,35 +315,44 @@ namespace VBASync.Model {
             forwardDiagonal[1 + half] = 0;
             reverseDiagonal[1 + half] = n + 1;
 
-            for (var d = 0; d <= half; d++) {
+            for (var d = 0; d <= half; d++)
+            {
                 // forward D-path
                 Edit lastEdit;
-                for (var k = -d; k <= d; k += 2) {
+                for (var k = -d; k <= d; k += 2)
+                {
                     var kIndex = k + half;
                     int x;
-                    if (k == -d || (k != d && forwardDiagonal[kIndex - 1] < forwardDiagonal[kIndex + 1])) {
+                    if (k == -d || (k != d && forwardDiagonal[kIndex - 1] < forwardDiagonal[kIndex + 1]))
+                    {
                         x = forwardDiagonal[kIndex + 1]; // y up    move down from previous diagonal
                         lastEdit = Edit.InsertDown;
-                    } else {
+                    }
+                    else
+                    {
                         x = forwardDiagonal[kIndex - 1] + 1; // x up     move right from previous diagonal
                         lastEdit = Edit.DeleteRight;
                     }
                     var y = x - k;
                     var startX = x;
                     var startY = y;
-                    while (x < n && y < m && a[x + startA] == b[y + startB]) {
+                    while (x < n && y < m && a[x + startA] == b[y + startB])
+                    {
                         ++x;
                         ++y;
                     }
 
                     forwardDiagonal[kIndex] = x;
 
-                    if (!deltaEven) {
-                        if (k - delta >= -d + 1 && k - delta <= d - 1) {
+                    if (!deltaEven)
+                    {
+                        if (k - delta >= -d + 1 && k - delta <= d - 1)
+                        {
                             var revKIndex = k - delta + half;
                             var revX = reverseDiagonal[revKIndex];
                             var revY = revX - k;
-                            if (revX <= x && revY <= y) {
+                            if (revX <= x && revY <= y)
+                            {
                                 return new EditLengthResult {
                                     EditLength = (2 * d) - 1,
                                     StartX = startX + startA,
@@ -334,13 +367,17 @@ namespace VBASync.Model {
                 }
 
                 // reverse D-path
-                for (var k = -d; k <= d; k += 2) {
+                for (var k = -d; k <= d; k += 2)
+                {
                     var kIndex = k + half;
                     int x;
-                    if (k == -d || (k != d && reverseDiagonal[kIndex + 1] <= reverseDiagonal[kIndex - 1])) {
+                    if (k == -d || (k != d && reverseDiagonal[kIndex + 1] <= reverseDiagonal[kIndex - 1]))
+                    {
                         x = reverseDiagonal[kIndex + 1] - 1; // move left from k+1 diagonal
                         lastEdit = Edit.DeleteLeft;
-                    } else {
+                    }
+                    else
+                    {
                         x = reverseDiagonal[kIndex - 1]; //move up from k-1 diagonal
                         lastEdit = Edit.InsertUp;
                     }
@@ -349,19 +386,23 @@ namespace VBASync.Model {
                     var endX = x;
                     var endY = y;
 
-                    while (x > 0 && y > 0 && a[startA + x - 1] == b[startB + y - 1]) {
+                    while (x > 0 && y > 0 && a[startA + x - 1] == b[startB + y - 1])
+                    {
                         --x;
                         --y;
                     }
 
                     reverseDiagonal[kIndex] = x;
 
-                    if (deltaEven) {
-                        if (k + delta >= -d && k + delta <= d) {
+                    if (deltaEven)
+                    {
+                        if (k + delta >= -d && k + delta <= d)
+                        {
                             var forKIndex = k + delta + half;
                             var forX = forwardDiagonal[forKIndex];
                             var forY = forX - (k + delta);
-                            if (forX >= x && forY >= y) {
+                            if (forX >= x && forY >= y)
+                            {
                                 return new EditLengthResult {
                                     EditLength = 2 * d,
                                     StartX = x + startA,
@@ -379,72 +420,97 @@ namespace VBASync.Model {
             throw new Exception("Should never get here");
         }
 
-        private static string UppercaseVbaSymbols(string s, ref bool startInComment) {
+        private static string UppercaseVbaSymbols(string s, ref bool startInComment)
+        {
             var sb = new StringBuilder(s.Length);
             var ls = startInComment ? LineState.Comment : LineState.New;
             startInComment = false;
-            for (var i = 0; i < s.Length; i++) {
-                if (ls == LineState.Quoted || ls == LineState.Comment) {
+            for (var i = 0; i < s.Length; i++)
+            {
+                if (ls == LineState.Quoted || ls == LineState.Comment)
+                {
                     sb.Append(s[i]);
-                } else {
+                }
+                else
+                {
                     sb.Append(char.ToUpper(s[i]));
                 }
-                switch (s[i]) {
+                switch (s[i])
+                {
                 case '"':
-                    if (ls != LineState.Comment) {
+                    if (ls != LineState.Comment)
+                    {
                         ls = ls == LineState.Quoted ? LineState.Normal : LineState.Quoted;
                     }
                     break;
                 case '\'':
-                    if (ls != LineState.Quoted && ls != LineState.Comment) {
+                    if (ls != LineState.Quoted && ls != LineState.Comment)
+                    {
                         ls = LineState.Comment;
                     }
                     break;
                 case ':':
-                    if (ls != LineState.Quoted && ls != LineState.Comment) {
+                    if (ls != LineState.Quoted && ls != LineState.Comment)
+                    {
                         ls = LineState.New;
                     }
                     break;
                 case 'R':
                 case 'r':
-                    if (ls == LineState.New) {
+                    if (ls == LineState.New)
+                    {
                         ls = LineState.CommentAwaitE;
-                    } else if (ls != LineState.Quoted && ls != LineState.Comment) {
+                    }
+                    else if (ls != LineState.Quoted && ls != LineState.Comment)
+                    {
                         ls = LineState.Normal;
                     }
                     break;
                 case 'E':
                 case 'e':
-                    if (ls == LineState.CommentAwaitE) {
+                    if (ls == LineState.CommentAwaitE)
+                    {
                         ls = LineState.CommentAwaitM;
-                    } else if (ls != LineState.Quoted && ls != LineState.Comment) {
+                    }
+                    else if (ls != LineState.Quoted && ls != LineState.Comment)
+                    {
                         ls = LineState.Normal;
                     }
                     break;
                 case 'M':
                 case 'm':
-                    if (ls == LineState.CommentAwaitM) {
+                    if (ls == LineState.CommentAwaitM)
+                    {
                         ls = LineState.CommentAwaitSpace;
-                    } else if (ls != LineState.Quoted && ls != LineState.Comment) {
+                    }
+                    else if (ls != LineState.Quoted && ls != LineState.Comment)
+                    {
                         ls = LineState.Normal;
                     }
                     break;
                 case ' ':
-                    if (ls == LineState.CommentAwaitSpace) {
+                    if (ls == LineState.CommentAwaitSpace)
+                    {
                         ls = LineState.Comment;
-                    } else if (ls != LineState.Quoted && ls != LineState.Comment && ls != LineState.New) {
+                    }
+                    else if (ls != LineState.Quoted && ls != LineState.Comment && ls != LineState.New)
+                    {
                         ls = LineState.Normal;
                     }
                     break;
                 case '_':
-                    if (ls == LineState.Comment && i > 0 && i == s.Length - 1 && s[i - 1] == ' ') {
+                    if (ls == LineState.Comment && i > 0 && i == s.Length - 1 && s[i - 1] == ' ')
+                    {
                         startInComment = true;
-                    } else if (ls != LineState.Quoted && ls != LineState.Comment) {
+                    }
+                    else if (ls != LineState.Quoted && ls != LineState.Comment)
+                    {
                         ls = LineState.Normal;
                     }
                     break;
                 default:
-                    if (ls != LineState.Quoted && ls != LineState.Comment) {
+                    if (ls != LineState.Quoted && ls != LineState.Comment)
+                    {
                         ls = LineState.Normal;
                     }
                     break;
@@ -454,8 +520,10 @@ namespace VBASync.Model {
         }
     }
 
-    internal class DiffBlock {
-        public DiffBlock(int deleteStartA, int deleteCountA, int insertStartB, int insertCountB) {
+    internal class DiffBlock
+    {
+        public DiffBlock(int deleteStartA, int deleteCountA, int insertStartB, int insertCountB)
+        {
             DeleteStartA = deleteStartA;
             DeleteCountA = deleteCountA;
             InsertStartB = insertStartB;
@@ -468,8 +536,10 @@ namespace VBASync.Model {
         public int InsertStartB { get; }
     }
 
-    internal class DiffResult {
-        public DiffResult(string[] peicesOld, string[] piecesNew, IList<DiffBlock> blocks) {
+    internal class DiffResult
+    {
+        public DiffResult(string[] peicesOld, string[] piecesNew, IList<DiffBlock> blocks)
+        {
             PiecesOld = peicesOld;
             PiecesNew = piecesNew;
             DiffBlocks = blocks;
@@ -480,7 +550,8 @@ namespace VBASync.Model {
         public string[] PiecesOld { get; }
     }
 
-    internal class EditLengthResult {
+    internal class EditLengthResult
+    {
         public int EditLength { get; set; }
         public int EndX { get; set; }
         public int EndY { get; set; }
@@ -489,8 +560,10 @@ namespace VBASync.Model {
         public int StartY { get; set; }
     }
 
-    internal class ModificationData {
-        public ModificationData(string str) {
+    internal class ModificationData
+    {
+        public ModificationData(string str)
+        {
             RawData = str;
         }
 

@@ -216,7 +216,8 @@ namespace VBASync.WPF {
             }
             var folderModules = Lib.GetFolderModules(Session.FolderPath);
             _evf?.Dispose();
-            _evf = new VbaFolder(Session.FilePath, folderModules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1));
+            _evf = new VbaFolder();
+            _evf.Read(Session.FilePath, folderModules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1));
             var changes = Lib.GetModulePatches(Session, _evf.FolderPath, folderModules, _evf.ModuleTexts.ToList()).ToList();
             var projChange = Lib.GetProjectPatch(Session, _evf.FolderPath);
             if (projChange != null) {

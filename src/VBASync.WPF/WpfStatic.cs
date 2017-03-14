@@ -1,11 +1,14 @@
 ﻿using System.Windows.Data;
 using VBASync.Model;
 
-namespace VBASync.WPF {
-    public static class WpfStatic {
+namespace VBASync.WPF
+{
+    public static class WpfStatic
+    {
         public static readonly WpfConverter ChangeTypeToDescriptionOneWay = new WpfConverter(
             v => {
-                switch ((ChangeType)v) {
+                switch ((ChangeType)v)
+                {
                 case ChangeType.AddFile:
                     return Properties.Resources.CTAddFile;
                 case ChangeType.MoveFile:
@@ -48,7 +51,8 @@ namespace VBASync.WPF {
 
         public static readonly WpfConverter ModuleTypeToDescriptionOneWay = new WpfConverter(
             v => {
-                switch ((ModuleType)v) {
+                switch ((ModuleType)v)
+                {
                 case ModuleType.Standard:
                     return Properties.Resources.MTStandard;
                 case ModuleType.StaticClass:

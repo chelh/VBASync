@@ -3,11 +3,14 @@ using System;
 using System.Windows;
 using VBASync.Model;
 
-namespace VBASync.WPF {
-    internal partial class SettingsWindow {
+namespace VBASync.WPF
+{
+    internal partial class SettingsWindow
+    {
         private readonly Action<ISession> _replaceSession;
 
-        public SettingsWindow(ISession session, Action<ISession> replaceSession) {
+        public SettingsWindow(ISession session, Action<ISession> replaceSession)
+        {
             InitializeComponent();
             DataContext = session.Copy();
             _replaceSession = replaceSession;
@@ -15,26 +18,31 @@ namespace VBASync.WPF {
 
         private ISession Session => (ISession)DataContext;
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e) {
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        {
             _replaceSession(Session.Copy());
         }
 
-        private void CancelButton_Click(object sender, RoutedEventArgs e) {
+        private void CancelButton_Click(object sender, RoutedEventArgs e)
+        {
             DialogResult = false;
             Close();
         }
 
-        private void DiffToolBrowseButton_Click(object sender, RoutedEventArgs e) {
+        private void DiffToolBrowseButton_Click(object sender, RoutedEventArgs e)
+        {
             var dlg = new VistaOpenFileDialog {
                 Filter = $"{Properties.Resources.SWOpenApplications}|*.exe",
                 FilterIndex = 1
             };
-            if (dlg.ShowDialog() == true) {
+            if (dlg.ShowDialog() == true)
+            {
                 Session.DiffTool = dlg.FileName;
             }
         }
 
-        private void OkButton_Click(object sender, RoutedEventArgs e) {
+        private void OkButton_Click(object sender, RoutedEventArgs e)
+        {
             ApplyButton_Click(null, null);
             DialogResult = true;
             Close();

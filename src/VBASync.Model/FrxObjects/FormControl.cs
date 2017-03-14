@@ -3,23 +3,29 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace VBASync.Model.FrxObjects {
-    internal enum Cycle {
+namespace VBASync.Model.FrxObjects
+{
+    internal enum Cycle
+    {
         AllForms = 0x00,
         CurrentForm = 0x02
     }
 
-    internal enum FormScrollBars {
+    internal enum FormScrollBars
+    {
         None = 0x00,
         Horizontal = 0x01,
         Vertical = 0x02,
         Both = 0x03
     }
 
-    internal class FormControl {
-        public FormControl(byte[] b) {
+    internal class FormControl
+    {
+        public FormControl(byte[] b)
+        {
             using (var st = new MemoryStream(b))
-            using (var r = new FrxReader(st)) {
+            using (var r = new FrxReader(st))
+            {
                 MinorVersion = r.ReadByte();
                 MajorVersion = r.ReadByte();
 
@@ -56,18 +62,23 @@ namespace VBASync.Model.FrxObjects {
                 Caption = r.ReadStringFromCcb(captionCcb);
 
                 r.AlignTo(4);
-                if (cbForm != r.BaseStream.Position - 4) {
+                if (cbForm != r.BaseStream.Position - 4)
+                {
                     throw new ApplicationException("Error reading 'f' stream in .frx data: expected cbForm size "
                                                    + $"{r.BaseStream.Position - 4}, but actual size was {cbForm}.");
                 }
 
                 // StreamData
                 MouseIcon = PropMask.HasMouseIcon ? r.ReadGuidAndPicture() : new byte[0];
-                if (PropMask.HasFont) {
+                if (PropMask.HasFont)
+                {
                     FontIsStdFont = r.GetFontIsStdFont();
-                    if (FontIsStdFont) {
+                    if (FontIsStdFont)
+                    {
                         FontStdFont = r.ReadStdFont();
-                    } else {
+                    }
+                    else
+                    {
                         FontTextProps = r.ReadTextProps();
                     }
                 }
@@ -76,10 +87,12 @@ namespace VBASync.Model.FrxObjects {
                 // FormSiteData
                 SiteClassInfos = new List<byte[]>();
                 ushort siteClassInfoCount = 0;
-                if (!PropMask.HasBooleanProperties || BooleanProperties.ClassTablePersisted) {
+                if (!PropMask.HasBooleanProperties || BooleanProperties.ClassTablePersisted)
+                {
                     siteClassInfoCount = r.Unaligned.ReadUInt16();
                 }
-                for (var i = 0; i < siteClassInfoCount; i++) {
+                for (var i = 0; i < siteClassInfoCount; i++)
+                {
                     st.Seek(2, SeekOrigin.Current); // skip Version
                     SiteClassInfos.Add(r.Unaligned.ReadBytes(r.Unaligned.ReadUInt16()));
                 }
@@ -89,15 +102,18 @@ namespace VBASync.Model.FrxObjects {
                 var depths = new byte[siteCount];
                 var types = new byte[siteCount];
                 var siteDepthsLeft = siteCount;
-                while (siteDepthsLeft > 0) {
+                while (siteDepthsLeft > 0)
+                {
                     var thisDepth = r.Unaligned.ReadByte();
                     var thisType = r.Unaligned.ReadByte();
                     var thisCount = (byte)1;
-                    if ((thisType & 0x80) == 0x80) {
+                    if ((thisType & 0x80) == 0x80)
+                    {
                         thisCount = (byte)(thisType ^ 0x80);
                         thisType = r.Unaligned.ReadByte();
                     }
-                    for (var i = 0; i < thisCount; i++) {
+                    for (var i = 0; i < thisCount; i++)
+                    {
                         var siteIdx = siteCount - siteDepthsLeft;
                         depths[siteIdx] = thisDepth;
                         types[siteIdx] = thisType;
@@ -107,12 +123,14 @@ namespace VBASync.Model.FrxObjects {
                 var rem = (r.BaseStream.Position - sitesStartPos) % 4;
                 if (rem != 0) r.BaseStream.Seek(4 - rem, SeekOrigin.Current); // add ArrayPadding
                 Sites = new OleSiteConcreteControl[siteCount];
-                for (var i = 0; i < siteCount; i++) {
+                for (var i = 0; i < siteCount; i++)
+                {
                     r.BaseStream.Seek(2, SeekOrigin.Current); // ignore Version
                     var cbSite = r.Unaligned.ReadUInt16();
                     Sites[i] = new OleSiteConcreteControl(r.Unaligned.ReadBytes(cbSite));
                 }
-                if (cbSites != r.BaseStream.Position - sitesStartPos) {
+                if (cbSites != r.BaseStream.Position - sitesStartPos)
+                {
                     throw new ApplicationException("Error reading 'f' stream in .frx data: expected cbSites size "
                         + $"{r.BaseStream.Position - sitesStartPos} but actual size was {cbSites}.");
                 }
@@ -153,7 +171,8 @@ namespace VBASync.Model.FrxObjects {
         public SpecialEffect SpecialEffect { get; }
         public uint Zoom { get; }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             var other = obj as FormControl;
             if (other == null || !(MinorVersion == other.MinorVersion && MajorVersion == other.MajorVersion && Equals(PropMask, other.PropMask)
                   && Equals(BackColor, other.BackColor) && Equals(ForeColor, other.ForeColor) && NextAvailableId == other.NextAvailableId
@@ -164,7 +183,8 @@ namespace VBASync.Model.FrxObjects {
                   && Equals(DisplayedSize, other.DisplayedSize) && Equals(LogicalSize, other.LogicalSize) && Equals(ScrollPosition, other.ScrollPosition)
                   && string.Equals(Caption, other.Caption) && MouseIcon.SequenceEqual(other.MouseIcon) && FontIsStdFont == other.FontIsStdFont
                   && Picture.SequenceEqual(other.Picture) && Equals(FontTextProps, other.FontTextProps) && Equals(FontStdFont, other.FontStdFont)
-                  && Sites.SequenceEqual(other.Sites) && Remainder.SequenceEqual(other.Remainder))) {
+                  && Sites.SequenceEqual(other.Sites) && Remainder.SequenceEqual(other.Remainder)))
+            {
                 return false;
             }
 
@@ -172,8 +192,10 @@ namespace VBASync.Model.FrxObjects {
             return !SiteClassInfos.Where((t, i) => !t.SequenceEqual(other.SiteClassInfos[i])).Any();
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = MinorVersion.GetHashCode();
                 hashCode = (hashCode * 397) ^ MajorVersion.GetHashCode();
                 hashCode = (hashCode * 397) ^ (PropMask?.GetHashCode() ?? 0);
@@ -205,8 +227,10 @@ namespace VBASync.Model.FrxObjects {
         }
     }
 
-    internal class FormFlags {
-        public FormFlags(uint i) {
+    internal class FormFlags
+    {
+        public FormFlags(uint i)
+        {
             Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
             Enabled = bit(2);
             DesignExtenderPropertiesPersisted = bit(14);
@@ -217,14 +241,17 @@ namespace VBASync.Model.FrxObjects {
         public bool DesignExtenderPropertiesPersisted { get; }
         public bool Enabled { get; }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             var other = obj as FormFlags;
             return other != null && Enabled == other.Enabled && DesignExtenderPropertiesPersisted == other.DesignExtenderPropertiesPersisted
                 && ClassTablePersisted == other.ClassTablePersisted;
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = Enabled.GetHashCode();
                 hashCode = (hashCode * 397) ^ DesignExtenderPropertiesPersisted.GetHashCode();
                 hashCode = (hashCode * 397) ^ ClassTablePersisted.GetHashCode();
@@ -233,8 +260,10 @@ namespace VBASync.Model.FrxObjects {
         }
     }
 
-    internal class FormPropMask {
-        public FormPropMask(uint i) {
+    internal class FormPropMask
+    {
+        public FormPropMask(uint i)
+        {
             Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
             HasBackColor = bit(1);
             HasForeColor = bit(2);
@@ -287,7 +316,8 @@ namespace VBASync.Model.FrxObjects {
         public bool HasZoom { get; }
         public bool PictureTiling { get; }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             var other = obj as FormPropMask;
             return other != null && HasBackColor == other.HasBackColor && HasForeColor == other.HasForeColor && HasNextAvailableId == other.HasNextAvailableId
                    && HasBooleanProperties == other.HasBooleanProperties && HasBorderStyle == other.HasBorderStyle && HasMousePointer == other.HasMousePointer
@@ -299,8 +329,10 @@ namespace VBASync.Model.FrxObjects {
                    && HasShapeCookie == other.HasShapeCookie && HasDrawBuffer == other.HasDrawBuffer;
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = HasBackColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasForeColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasNextAvailableId.GetHashCode();
@@ -330,8 +362,10 @@ namespace VBASync.Model.FrxObjects {
         }
     }
 
-    internal class FormScrollBarFlags {
-        public FormScrollBarFlags(byte b) {
+    internal class FormScrollBarFlags
+    {
+        public FormScrollBarFlags(byte b)
+        {
             Func<int, bool> bit = j => (b & (1 << j)) != 0;
             Horizontal = bit(0);
             Vertical = bit(1);
@@ -346,14 +380,17 @@ namespace VBASync.Model.FrxObjects {
         public bool KeepVertical { get; }
         public bool Vertical { get; }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             var other = obj as FormScrollBarFlags;
             return other != null && Horizontal == other.Horizontal && Vertical == other.Vertical && KeepHorizontal == other.KeepHorizontal
                 && KeepVertical == other.KeepVertical && KeepLeft == other.KeepLeft;
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = Horizontal.GetHashCode();
                 hashCode = (hashCode * 397) ^ Vertical.GetHashCode();
                 hashCode = (hashCode * 397) ^ KeepHorizontal.GetHashCode();
@@ -364,10 +401,13 @@ namespace VBASync.Model.FrxObjects {
         }
     }
 
-    internal class OleSiteConcreteControl {
-        public OleSiteConcreteControl(byte[] b) {
+    internal class OleSiteConcreteControl
+    {
+        public OleSiteConcreteControl(byte[] b)
+        {
             using (var st = new MemoryStream(b))
-            using (var r = new FrxReader(st)) {
+            using (var r = new FrxReader(st))
+            {
                 PropMask = new SitePropMask(r.ReadUInt32());
 
                 // DataBlock
@@ -414,7 +454,8 @@ namespace VBASync.Model.FrxObjects {
         public string Tag { get; }
         private Tuple<int, int> SitePosition { get; }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             var other = obj as OleSiteConcreteControl;
             return other != null && Equals(PropMask, other.PropMask) && string.Equals(Name, other.Name) && string.Equals(Tag, other.Tag) && Id == other.Id
                    && HelpContextId == other.HelpContextId && BitFlags == other.BitFlags && ObjectStreamSize == other.ObjectStreamSize
@@ -423,8 +464,10 @@ namespace VBASync.Model.FrxObjects {
                    && string.Equals(ControlSource, other.ControlSource) && string.Equals(RowSource, other.RowSource) && Equals(SitePosition, other.SitePosition);
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = PropMask?.GetHashCode() ?? 0;
                 hashCode = (hashCode * 397) ^ (Name?.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ (Tag?.GetHashCode() ?? 0);
@@ -445,8 +488,10 @@ namespace VBASync.Model.FrxObjects {
         }
     }
 
-    internal class SitePropMask {
-        public SitePropMask(uint i) {
+    internal class SitePropMask
+    {
+        public SitePropMask(uint i)
+        {
             Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
             HasName = bit(0);
             HasTag = bit(1);
@@ -479,7 +524,8 @@ namespace VBASync.Model.FrxObjects {
         public bool HasTabIndex { get; }
         public bool HasTag { get; }
 
-        public override bool Equals(object obj) {
+        public override bool Equals(object obj)
+        {
             var other = obj as SitePropMask;
             return other != null && HasName == other.HasName && HasTag == other.HasTag && HasId == other.HasId && HasHelpContextId == other.HasHelpContextId
                    && HasBitFlags == other.HasBitFlags && HasObjectStreamSize == other.HasObjectStreamSize && HasTabIndex == other.HasTabIndex
@@ -488,8 +534,10 @@ namespace VBASync.Model.FrxObjects {
                    && HasRowSource == other.HasRowSource;
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = HasName.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasTag.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasId.GetHashCode();

@@ -9,52 +9,98 @@ using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace VBASync.Model {
-    public class VbaFolder : IDisposable {
+namespace VBASync.Model
+{
+    public class VbaFolder : IDisposable
+    {
         private bool _disposed;
 
-        public VbaFolder(string path, IDictionary<string, string> compareModules) {
-            if (string.IsNullOrEmpty(path)) {
+        public VbaFolder()
+        {
+            FolderPath = $"{Path.GetTempPath()}VBASync-{Guid.NewGuid()}";
+            Directory.CreateDirectory(FolderPath);
+        }
+
+        ~VbaFolder()
+        {
+            Dispose(false);
+        }
+
+        public string FolderPath { get; }
+
+        public Dictionary<string, Tuple<string, ModuleType>> ModuleTexts { get; }
+            = new Dictionary<string, Tuple<string, ModuleType>>(StringComparer.InvariantCultureIgnoreCase);
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        public void Read(string path, IDictionary<string, string> compareModules)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
                 throw new ArgumentException("Path to file cannot be null or empty.", nameof(path));
             }
 
             FileStream fs = null;
-            try {
-                fs = new FileStream(path, FileMode.Open);
-                FolderPath = $"{Path.GetTempPath()}VBASync-{Guid.NewGuid()}";
-                Directory.CreateDirectory(FolderPath);
+            try
+            {
+                try
+                {
+                    fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+                }
+                catch (IOException)
+                {
+                    // most often we get this because Office has the file locked. move the file to another location and retry.
+                    var dest = Path.Combine(FolderPath, "FileToExtract" + Path.GetExtension(path));
+                    File.Copy(path, dest);
+                    path = dest;
+                    fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+                }
 
                 CFStorage vbaProject;
-                if (Path.GetFileName(path).Equals("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase)) {
+                if (Path.GetFileName(path).Equals("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase))
+                {
                     vbaProject = new CompoundFile(fs).RootStorage;
-                } else {
+                }
+                else
+                {
                     var sig = new byte[4];
                     fs.Read(sig, 0, 4);
-                    if (sig.SequenceEqual(new byte[] { 0x50, 0x4b, 0x03, 0x04 })) {
+                    if (sig.SequenceEqual(new byte[] { 0x50, 0x4b, 0x03, 0x04 }))
+                    {
                         var zipFile = new ZipFile(fs);
                         var zipEntry = zipFile.Cast<ZipEntry>().FirstOrDefault(e => e.Name.EndsWith("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase));
-                        if (zipEntry == null) {
+                        if (zipEntry == null)
+                        {
                             throw new ApplicationException("Cannot find 'vbaProject.bin' in ZIP archive.");
                         }
-                        using (var sw = File.Create(Path.Combine(FolderPath, "vbaProject.bin"))) {
+                        using (var sw = File.Create(Path.Combine(FolderPath, "vbaProject.bin")))
+                        {
                             StreamUtils.Copy(zipFile.GetInputStream(zipEntry), sw, new byte[4096]);
                         }
                         fs.Dispose();
-                        fs = new FileStream(Path.Combine(FolderPath, "vbaProject.bin"), FileMode.Open);
+                        fs = new FileStream(Path.Combine(FolderPath, "vbaProject.bin"), FileMode.Open, FileAccess.Read);
                         vbaProject = new CompoundFile(fs).RootStorage;
-                    } else {
+                    }
+                    else
+                    {
                         fs.Seek(0, SeekOrigin.Begin);
                         vbaProject = new CompoundFile(fs).GetAllNamedEntries("_VBA_PROJECT_CUR").FirstOrDefault() as CFStorage
                             ?? new CompoundFile(fs).GetAllNamedEntries("OutlookVbaData").FirstOrDefault() as CFStorage
                             ?? new CompoundFile(fs).GetAllNamedEntries("Macros").FirstOrDefault() as CFStorage;
                     }
                 }
-                if (vbaProject == null) {
+                if (vbaProject == null)
+                {
                     throw new ApplicationException("Cannot find VBA project storage in file.");
                 }
 
                 var projectLk = vbaProject.TryGetStream("PROJECTlk");
-                if (projectLk != null) {
+                if (projectLk != null)
+                {
                     File.WriteAllBytes(Path.Combine(FolderPath, "LicenseKeys.bin"), projectLk.GetData());
                 }
 
@@ -68,10 +114,13 @@ namespace VBASync.Model {
                 var modules = new List<Module>();
                 Module currentModule = null;
                 var projStrings = new List<string>();
-                using (var br = new BinaryReader(new MemoryStream(DecompressStream(vbaProject.GetStorage("VBA").GetStream("dir"))))) {
+                using (var br = new BinaryReader(new MemoryStream(DecompressStream(vbaProject.GetStorage("VBA").GetStream("dir")))))
+                {
                     Action<int> seek = i => br.BaseStream.Seek(i, SeekOrigin.Current);
-                    while (br.BaseStream.Position < br.BaseStream.Length) {
-                        switch (br.ReadUInt16()) {
+                    while (br.BaseStream.Position < br.BaseStream.Length)
+                    {
+                        switch (br.ReadUInt16())
+                        {
                         case 0x0001:
                             // PROJECTSYSKIND
                             seek(4); // seek past size (always 4)
@@ -108,7 +157,8 @@ namespace VBASync.Model {
                             // PROJECTCONSTANTS
                             seek(br.ReadInt32() + 2); // seek past Constants and Reserved
                             projConstants.AddRange(Encoding.Unicode.GetString(br.ReadBytes(br.ReadInt32())).Split(':').Select(s => s.Trim()));
-                            if (projConstants.Count == 1 && string.IsNullOrEmpty(projConstants[0])) {
+                            if (projConstants.Count == 1 && string.IsNullOrEmpty(projConstants[0]))
+                            {
                                 projConstants.RemoveAt(0);
                             }
                             break;
@@ -127,7 +177,8 @@ namespace VBASync.Model {
                             var libIdTwiddled = projEncoding.GetString(br.ReadBytes(br.ReadInt32()));
                             seek(6); // seek past Reserved1 and Reserved2
                             string nameRecordExtended = null;
-                            if (br.PeekChar() == 0x16) {
+                            if (br.PeekChar() == 0x16)
+                            {
                                 // an optional REFERENCENAME record
                                 seek(2); // seek past Id
                                 seek(br.ReadInt32() + 2); // seek past Name and Reserved
@@ -146,7 +197,8 @@ namespace VBASync.Model {
                                 NameRecordExtended = nameRecordExtended,
                                 OriginalTypeLib = originalTypeLib
                             };
-                            if (originalLibIds.ContainsKey(currentRefName)) {
+                            if (originalLibIds.ContainsKey(currentRefName))
+                            {
                                 refCtl.OriginalLibId = originalLibIds[currentRefName];
                             }
                             references.Add(refCtl);
@@ -244,12 +296,15 @@ namespace VBASync.Model {
                         }
                     }
                 }
-                using (var sr = new StreamReader(new MemoryStream(vbaProject.GetStream("PROJECT").GetData()), projEncoding)) {
+                using (var sr = new StreamReader(new MemoryStream(vbaProject.GetStream("PROJECT").GetData()), projEncoding))
+                {
                     string line;
-                    while ((line = sr.ReadLine()) != null) {
+                    while ((line = sr.ReadLine()) != null)
+                    {
                         var split = line.Split('=');
                         var breakLoop = false;
-                        switch (split[0]?.ToUpperInvariant()) {
+                        switch (split[0]?.ToUpperInvariant())
+                        {
                         case "MODULE":
                             modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
                                 .Type = ModuleType.Standard;
@@ -269,14 +324,18 @@ namespace VBASync.Model {
                                 .Type = ModuleType.Form;
                             break;
                         default:
-                            if (line.Equals("[Workspace]", StringComparison.InvariantCultureIgnoreCase)) {
+                            if (line.Equals("[Workspace]", StringComparison.InvariantCultureIgnoreCase))
+                            {
                                 breakLoop = true; // don't output all the cruft after [Workspace]
-                            } else {
+                            }
+                            else
+                            {
                                 projStrings.Add(line);
                             }
                             break;
                         }
-                        if (breakLoop) {
+                        if (breakLoop)
+                        {
                             break;
                         }
                     }
@@ -288,12 +347,14 @@ namespace VBASync.Model {
                 projStrings.Add("");
                 projStrings.Add("[Constants]");
                 projStrings.AddRange(projConstants.Select(s => string.Join("=", s.Split('=').Select(t => t.Trim()))));
-                if (modules.Any(m => m.Version > 0)) {
+                if (modules.Any(m => m.Version > 0))
+                {
                     projStrings.Add("");
                     projStrings.Add("[DocTLibVersions]");
                     projStrings.AddRange(modules.Where(m => m.Version > 0).Select(m => $"{m.Name}={m.Version}"));
                 }
-                foreach (var refer in references) {
+                foreach (var refer in references)
+                {
                     projStrings.Add("");
                     projStrings.Add($"[Reference {refer.Name}]");
                     projStrings.AddRange(refer.GetConfigStrings());
@@ -301,10 +362,12 @@ namespace VBASync.Model {
 
                 File.WriteAllLines(Path.Combine(FolderPath, "Project.ini"), projStrings, projEncoding);
 
-                ModuleTexts = new Dictionary<string, Tuple<string, ModuleType>>();
-                foreach (var m in modules) {
+                ModuleTexts.Clear();
+                foreach (var m in modules)
+                {
                     var moduleText = projEncoding.GetString(DecompressStream(vbaProject.GetStorage("VBA").GetStream(m.StreamName), m.Offset));
-                    if (compareModules.ContainsKey(m.Name)) {
+                    if (compareModules.ContainsKey(m.Name))
+                    {
                         moduleText = ModuleProcessing.FixCase(compareModules[m.Name], moduleText);
                     }
                     moduleText = (GetPrepend(m, vbaProject, projEncoding) + moduleText).TrimEnd('\r', '\n') + "\r\n";
@@ -312,14 +375,16 @@ namespace VBASync.Model {
                     File.WriteAllText(Path.Combine(FolderPath, m.Name + ModuleProcessing.ExtensionFromType(m.Type)), moduleText, projEncoding);
                 }
 
-                foreach (var m in modules.Where(mod => mod.Type == ModuleType.Form)) {
+                foreach (var m in modules.Where(mod => mod.Type == ModuleType.Form))
+                {
                     var cf = new CompoundFile();
                     CopyCfStreamsExcept(vbaProject.GetStorage(m.StreamName), cf.RootStorage, "\x0003VBFrame");
                     var frxPath = Path.Combine(FolderPath, m.Name + ".frx");
                     cf.Save(frxPath);
                     var bytes = File.ReadAllBytes(frxPath);
                     var size = new FileInfo(frxPath).Length;
-                    using (var bw = new BinaryWriter(new FileStream(frxPath, FileMode.Open))) {
+                    using (var bw = new BinaryWriter(new FileStream(frxPath, FileMode.Open)))
+                    {
                         bw.Write((short)0x424c);
                         bw.Write(new byte[3]);
                         bw.Write(size >> 8);
@@ -327,25 +392,17 @@ namespace VBASync.Model {
                         bw.Write(bytes);
                     }
                 }
-            } finally {
+            }
+            finally
+            {
                 fs.Dispose();
             }
         }
 
-        ~VbaFolder() {
-            Dispose(false);
-        }
-
-        public string FolderPath { get; }
-        public Dictionary<string, Tuple<string, ModuleType>> ModuleTexts { get; }
-
-        public void Dispose() {
-            Dispose(true);
-            GC.SuppressFinalize(this);
-        }
-
-        public void Write(string filePath) {
-            if (string.IsNullOrEmpty(filePath)) {
+        public void Write(string filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+            {
                 throw new ArgumentException("Path to file cannot be null or empty.", nameof(filePath));
             }
 
@@ -354,13 +411,16 @@ namespace VBASync.Model {
             var vbaProject = cf.RootStorage;
 
             var projIni = new ProjectIni(Path.Combine(FolderPath, "Project.INI"));
-            if (File.Exists(Path.Combine(FolderPath, "Project.INI.local"))) {
+            if (File.Exists(Path.Combine(FolderPath, "Project.INI.local")))
+            {
                 projIni.AddFile(Path.Combine(FolderPath, "Project.INI.local"));
             }
             var projEncoding = Encoding.GetEncoding(projIni.GetInt("General", "CodePage") ?? Encoding.Default.CodePage);
-            if (!projEncoding.Equals(Encoding.Default)) {
+            if (!projEncoding.Equals(Encoding.Default))
+            {
                 projIni = new ProjectIni(Path.Combine(FolderPath, "Project.INI"), projEncoding);
-                if (File.Exists(Path.Combine(FolderPath, "Project.INI.local"))) {
+                if (File.Exists(Path.Combine(FolderPath, "Project.INI.local")))
+                {
                     projIni.AddFile(Path.Combine(FolderPath, "Project.INI.local"));
                 }
             }
@@ -368,9 +428,11 @@ namespace VBASync.Model {
             var projVersion = projIni.GetVersion("General", "Version") ?? new Version(1, 1);
 
             var refs = new List<Reference>();
-            foreach (var refName in projIni.GetReferenceNames()) {
+            foreach (var refName in projIni.GetReferenceNames())
+            {
                 var refSubj = $"Reference {refName}";
-                if (projIni.GetString(refSubj, "LibIdTwiddled") != null) {
+                if (projIni.GetString(refSubj, "LibIdTwiddled") != null)
+                {
                     refs.Add(new ReferenceControl {
                         Cookie = (uint)(projIni.GetInt(refSubj, "Cookie") ?? 0),
                         LibIdExtended = projIni.GetString(refSubj, "LibIdExtended"),
@@ -380,14 +442,18 @@ namespace VBASync.Model {
                         OriginalLibId = projIni.GetString(refSubj, "OriginalLibId"),
                         OriginalTypeLib = projIni.GetGuid(refSubj, "OriginalTypeLib") ?? Guid.Empty
                     });
-                } else if (projIni.GetString(refSubj, "LibIdAbsolute") != null) {
+                }
+                else if (projIni.GetString(refSubj, "LibIdAbsolute") != null)
+                {
                     refs.Add(new ReferenceProject {
                         LibIdAbsolute = projIni.GetString(refSubj, "LibIdAbsolute"),
                         LibIdRelative = projIni.GetString(refSubj, "LibIdRelative"),
                         Name = refName,
                         Version = projIni.GetVersion(refSubj, "Version")
                     });
-                } else {
+                }
+                else
+                {
                     refs.Add(new ReferenceRegistered {
                         LibId = projIni.GetString(refSubj, "LibId"),
                         Name = refName
@@ -397,7 +463,8 @@ namespace VBASync.Model {
 
             var mods = new List<Module>();
             var modExts = new[] { ".bas", ".cls", ".frm" };
-            foreach (var modPath in Directory.GetFiles(FolderPath).Where(s => modExts.Contains(Path.GetExtension(s) ?? "", StringComparer.InvariantCultureIgnoreCase))) {
+            foreach (var modPath in Directory.GetFiles(FolderPath).Where(s => modExts.Contains(Path.GetExtension(s) ?? "", StringComparer.InvariantCultureIgnoreCase)))
+            {
                 var modName = Path.GetFileNameWithoutExtension(modPath);
                 var modText = File.ReadAllText(modPath, projEncoding);
                 var modType = ModuleProcessing.TypeFromText(modText);
@@ -420,7 +487,8 @@ namespace VBASync.Model {
                 : new byte[] { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 });
 
             var projectWm = new List<byte>();
-            foreach (var modName in mods.Select(m => m.Name)) {
+            foreach (var modName in mods.Select(m => m.Name))
+            {
                 projectWm.AddRange(projEncoding.GetBytes(modName));
                 projectWm.Add(0x00);
                 projectWm.AddRange(Encoding.Unicode.GetBytes(modName));
@@ -487,7 +555,8 @@ namespace VBASync.Model {
             dirUc.AddRange(BitConverter.GetBytes((short)0x003C));
             dirUc.AddRange(BitConverter.GetBytes(projConstantsUtfBytes.Length));
             dirUc.AddRange(projConstantsUtfBytes);
-            foreach (var rfc in refs) {
+            foreach (var rfc in refs)
+            {
                 dirUc.AddRange(rfc.GetBytes(projEncoding));
             }
             dirUc.AddRange(BitConverter.GetBytes((short)0x000F));
@@ -496,7 +565,8 @@ namespace VBASync.Model {
             dirUc.AddRange(BitConverter.GetBytes((short)0x0013));
             dirUc.AddRange(BitConverter.GetBytes(2));
             dirUc.AddRange(BitConverter.GetBytes((short)-1)); // PROJECTCOOKIE
-            foreach (var mod in mods) {
+            foreach (var mod in mods)
+            {
                 dirUc.AddRange(mod.GetBytes(projEncoding));
             }
             dirUc.AddRange(BitConverter.GetBytes((short)0x0010));
@@ -504,8 +574,10 @@ namespace VBASync.Model {
             vbaProjectVba.AddStream("dir");
             vbaProjectVba.GetStream("dir").SetData(CompoundDocumentCompression.CompressPart(dirUc.ToArray()));
 
-            foreach (var mod in mods) {
-                switch (mod.Type) {
+            foreach (var mod in mods)
+            {
+                switch (mod.Type)
+                {
                 case ModuleType.Class:
                 case ModuleType.StaticClass:
                     vbaProjectVba.AddStream(mod.StreamName);
@@ -522,7 +594,8 @@ namespace VBASync.Model {
                     frmStorage.AddStream("\x03VBFrame");
                     frmStorage.GetStream("\x03VBFrame").SetData(projEncoding.GetBytes(vbFrame));
                     var b = File.ReadAllBytes(Path.Combine(FolderPath, mod.Name + ".frx"));
-                    using (var ms = new MemoryStream(b, 24, b.Length - 24)) {
+                    using (var ms = new MemoryStream(b, 24, b.Length - 24))
+                    {
                         var frx = new CompoundFile(ms);
                         CopyCfStreamsExcept(frx.RootStorage, frmStorage, "\x03VBFrame");
                     }
@@ -537,33 +610,42 @@ namespace VBASync.Model {
 
             cf.Save(Path.Combine(FolderPath, "vbaProject.bin"));
 
-            if (Path.GetFileName(filePath).Equals("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase)) {
+            if (Path.GetFileName(filePath).Equals("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase))
+            {
                 File.Copy(Path.Combine(FolderPath, "vbaProject.bin"), filePath, true);
-            } else {
+            }
+            else
+            {
                 FileStream fs = null;
-                try {
+                try
+                {
                     fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
                     var sig = new byte[4];
                     fs.Read(sig, 0, 4);
                     fs.Seek(0, SeekOrigin.Begin);
-                    if (sig.SequenceEqual(new byte[] { 0x50, 0x4b, 0x03, 0x04 })) {
+                    if (sig.SequenceEqual(new byte[] { 0x50, 0x4b, 0x03, 0x04 }))
+                    {
                         var zipFile = new ZipFile(fs);
                         var zipEntry = zipFile.Cast<ZipEntry>().FirstOrDefault(e => e.Name.EndsWith("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase));
-                        if (zipEntry == null) {
+                        if (zipEntry == null)
+                        {
                             throw new ApplicationException("Cannot find 'vbaProject.bin' in ZIP archive.");
                         }
                         zipFile.BeginUpdate();
                         zipFile.Add(Path.Combine(FolderPath, "vbaProject.bin"), zipEntry.Name);
                         zipFile.CommitUpdate();
                         zipFile.Close();
-                    } else {
+                    }
+                    else
+                    {
                         var destCf = new CompoundFile(fs, CFSUpdateMode.Update, CFSConfiguration.Default);
                         var destVbaProject = destCf.GetAllNamedEntries("_VBA_PROJECT_CUR").FirstOrDefault() as CFStorage
                             ?? destCf.GetAllNamedEntries("OutlookVbaData").FirstOrDefault() as CFStorage
                             ?? destCf.GetAllNamedEntries("Macros").FirstOrDefault() as CFStorage;
                         var ls = new List<string>();
                         destVbaProject.VisitEntries(i => ls.Add(i.Name), true);
-                        while (ls.Count > 0) {
+                        while (ls.Count > 0)
+                        {
                             DeleteStorageChildren(destVbaProject);
                             ls.Clear();
                             destVbaProject.VisitEntries(i => ls.Add(i.Name), true);
@@ -573,69 +655,93 @@ namespace VBASync.Model {
                         //destCf.Save(fs);
                         destCf.Close();
                     }
-                } finally {
+                }
+                finally
+                {
                     fs?.Dispose();
                 }
             }
         }
 
-        private static void CopyCfStreamsExcept(CFStorage src, CFStorage dest, string excludeName) {
+        private static void CopyCfStreamsExcept(CFStorage src, CFStorage dest, string excludeName)
+        {
             src.VisitEntries(i => {
-                if (i.Name?.Equals(excludeName, StringComparison.InvariantCultureIgnoreCase) ?? false) {
+                if (i.Name?.Equals(excludeName, StringComparison.InvariantCultureIgnoreCase) ?? false)
+                {
                     return;
                 }
-                if (i.IsStorage) {
+                if (i.IsStorage)
+                {
                     dest.AddStorage(i.Name);
                     CopyCfStreamsExcept((CFStorage)i, dest.GetStorage(i.Name), null);
-                } else {
+                }
+                else
+                {
                     dest.AddStream(i.Name);
                     dest.GetStream(i.Name).SetData(((CFStream)i).GetData());
                 }
             }, false);
         }
 
-        private static byte[] DecompressStream(CFStream sm, uint offset = 0) {
-            try {
+        private static byte[] DecompressStream(CFStream sm, uint offset = 0)
+        {
+            try
+            {
                 var cd = new byte[sm.Size - offset];
                 sm.Read(cd, offset, cd.Length);
                 return CompoundDocumentCompression.DecompressPart(cd);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex)
+            {
                 throw new ApplicationException($"Error while decompressing stream '{sm.Name}': {ex.Message}", ex);
             }
         }
 
-        private static void DeleteBlankLinesFromEnd(IList<string> ls) {
-            for (var i = ls.Count - 1; i >= 0; i--) {
-                if (string.IsNullOrEmpty(ls[i])) {
+        private static void DeleteBlankLinesFromEnd(IList<string> ls)
+        {
+            for (var i = ls.Count - 1; i >= 0; i--)
+            {
+                if (string.IsNullOrEmpty(ls[i]))
+                {
                     ls.RemoveAt(i);
-                } else {
+                }
+                else
+                {
                     return;
                 }
             }
         }
 
-        private static void DeleteStorageChildren(CFStorage target) {
+        private static void DeleteStorageChildren(CFStorage target)
+        {
             target.VisitEntries(i => {
-                if (i.IsStorage) {
+                if (i.IsStorage)
+                {
                     DeleteStorageChildren((CFStorage)i);
                 }
                 target.Delete(i.Name);
             }, false);
         }
 
-        private static string GetAttribute(string moduleText, string attribName) {
-            using (var sr = new StringReader(moduleText)) {
+        private static string GetAttribute(string moduleText, string attribName)
+        {
+            using (var sr = new StringReader(moduleText))
+            {
                 string line;
-                while ((line = sr.ReadLine()) != null) {
+                while ((line = sr.ReadLine()) != null)
+                {
                     var start = line.TrimStart();
-                    if (start.Length < $"Attribute {attribName} ".Length) {
+                    if (start.Length < $"Attribute {attribName} ".Length)
+                    {
                         continue;
                     }
                     start = start.Substring(0, $"Attribute {attribName} ".Length);
                     if (start.Equals($"Attribute {attribName} ", StringComparison.InvariantCultureIgnoreCase)
-                        || start.Equals($"Attribute {attribName}=", StringComparison.InvariantCultureIgnoreCase)) {
+                        || start.Equals($"Attribute {attribName}=", StringComparison.InvariantCultureIgnoreCase))
+                    {
                         var split = line.Split(new[] { '=' }, 2);
-                        if (split.Length == 2) {
+                        if (split.Length == 2)
+                        {
                             return split[1].Trim();
                         }
                     }
@@ -644,15 +750,19 @@ namespace VBASync.Model {
             return null;
         }
 
-        private static uint? GetAttributeUInt(string moduleText, string attribName) {
-            if (uint.TryParse(GetAttribute(moduleText, attribName), out var i)) {
+        private static uint? GetAttributeUInt(string moduleText, string attribName)
+        {
+            if (uint.TryParse(GetAttribute(moduleText, attribName), out var i))
+            {
                 return i;
             }
             return null;
         }
 
-        private static string GetPrepend(Module mod, CFStorage vbaProject, Encoding enc) {
-            switch (mod.Type) {
+        private static string GetPrepend(Module mod, CFStorage vbaProject, Encoding enc)
+        {
+            switch (mod.Type)
+            {
             case ModuleType.Class:
             case ModuleType.StaticClass:
                 return "VERSION 1.0 CLASS\r\nBEGIN\r\n  MultiUse = -1  'True\r\nEND\r\n";
@@ -668,16 +778,21 @@ namespace VBASync.Model {
             }
         }
 
-        private static string SeparateClassCode(string wholeFile) {
-            using (var sr = new StringReader(wholeFile)) {
+        private static string SeparateClassCode(string wholeFile)
+        {
+            using (var sr = new StringReader(wholeFile))
+            {
                 var firstLine = true;
                 string line;
-                while ((line = sr.ReadLine()) != null) {
-                    if (firstLine && !line.TrimStart().StartsWith("Version", StringComparison.InvariantCultureIgnoreCase)) {
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (firstLine && !line.TrimStart().StartsWith("Version", StringComparison.InvariantCultureIgnoreCase))
+                    {
                         return wholeFile;
                     }
                     firstLine = false;
-                    if (line.TrimStart().StartsWith("End", StringComparison.InvariantCultureIgnoreCase)) {
+                    if (line.TrimStart().StartsWith("End", StringComparison.InvariantCultureIgnoreCase))
+                    {
                         break;
                     }
                 }
@@ -685,15 +800,20 @@ namespace VBASync.Model {
             }
         }
 
-        private static string SeparateVbFrame(string wholeFile, out string vbFrame) {
+        private static string SeparateVbFrame(string wholeFile, out string vbFrame)
+        {
             var frmB = new StringBuilder();
-            using (var sr = new StringReader(wholeFile)) {
+            using (var sr = new StringReader(wholeFile))
+            {
                 string line;
-                while ((line = sr.ReadLine()) != null) {
-                    if (!line.TrimStart().StartsWith("OleObjectBlob", StringComparison.InvariantCultureIgnoreCase)) {
+                while ((line = sr.ReadLine()) != null)
+                {
+                    if (!line.TrimStart().StartsWith("OleObjectBlob", StringComparison.InvariantCultureIgnoreCase))
+                    {
                         frmB.AppendLine(line);
                     }
-                    if (line.TrimStart().StartsWith("End", StringComparison.InvariantCultureIgnoreCase)) {
+                    if (line.TrimStart().StartsWith("End", StringComparison.InvariantCultureIgnoreCase))
+                    {
                         break;
                     }
                 }
@@ -702,12 +822,15 @@ namespace VBASync.Model {
             }
         }
 
-        private void Dispose(bool explicitCall) {
-            if (_disposed) {
+        private void Dispose(bool explicitCall)
+        {
+            if (_disposed)
+            {
                 return;
             }
 
-            if (explicitCall) {
+            if (explicitCall)
+            {
                 //_fs?.Dispose();
             }
 
@@ -716,7 +839,8 @@ namespace VBASync.Model {
             _disposed = true;
         }
 
-        private class Module {
+        private class Module
+        {
             public string DocString { get; set; }
             public uint? HelpContext { get; set; }
             public string Name { get; set; }
@@ -727,7 +851,8 @@ namespace VBASync.Model {
             public ModuleType Type { get; set; }
             public uint Version { get; set; }
 
-            public IList<byte> GetBytes(Encoding projEncoding) {
+            public IList<byte> GetBytes(Encoding projEncoding)
+            {
                 var ret = new List<byte>();
                 var nameBytes = projEncoding.GetBytes(Name);
                 ret.AddRange(BitConverter.GetBytes((short)0x0019));
@@ -759,11 +884,13 @@ namespace VBASync.Model {
                 ret.AddRange(BitConverter.GetBytes(HelpContext ?? 0));
                 ret.AddRange(BitConverter.GetBytes(Type == ModuleType.Standard ? (short)0x0021 : (short)0x0022));
                 ret.AddRange(BitConverter.GetBytes(0));
-                if (ReadOnly) {
+                if (ReadOnly)
+                {
                     ret.AddRange(BitConverter.GetBytes((short)0x0025));
                     ret.AddRange(BitConverter.GetBytes(0));
                 }
-                if (Private) {
+                if (Private)
+                {
                     ret.AddRange(BitConverter.GetBytes((short)0x0028));
                     ret.AddRange(BitConverter.GetBytes(0));
                 }
@@ -775,10 +902,12 @@ namespace VBASync.Model {
             public override string ToString() => Name;
         }
 
-        private abstract class Reference {
+        private abstract class Reference
+        {
             public string Name { get; set; }
 
-            public virtual IList<byte> GetBytes(Encoding projEncoding) {
+            public virtual IList<byte> GetBytes(Encoding projEncoding)
+            {
                 var ret = new List<byte>();
                 var nameBytes = projEncoding.GetBytes(Name);
                 var nameUtfBytes = Encoding.Unicode.GetBytes(Name);
@@ -795,7 +924,8 @@ namespace VBASync.Model {
             public override string ToString() => Name;
         }
 
-        private class ReferenceControl : Reference {
+        private class ReferenceControl : Reference
+        {
             public uint Cookie { get; set; }
             public string LibIdExtended { get; set; }
             public string LibIdTwiddled { get; set; }
@@ -803,10 +933,12 @@ namespace VBASync.Model {
             public string OriginalLibId { get; set; }
             public Guid OriginalTypeLib { get; set; }
 
-            public override IList<byte> GetBytes(Encoding projEncoding) {
+            public override IList<byte> GetBytes(Encoding projEncoding)
+            {
                 var ret = new List<byte>();
                 ret.AddRange(base.GetBytes(projEncoding));
-                if (!string.IsNullOrEmpty(OriginalLibId)) {
+                if (!string.IsNullOrEmpty(OriginalLibId))
+                {
                     var originalLibIdBytes = projEncoding.GetBytes(OriginalLibId);
                     ret.AddRange(BitConverter.GetBytes((short)0x0033));
                     ret.AddRange(BitConverter.GetBytes(originalLibIdBytes.Length));
@@ -819,7 +951,8 @@ namespace VBASync.Model {
                 ret.AddRange(twiddledLibIdBytes);
                 ret.AddRange(BitConverter.GetBytes(0));
                 ret.AddRange(BitConverter.GetBytes((short)0));
-                if (!string.IsNullOrEmpty(NameRecordExtended)) {
+                if (!string.IsNullOrEmpty(NameRecordExtended))
+                {
                     var nameRecordExtendedBytes = projEncoding.GetBytes(NameRecordExtended);
                     var nameRecordExtendedUnicodeBytes = Encoding.Unicode.GetBytes(NameRecordExtended);
                     ret.AddRange(BitConverter.GetBytes((short)0x0016));
@@ -841,31 +974,37 @@ namespace VBASync.Model {
                 return ret;
             }
 
-            public override List<string> GetConfigStrings() {
+            public override List<string> GetConfigStrings()
+            {
                 var ls = new List<string> {
                     $"LibIdTwiddled={LibIdTwiddled}",
                     $"LibIdExtended={LibIdExtended}"
                 };
-                if (!string.IsNullOrEmpty(NameRecordExtended)) {
+                if (!string.IsNullOrEmpty(NameRecordExtended))
+                {
                     ls.Add($"NameRecordExtended={NameRecordExtended}");
                 }
                 ls.Add($"OriginalLibId={OriginalLibId}");
-                if (OriginalTypeLib != Guid.Empty) {
+                if (OriginalTypeLib != Guid.Empty)
+                {
                     ls.Add($"OriginalTypeLib={OriginalTypeLib.ToString("B")}");
                 }
-                if (Cookie > 0) {
+                if (Cookie > 0)
+                {
                     ls.Add($"Cookie={Cookie}");
                 }
                 return ls;
             }
         }
 
-        private class ReferenceProject : Reference {
+        private class ReferenceProject : Reference
+        {
             public string LibIdAbsolute { get; set; }
             public string LibIdRelative { get; set; }
             public Version Version { get; set; }
 
-            public override IList<byte> GetBytes(Encoding projEncoding) {
+            public override IList<byte> GetBytes(Encoding projEncoding)
+            {
                 var ret = new List<byte>();
                 ret.AddRange(base.GetBytes(projEncoding));
                 var libIdAbsoluteBytes = projEncoding.GetBytes(LibIdAbsolute);
@@ -881,7 +1020,8 @@ namespace VBASync.Model {
                 return ret;
             }
 
-            public override List<string> GetConfigStrings() {
+            public override List<string> GetConfigStrings()
+            {
                 return new List<string> {
                     $"LibIdAbsolute={LibIdAbsolute}",
                     $"LibIdRelative={LibIdRelative}",
@@ -890,10 +1030,12 @@ namespace VBASync.Model {
             }
         }
 
-        private class ReferenceRegistered : Reference {
+        private class ReferenceRegistered : Reference
+        {
             public string LibId { get; set; }
 
-            public override IList<byte> GetBytes(Encoding projEncoding) {
+            public override IList<byte> GetBytes(Encoding projEncoding)
+            {
                 var ret = new List<byte>();
                 ret.AddRange(base.GetBytes(projEncoding));
                 var libIdBytes = projEncoding.GetBytes(LibId);
@@ -906,7 +1048,8 @@ namespace VBASync.Model {
                 return ret;
             }
 
-            public override List<string> GetConfigStrings() {
+            public override List<string> GetConfigStrings()
+            {
                 return new List<string> {
                     $"LibId={LibId}"
                 };

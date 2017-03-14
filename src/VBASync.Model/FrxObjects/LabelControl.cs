@@ -2,11 +2,15 @@
 using System.IO;
 using System.Linq;
 
-namespace VBASync.Model.FrxObjects {
-    internal class LabelControl {
-        public LabelControl(byte[] b) {
+namespace VBASync.Model.FrxObjects
+{
+    internal class LabelControl
+    {
+        public LabelControl(byte[] b)
+        {
             using (var st = new MemoryStream(b))
-            using (var r = new FrxReader(st)) {
+            using (var r = new FrxReader(st))
+            {
                 MinorVersion = r.ReadByte();
                 MajorVersion = r.ReadByte();
 
@@ -32,7 +36,8 @@ namespace VBASync.Model.FrxObjects {
                 Size = PropMask.HasSize ? r.ReadCoords() : Tuple.Create(0, 0);
 
                 r.AlignTo(4);
-                if (cbLabel != r.BaseStream.Position - 4) {
+                if (cbLabel != r.BaseStream.Position - 4)
+                {
                     throw new ApplicationException("Error reading 'o' stream in .frx data: expected cbLabel size "
                                                    + $"{r.BaseStream.Position - 4}, but actual size was {cbLabel}.");
                 }
@@ -60,21 +65,27 @@ namespace VBASync.Model.FrxObjects {
         public SpecialEffect SpecialEffect { get; }
         public uint VariousPropertyBits { get; }
 
-        public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
                 return false;
             }
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, obj))
+            {
                 return true;
             }
-            if (obj.GetType() != GetType()) {
+            if (obj.GetType() != GetType())
+            {
                 return false;
             }
             return Equals((LabelControl)obj);
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = Picture?.Length.GetHashCode() ?? 0;
                 hashCode = (hashCode * 397) ^ (MouseIcon?.Length.GetHashCode() ?? 0);
                 hashCode = (hashCode * 397) ^ MinorVersion.GetHashCode();
@@ -95,7 +106,8 @@ namespace VBASync.Model.FrxObjects {
             }
         }
 
-        protected bool Equals(LabelControl other) {
+        protected bool Equals(LabelControl other)
+        {
             return Picture.SequenceEqual(other.Picture) && MouseIcon.SequenceEqual(other.MouseIcon) && MinorVersion == other.MinorVersion
                    && MajorVersion == other.MajorVersion && Equals(PropMask, other.PropMask) && Equals(ForeColor, other.ForeColor)
                    && Equals(BackColor, other.BackColor) && VariousPropertyBits == other.VariousPropertyBits && string.Equals(Caption, other.Caption)
@@ -105,8 +117,10 @@ namespace VBASync.Model.FrxObjects {
         }
     }
 
-    internal class LabelPropMask {
-        public LabelPropMask(uint i) {
+    internal class LabelPropMask
+    {
+        public LabelPropMask(uint i)
+        {
             Func<int, bool> bit = j => (i & ((uint)1 << j)) != 0;
             HasForeColor = bit(0);
             HasBackColor = bit(1);
@@ -137,21 +151,27 @@ namespace VBASync.Model.FrxObjects {
         public bool HasSpecialEffect { get; }
         public bool HasVariousPropertyBits { get; }
 
-        public override bool Equals(object obj) {
-            if (ReferenceEquals(null, obj)) {
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+            {
                 return false;
             }
-            if (ReferenceEquals(this, obj)) {
+            if (ReferenceEquals(this, obj))
+            {
                 return true;
             }
-            if (obj.GetType() != GetType()) {
+            if (obj.GetType() != GetType())
+            {
                 return false;
             }
             return Equals((LabelPropMask)obj);
         }
 
-        public override int GetHashCode() {
-            unchecked {
+        public override int GetHashCode()
+        {
+            unchecked
+            {
                 var hashCode = HasForeColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasBackColor.GetHashCode();
                 hashCode = (hashCode * 397) ^ HasVariousPropertyBits.GetHashCode();
@@ -169,7 +189,8 @@ namespace VBASync.Model.FrxObjects {
             }
         }
 
-        protected bool Equals(LabelPropMask other) {
+        protected bool Equals(LabelPropMask other)
+        {
             return HasForeColor == other.HasForeColor && HasBackColor == other.HasBackColor && HasVariousPropertyBits == other.HasVariousPropertyBits
                    && HasCaption == other.HasCaption && HasPicturePosition == other.HasPicturePosition && HasSize == other.HasSize
                    && HasMousePointer == other.HasMousePointer && HasBorderColor == other.HasBorderColor && HasBorderStyle == other.HasBorderStyle

@@ -1,10 +1,13 @@
-﻿namespace VBASync.Model {
-    public enum ActionType {
+﻿namespace VBASync.Model
+{
+    public enum ActionType
+    {
         Extract = 0,
         Publish = 1
     }
 
-    public interface ISession {
+    public interface ISession
+    {
         ActionType Action { get; set; }
         string DiffTool { get; set; }
         string DiffToolParameters { get; set; }
