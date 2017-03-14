@@ -51,7 +51,7 @@ namespace VBASync.Model
             sb.AppendLine($"GC=\"{GetString("General", "GC")}\"");
             sb.AppendLine("");
             sb.AppendLine("[Host Extender Info]");
-            int i = 0;
+            var i = 0;
             while (GetString("Host Extender Info", $"&H{(++i).ToString("X8")}") != null)
             {
                 sb.AppendLine($"&H{i.ToString("X8")}={GetString("Host Extender Info", $"&H{i.ToString("X8")}")}");

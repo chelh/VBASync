@@ -24,9 +24,16 @@ namespace VBASync.Model.FrxObjects
                 var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false);
                 PicturePosition = PropMask.HasPicturePosition ? r.ReadPicturePosition() : PicturePosition.RightTop;
                 MousePointer = PropMask.HasMousePointer ? r.ReadMousePointer() : MousePointer.Arrow;
-                if (PropMask.HasPicture) r.Skip2Bytes();
+                if (PropMask.HasPicture)
+                {
+                    r.Skip2Bytes();
+                }
+
                 Accelerator = PropMask.HasAccelerator ? r.ReadWChar() : "";
-                if (PropMask.HasMouseIcon) r.Skip2Bytes();
+                if (PropMask.HasMouseIcon)
+                {
+                    r.Skip2Bytes();
+                }
 
                 // ExtraDataBlock
                 Caption = r.ReadStringFromCcb(captionCcb);

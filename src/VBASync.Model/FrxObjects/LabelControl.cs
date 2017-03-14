@@ -27,9 +27,16 @@ namespace VBASync.Model.FrxObjects
                 BorderColor = PropMask.HasBorderColor ? r.ReadOleColor() : null;
                 BorderStyle = PropMask.HasBorderStyle ? r.ReadBorderStyle() : BorderStyle.None;
                 SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
-                if (PropMask.HasPicture) r.Skip2Bytes();
+                if (PropMask.HasPicture)
+                {
+                    r.Skip2Bytes();
+                }
+
                 Accelerator = PropMask.HasAccelerator ? r.ReadWChar() : "";
-                if (PropMask.HasMouseIcon) r.Skip2Bytes();
+                if (PropMask.HasMouseIcon)
+                {
+                    r.Skip2Bytes();
+                }
 
                 // ExtraDataBlock
                 Caption = r.ReadStringFromCcb(captionCcb);

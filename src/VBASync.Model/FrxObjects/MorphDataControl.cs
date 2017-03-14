@@ -43,8 +43,16 @@ namespace VBASync.Model.FrxObjects
                 PicturePosition = PropMask.HasPicturePosition ? r.ReadPicturePosition() : PicturePosition.RightTop;
                 BorderColor = PropMask.HasBorderColor ? r.ReadOleColor() : null;
                 SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
-                if (PropMask.HasMouseIcon) r.Skip2Bytes();
-                if (PropMask.HasPicture) r.Skip2Bytes();
+                if (PropMask.HasMouseIcon)
+                {
+                    r.Skip2Bytes();
+                }
+
+                if (PropMask.HasPicture)
+                {
+                    r.Skip2Bytes();
+                }
+
                 Accelerator = PropMask.HasAccelerator ? r.ReadWChar() : "";
                 var groupNameCcb = PropMask.HasGroupName ? r.ReadCcb() : Tuple.Create(0, false);
 
