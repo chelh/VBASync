@@ -1,4 +1,4 @@
-﻿The following license applies to all of `VBA Sync Tool.exe` except these
+﻿The following license applies to all of VBA Sync Tool.exe except these
 statically-linked third-party libraries:
 
   * DiffPlex (modified by me for use with VBA)
@@ -6,8 +6,8 @@ statically-linked third-party libraries:
   * SharpZipLib
   * Ookii.Dialogs
 
-See the `3RDPARTY` folder for these projects’ licenses, and
-for the license of `VBACompressionCodec.dll`.
+See the 3RDPARTY folder for these projects’ licenses, and for the license
+of VBACompressionCodec.dll.
 
 -----------------------------------------------------------------------------
 
