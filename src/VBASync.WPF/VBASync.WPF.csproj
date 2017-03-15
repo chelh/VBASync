@@ -99,15 +99,6 @@
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <None Include="Packages.config" />
     <AppDesigner Include="Properties\" />
   </ItemGroup>
@@ -124,6 +115,10 @@
     <Resource Include="Icons\ModuleIcon.png" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\VBASync.Localization\VBASync.Localization.csproj">
+      <Project>{efde00d6-9c86-4d54-b0d8-431428eafcd7}</Project>
+      <Name>VBASync.Localization</Name>
+    </ProjectReference>
     <ProjectReference Include="..\VBASync.Model\VBASync.Model.csproj">
       <Project>{035bae2f-ed96-48b9-980e-3236e9239061}</Project>
       <Name>VBASync.Model</Name>

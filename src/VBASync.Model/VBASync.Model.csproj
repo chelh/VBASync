@@ -74,6 +74,12 @@
   <ItemGroup>
     <Folder Include="Properties\" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\VBASync.Localization\VBASync.Localization.csproj">
+      <Project>{efde00d6-9c86-4d54-b0d8-431428eafcd7}</Project>
+      <Name>VBASync.Localization</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

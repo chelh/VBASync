@@ -1,6 +1,7 @@
 ﻿using Ookii.Dialogs.Wpf;
 using System;
 using System.Windows;
+using VBASync.Localization;
 using VBASync.Model;
 
 namespace VBASync.WPF
@@ -32,7 +33,7 @@ namespace VBASync.WPF
         private void DiffToolBrowseButton_Click(object sender, RoutedEventArgs e)
         {
             var dlg = new VistaOpenFileDialog {
-                Filter = $"{Properties.Resources.SWOpenApplications}|*.exe",
+                Filter = $"{VBASyncResources.SWOpenApplications}|*.exe",
                 FilterIndex = 1
             };
             if (dlg.ShowDialog() == true)

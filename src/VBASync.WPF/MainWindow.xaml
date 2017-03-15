@@ -3,11 +3,11 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:l10n="clr-namespace:VBASync.Localization;assembly=VBASync.Localization"
     xmlns:lib="clr-namespace:VBASync.Model;assembly=VBASync.Model"
     xmlns:local="clr-namespace:VBASync.WPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:props="clr-namespace:VBASync.WPF.Properties"
-    Title="{x:Static props:Resources.MWTitle}"
+    Title="{x:Static l10n:VBASyncResources.MWTitle}"
     Width="400"
     Height="600"
     MinWidth="375"
@@ -23,14 +23,14 @@
             x:Name="Menu"
             Margin="4"
             DockPanel.Dock="Top">
-            <MenuItem Header="{x:Static props:Resources.MWFileMenu}">
-                <MenuItem Click="SaveSessionMenu_Click" Header="{x:Static props:Resources.MWSaveSessionMenu}" />
-                <MenuItem Click="LoadSessionMenu_Click" Header="{x:Static props:Resources.MWLoadSessionMenu}" />
-                <MenuItem Click="LoadLastMenu_Click" Header="{x:Static props:Resources.MWLoadLastMenu}" />
+            <MenuItem Header="{x:Static l10n:VBASyncResources.MWFileMenu}">
+                <MenuItem Click="SaveSessionMenu_Click" Header="{x:Static l10n:VBASyncResources.MWSaveSessionMenu}" />
+                <MenuItem Click="LoadSessionMenu_Click" Header="{x:Static l10n:VBASyncResources.MWLoadSessionMenu}" />
+                <MenuItem Click="LoadLastMenu_Click" Header="{x:Static l10n:VBASyncResources.MWLoadLastMenu}" />
                 <Separator />
-                <MenuItem Click="SettingsMenu_Click" Header="{x:Static props:Resources.MWSettingsMenu}" />
+                <MenuItem Click="SettingsMenu_Click" Header="{x:Static l10n:VBASyncResources.MWSettingsMenu}" />
                 <Separator />
-                <MenuItem Click="ExitMenu_Click" Header="{x:Static props:Resources.MWExitMenu}" />
+                <MenuItem Click="ExitMenu_Click" Header="{x:Static l10n:VBASyncResources.MWExitMenu}" />
             </MenuItem>
         </Menu>
         <Border
@@ -50,16 +50,16 @@
                 d:LayoutOverrides="Height">
                 <Label
                     Padding="0"
-                    Content="{x:Static props:Resources.MWActionText}"
+                    Content="{x:Static l10n:VBASyncResources.MWActionText}"
                     Style="{StaticResource Level1Solid}" />
                 <RadioButton
                     x:Name="ExtractFromFileButton"
-                    Content="{x:Static props:Resources.MWExtract}"
+                    Content="{x:Static l10n:VBASyncResources.MWExtract}"
                     IsChecked="{Binding Action, ConverterParameter={x:Static lib:ActionType.Extract}, Converter={x:Static local:WpfStatic.EnumToBoolean}}"
                     Style="{StaticResource Level1}" />
                 <RadioButton
                     x:Name="PublishToFileButton"
-                    Content="{x:Static props:Resources.MWPublish}"
+                    Content="{x:Static l10n:VBASyncResources.MWPublish}"
                     IsChecked="{Binding Action, ConverterParameter={x:Static lib:ActionType.Publish}, Converter={x:Static local:WpfStatic.EnumToBoolean}}"
                     Style="{StaticResource Level1Close}" />
                 <Grid
@@ -82,7 +82,7 @@
                     </Grid.RowDefinitions>
                     <Label
                         Padding="0"
-                        Content="{x:Static props:Resources.MWVBAFolder}"
+                        Content="{x:Static l10n:VBASyncResources.MWVBAFolder}"
                         Style="{StaticResource Level1}"
                         Target="{Binding ElementName=FolderBrowseBox}" />
                     <TextBox
@@ -103,12 +103,12 @@
                         Margin="4,0,0,0"
                         VerticalAlignment="Bottom"
                         Click="FolderBrowseButton_Click"
-                        Content="{x:Static props:Resources.BrowseAction}" />
+                        Content="{x:Static l10n:VBASyncResources.BrowseAction}" />
                     <Label
                         Grid.Row="2"
                         Grid.Column="0"
                         Padding="0"
-                        Content="{x:Static props:Resources.MWOfficeFile}"
+                        Content="{x:Static l10n:VBASyncResources.MWOfficeFile}"
                         Style="{StaticResource Level1}"
                         Target="{Binding ElementName=FileBrowseBox}" />
                     <TextBox
@@ -129,7 +129,7 @@
                         Margin="4,0,0,0"
                         VerticalAlignment="Bottom"
                         Click="FileBrowseButton_Click"
-                        Content="{x:Static props:Resources.BrowseAction}" />
+                        Content="{x:Static l10n:VBASyncResources.BrowseAction}" />
                 </Grid>
             </StackPanel>
             <DataGrid
@@ -192,7 +192,7 @@
                         </DataGridTemplateColumn.CellTemplate>
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn
-                        Header="{x:Static props:Resources.MWChangeType}"
+                        Header="{x:Static l10n:VBASyncResources.MWChangeType}"
                         IsReadOnly="True"
                         KeyboardNavigation.IsTabStop="False">
                         <DataGridTemplateColumn.CellTemplate>
@@ -206,7 +206,7 @@
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn
                         MinWidth="120"
-                        Header="{x:Static props:Resources.MWModule}"
+                        Header="{x:Static l10n:VBASyncResources.MWModule}"
                         IsReadOnly="True"
                         KeyboardNavigation.IsTabStop="False">
                         <DataGridTemplateColumn.CellTemplate>
@@ -225,7 +225,7 @@
                     </DataGridTemplateColumn>
                     <DataGridTemplateColumn
                         Width="*"
-                        Header="{x:Static props:Resources.MWDescription}"
+                        Header="{x:Static l10n:VBASyncResources.MWDescription}"
                         IsReadOnly="True"
                         KeyboardNavigation.IsTabStop="False">
                         <DataGridTemplateColumn.CellTemplate>
@@ -258,7 +258,7 @@
                     MinWidth="75"
                     HorizontalAlignment="Left"
                     Click="RefreshButton_Click"
-                    Content="{x:Static props:Resources.MWRefreshAction}"
+                    Content="{x:Static l10n:VBASyncResources.MWRefreshAction}"
                     Visibility="Visible" />
                 <StackPanel Grid.Column="2" Orientation="Horizontal">
                     <StackPanel.Resources>
@@ -270,19 +270,19 @@
                         x:Name="ApplyButton"
                         MinWidth="75"
                         Click="ApplyButton_Click"
-                        Content="{x:Static props:Resources.ApplyAction}" />
+                        Content="{x:Static l10n:VBASyncResources.ApplyAction}" />
                     <Button
                         x:Name="CancelButton"
                         MinWidth="75"
                         Click="CancelButton_Click"
-                        Content="{x:Static props:Resources.CancelAction}" />
+                        Content="{x:Static l10n:VBASyncResources.CancelAction}" />
                     <Button
                         x:Name="OkButton"
                         Height="20"
                         MinWidth="75"
                         VerticalAlignment="Top"
                         Click="OkButton_Click"
-                        Content="{x:Static props:Resources.OKAction}"
+                        Content="{x:Static l10n:VBASyncResources.OKAction}"
                         IsDefault="True" />
                 </StackPanel>
             </Grid>

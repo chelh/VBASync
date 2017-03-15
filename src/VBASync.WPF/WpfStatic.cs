@@ -1,4 +1,5 @@
 ﻿using System.Windows.Data;
+using VBASync.Localization;
 using VBASync.Model;
 
 namespace VBASync.WPF
@@ -10,35 +11,35 @@ namespace VBASync.WPF
                 switch ((ChangeType)v)
                 {
                 case ChangeType.AddFile:
-                    return Properties.Resources.CTAddFile;
+                    return VBASyncResources.CTAddFile;
                 case ChangeType.MoveFile:
-                    return Properties.Resources.CTMoveFile;
+                    return VBASyncResources.CTMoveFile;
                 case ChangeType.DeleteFile:
-                    return Properties.Resources.CTDeleteFile;
+                    return VBASyncResources.CTDeleteFile;
                 case ChangeType.AddSub:
-                    return Properties.Resources.CTAddSub;
+                    return VBASyncResources.CTAddSub;
                 case ChangeType.DeleteSub:
-                    return Properties.Resources.CTDeleteSub;
+                    return VBASyncResources.CTDeleteSub;
                 case ChangeType.AddLines:
-                    return Properties.Resources.CTAddLines;
+                    return VBASyncResources.CTAddLines;
                 case ChangeType.ChangeLines:
-                    return Properties.Resources.CTChangeLines;
+                    return VBASyncResources.CTChangeLines;
                 case ChangeType.DeleteLines:
-                    return Properties.Resources.CTDeleteLines;
+                    return VBASyncResources.CTDeleteLines;
                 case ChangeType.ReplaceId:
-                    return Properties.Resources.CTReplaceId;
+                    return VBASyncResources.CTReplaceId;
                 case ChangeType.ChangeFormControls:
-                    return Properties.Resources.CTChangeFormControls;
+                    return VBASyncResources.CTChangeFormControls;
                 case ChangeType.DeleteFrx:
-                    return Properties.Resources.CTDeleteFrx;
+                    return VBASyncResources.CTDeleteFrx;
                 case ChangeType.ChangeFileType:
-                    return Properties.Resources.CTChangeFileType;
+                    return VBASyncResources.CTChangeFileType;
                 case ChangeType.WholeFile:
-                    return Properties.Resources.CTWholeFile;
+                    return VBASyncResources.CTWholeFile;
                 case ChangeType.MoveSub:
-                    return Properties.Resources.CTMoveSub;
+                    return VBASyncResources.CTMoveSub;
                 case ChangeType.Project:
-                    return Properties.Resources.CTProject;
+                    return VBASyncResources.CTProject;
                 default:
                     return null;
                 }
@@ -54,15 +55,15 @@ namespace VBASync.WPF
                 switch ((ModuleType)v)
                 {
                 case ModuleType.Standard:
-                    return Properties.Resources.MTStandard;
+                    return VBASyncResources.MTStandard;
                 case ModuleType.StaticClass:
-                    return Properties.Resources.MTStaticClass;
+                    return VBASyncResources.MTStaticClass;
                 case ModuleType.Class:
-                    return Properties.Resources.MTClass;
+                    return VBASyncResources.MTClass;
                 case ModuleType.Form:
-                    return Properties.Resources.MTForm;
+                    return VBASyncResources.MTForm;
                 case ModuleType.Ini:
-                    return Properties.Resources.MTIni;
+                    return VBASyncResources.MTIni;
                 default:
                     return null;
                 }

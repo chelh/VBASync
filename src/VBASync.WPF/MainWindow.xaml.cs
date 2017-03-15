@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
+using VBASync.Localization;
 using VBASync.Model;
 
 namespace VBASync.WPF {
@@ -125,16 +126,16 @@ namespace VBASync.WPF {
 
         private void FileBrowseButton_Click(object sender, RoutedEventArgs e) {
             var dlg = new VistaOpenFileDialog {
-                Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
-                    + $"{Properties.Resources.MWOpenAllSupported}|*.doc;*.dot;*.xls;*.xlt;*.docm;*.dotm;*.docb;*.xlsm;*.xla;*.xlam;*.xlsb;"
+                Filter = $"{VBASyncResources.MWOpenAllFiles}|*.*|"
+                    + $"{VBASyncResources.MWOpenAllSupported}|*.doc;*.dot;*.xls;*.xlt;*.docm;*.dotm;*.docb;*.xlsm;*.xla;*.xlam;*.xlsb;"
                     + "*.pptm;*.potm;*.ppam;*.ppsm;*.sldm;*.docx;*.dotx;*.xlsx;*.xltx;*.pptx;*.potx;*.ppsx;*.sldx;*.otm;*.bin|"
-                    + $"{Properties.Resources.MWOpenWord97}|*.doc;*.dot|"
-                    + $"{Properties.Resources.MWOpenExcel97}|*.xls;*.xlt;*.xla|"
-                    + $"{Properties.Resources.MWOpenWord07}|*.docx;*.docm;*.dotx;*.dotm;*.docb|"
-                    + $"{Properties.Resources.MWOpenExcel07}|*.xlsx;*.xlsm;*.xltx;*.xltm;*.xlsb;*.xlam|"
-                    + $"{Properties.Resources.MWOpenPpt07}|*.pptx;*.pptm;*.potx;*.potm;*.ppam;*.ppsx;*.ppsm;*.sldx;*.sldm|"
-                    + $"{Properties.Resources.MWOpenOutlook}|*.otm|"
-                    + $"{Properties.Resources.MWOpenSAlone}|*.bin",
+                    + $"{VBASyncResources.MWOpenWord97}|*.doc;*.dot|"
+                    + $"{VBASyncResources.MWOpenExcel97}|*.xls;*.xlt;*.xla|"
+                    + $"{VBASyncResources.MWOpenWord07}|*.docx;*.docm;*.dotx;*.dotm;*.docb|"
+                    + $"{VBASyncResources.MWOpenExcel07}|*.xlsx;*.xlsm;*.xltx;*.xltm;*.xlsb;*.xlam|"
+                    + $"{VBASyncResources.MWOpenPpt07}|*.pptx;*.pptm;*.potx;*.potm;*.ppam;*.ppsx;*.ppsm;*.sldx;*.sldm|"
+                    + $"{VBASyncResources.MWOpenOutlook}|*.otm|"
+                    + $"{VBASyncResources.MWOpenSAlone}|*.bin",
                 FilterIndex = 2
             };
             if (dlg.ShowDialog() == true) {
@@ -185,8 +186,8 @@ namespace VBASync.WPF {
 
         private void LoadSessionMenu_Click(object sender, RoutedEventArgs e) {
             var dlg = new VistaOpenFileDialog {
-                Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
-                    + $"{Properties.Resources.MWOpenSession}|*.ini",
+                Filter = $"{VBASyncResources.MWOpenAllFiles}|*.*|"
+                    + $"{VBASyncResources.MWOpenSession}|*.ini",
                 FilterIndex = 2
             };
             if (dlg.ShowDialog() == true) {
@@ -245,8 +246,8 @@ namespace VBASync.WPF {
 
         private void SaveSessionMenu_Click(object sender, RoutedEventArgs e) {
             var dlg = new VistaSaveFileDialog {
-                Filter = $"{Properties.Resources.MWOpenAllFiles}|*.*|"
-                    + $"{Properties.Resources.MWOpenSession}|*.ini",
+                Filter = $"{VBASyncResources.MWOpenAllFiles}|*.*|"
+                    + $"{VBASyncResources.MWOpenSession}|*.ini",
                 FilterIndex = 2
             };
             if (dlg.ShowDialog() == true) {
