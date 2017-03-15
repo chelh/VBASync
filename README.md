@@ -1,10 +1,10 @@
-<h1>VBA Sync Tool&#x2001;<img src='http://i.imgur.com/sQAsBy4.png' alt='VBA Syc Tool logo' /></h1>
+# VBA Sync Tool&#x2001;![VBA Sync logo](http://i.imgur.com/sQAsBy4.png)
 
 Microsoft Office VBA code is usually held in binary format, making proper
 version control difficult. VBA Sync Tool synchronizes macros between a
 VBA-enabled file and a folder, enabling easy version control using any VCS.
 
-<h2>Features</h2>
+## Features
 VBA Sync Tool works *directly with the Office file,* unlike most
 other solutions, which use a host application (e.g., Excel) to manipulate
 the VBA code. This gives it several advantages:
@@ -26,7 +26,7 @@ the VBA code. This gives it several advantages:
   * Supports Excel 97-2003, Excel 2007+, Word 97-2003, Word 2007+,
     PowerPoint 2007+, and Outlook files.
 
-<h2>Using</h2>
+## Using
 VBA Sync Tool has two modes: **Extract**&nbsp;mode extracts modules
 from the file into the folder. You can then commit the extracted files
 to version control. **Publish**&nbsp;mode publishes modules from
@@ -48,9 +48,9 @@ the command-line. I recommend launching VBA Sync Tool from a shortcut,
 to avoid having to specify the folder and file each time you need
 to synchronize.
 
-<img src='http://i.imgur.com/GrXx2VH.png' alt='VBA Sync Tool after selecting folder and file locations' />
+![VBA Sync after selecting folder and file locations](http://i.imgur.com/GrXx2VH.png)
 
-<h2>Contributing</h2>
+## Contributing
 I appreciate any code contributions, but am especially interested
 in [issue 1](https://github.com/chelh/VBASync/issues/1) (Access support)
 and [issue 8](https://github.com/chelh/VBASync/issues/8) (translations).
@@ -62,7 +62,7 @@ Build using Visual Studio 2017. You must also download
 [`VBACompressionCodec.dll`](https://github.com/chelh/VBACompressionCodec/releases)
 to the `src` directory, as the `VBASync.Model` project depends on it.
 
-<h2>License</h2>
+## License
 Copyright © 2017 Chelsea Hughes
 
 You may use this software for any purpose and alter it freely.
