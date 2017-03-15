@@ -163,6 +163,7 @@
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Resource.Embedder.1.2.2\build\Resource.Embedder.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Resource.Embedder.1.2.2\build\Resource.Embedder.targets'))" />
   </Target>
   <PropertyGroup>
     <PostBuildEvent>if exist "$(SolutionDir)..\dist\" rd /s /q "$(SolutionDir)..\dist\"
@@ -171,10 +172,9 @@ copy /Y "$(TargetPath)" "$(SolutionDir)..\dist\"
 copy /Y "$(ProjectDir)LICENSE.txt" "$(SolutionDir)..\dist\"
 mkdir "$(SolutionDir)..\dist\3RDPARTY"
 copy /Y "$(ProjectDir)3RDPARTY\*" "$(SolutionDir)..\dist\3RDPARTY\"
-mkdir "$(SolutionDir)..\dist\en-US"
-copy /Y "$(TargetDir)en-US\*" "$(SolutionDir)..\dist\en-US\"
 copy /Y "$(SolutionDir)VBACompressionCodec.dll" "$(SolutionDir)..\dist\"</PostBuildEvent>
   </PropertyGroup>
+  <Import Project="..\packages\Resource.Embedder.1.2.2\build\Resource.Embedder.targets" Condition="Exists('..\packages\Resource.Embedder.1.2.2\build\Resource.Embedder.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
