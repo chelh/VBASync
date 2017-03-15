@@ -52,7 +52,8 @@ to synchronize.
 
 <h2>Contributing</h2>
 I appreciate any code contributions, but am especially interested
-in issues #1 (Access support) and #8 (translations).
+in [issue 1](https://github.com/chelh/VBASync/issues/1) (Access support)
+and [issue 8](https://github.com/chelh/VBASync/issues/8) (translations).
 
 Opening a [new issue](https://github.com/chelh/VBASync/issues/new) is
 the best way to contact me, especially if you want to contribute code.
