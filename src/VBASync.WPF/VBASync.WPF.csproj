@@ -171,6 +171,8 @@ copy /Y "$(TargetPath)" "$(SolutionDir)..\dist\"
 copy /Y "$(ProjectDir)LICENSE.txt" "$(SolutionDir)..\dist\"
 mkdir "$(SolutionDir)..\dist\3RDPARTY"
 copy /Y "$(ProjectDir)3RDPARTY\*" "$(SolutionDir)..\dist\3RDPARTY\"
+mkdir "$(SolutionDir)..\dist\en-US"
+copy /Y "$(TargetDir)en-US\*" "$(SolutionDir)..\dist\en-US\"
 copy /Y "$(SolutionDir)VBACompressionCodec.dll" "$(SolutionDir)..\dist\"</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
