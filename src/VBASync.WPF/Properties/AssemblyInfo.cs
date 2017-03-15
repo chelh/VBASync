@@ -8,4 +8,4 @@ using System.Resources;
 
 [assembly: NeutralResourcesLanguage("en-US", UltimateResourceFallbackLocation.Satellite)]
 
-[assembly: AssemblyVersion("1.1.5")]
+[assembly: AssemblyVersion("1.1.6")]
