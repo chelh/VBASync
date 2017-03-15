@@ -52,12 +52,15 @@ to synchronize.
 
 <h2>Contributing</h2>
 I appreciate any code contributions, but am especially interested
-in translations and [issue #1](https://github.com/chelh/VBASync/issues/1)
-(Access database support).
+in [issue 1](https://github.com/chelh/VBASync/issues/1) (Access support)
+and [issue 8](https://github.com/chelh/VBASync/issues/8) (translations).
+
+Opening a [new issue](https://github.com/chelh/VBASync/issues/new) is
+the best way to contact me, especially if you want to contribute code.
 
 Build using Visual Studio 2017. You must also download
 [`VBACompressionCodec.dll`](https://github.com/chelh/VBACompressionCodec/releases)
-to the `src` directory.
+to the `src` directory, as the `VBASync.Model` project depends on it.
 
 <h2>License</h2>
 Copyright © 2017 Chelsea Hughes
