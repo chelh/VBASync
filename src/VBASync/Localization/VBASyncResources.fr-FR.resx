@@ -99,55 +99,55 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.3500.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="ApplyAction" xml:space="preserve">
-    <value>_Apply</value>
+    <value>_Appliquer</value>
   </data>
   <data name="BrowseAction" xml:space="preserve">
-    <value>_Browse</value>
+    <value>_Parcourir</value>
   </data>
   <data name="CancelAction" xml:space="preserve">
-    <value>Cancel</value>
+    <value>Annuler</value>
   </data>
   <data name="CTAddFile" xml:space="preserve">
-    <value>Add file</value>
+    <value>Ajouter un fichier</value>
   </data>
   <data name="CTAddLines" xml:space="preserve">
-    <value>Add</value>
+    <value>Ajouter</value>
   </data>
   <data name="CTAddSub" xml:space="preserve">
-    <value>Add Sub</value>
+    <value>Ajouter Sub</value>
   </data>
   <data name="CTChangeFileType" xml:space="preserve">
-    <value>Module type</value>
+    <value>Type de module</value>
   </data>
   <data name="CTChangeFormControls" xml:space="preserve">
-    <value>Form design</value>
+    <value>UserForm FRX</value>
   </data>
   <data name="CTChangeLines" xml:space="preserve">
-    <value>Change</value>
+    <value>Changement</value>
   </data>
   <data name="CTDeleteFile" xml:space="preserve">
-    <value>Delete file</value>
+    <value>Suppr. fichier</value>
   </data>
   <data name="CTDeleteFrx" xml:space="preserve">
-    <value>Delete form design</value>
+    <value>Suppr. UserForm FRX</value>
   </data>
   <data name="CTDeleteLines" xml:space="preserve">
-    <value>Delete</value>
+    <value>Supprimer</value>
   </data>
   <data name="CTDeleteSub" xml:space="preserve">
-    <value>Delete Sub</value>
+    <value>Supprimer Sub</value>
   </data>
   <data name="CTMoveFile" xml:space="preserve">
-    <value>Rename file</value>
+    <value>Renommer le fichier</value>
   </data>
   <data name="CTMoveSub" xml:space="preserve">
-    <value>Move Sub</value>
+    <value>Déplacer Sub</value>
   </data>
   <data name="CTProject" xml:space="preserve">
-    <value>Project</value>
+    <value>Projet</value>
   </data>
   <data name="CTReplaceId" xml:space="preserve">
-    <value>Replace</value>
+    <value>Remplacer</value>
   </data>
   <data name="CTWholeFile" xml:space="preserve">
     <value>Module</value>
@@ -156,10 +156,10 @@
     <value>Class</value>
   </data>
   <data name="MTForm" xml:space="preserve">
-    <value>Form</value>
+    <value>UserForm</value>
   </data>
   <data name="MTIni" xml:space="preserve">
-    <value>Project</value>
+    <value>Projet</value>
   </data>
   <data name="MTStandard" xml:space="preserve">
     <value>Module</value>
@@ -171,96 +171,96 @@
     <value>Action</value>
   </data>
   <data name="MWChangeType" xml:space="preserve">
-    <value>Change type</value>
+    <value>Changer type</value>
   </data>
   <data name="MWDescription" xml:space="preserve">
     <value>Description</value>
   </data>
   <data name="MWExitMenu" xml:space="preserve">
-    <value>E_xit</value>
+    <value>_Quitter</value>
   </data>
   <data name="MWExtract" xml:space="preserve">
-    <value>_Extract VBA from Office file</value>
+    <value>_Extraire le VBA du fichier Office</value>
   </data>
   <data name="MWFileMenu" xml:space="preserve">
-    <value>_File</value>
+    <value>_Fichier</value>
   </data>
   <data name="MWLoadLastMenu" xml:space="preserve">
-    <value>_Load last session</value>
+    <value>_Charger la dernière session</value>
   </data>
   <data name="MWLoadSessionMenu" xml:space="preserve">
-    <value>_Open session</value>
+    <value>_Ouvrir session</value>
   </data>
   <data name="MWModule" xml:space="preserve">
     <value>Module</value>
   </data>
   <data name="MWOfficeFile" xml:space="preserve">
-    <value>_Office file</value>
+    <value>_Fichier Office</value>
   </data>
   <data name="MWOpenAllFiles" xml:space="preserve">
-    <value>All files</value>
+    <value>Tous les fichiers</value>
   </data>
   <data name="MWOpenAllSupported" xml:space="preserve">
-    <value>All supported files</value>
+    <value>Tous les types supportés</value>
   </data>
   <data name="MWOpenExcel07" xml:space="preserve">
-    <value>Excel 2007+ files</value>
+    <value>Fichiers Excel 2007+</value>
   </data>
   <data name="MWOpenExcel97" xml:space="preserve">
-    <value>Excel 97-2003 files</value>
+    <value>Fichiers Excel 97-2003</value>
   </data>
   <data name="MWOpenOutlook" xml:space="preserve">
-    <value>Outlook files</value>
+    <value>Fichiers Outlook</value>
   </data>
   <data name="MWOpenPpt07" xml:space="preserve">
-    <value>PowerPoint 2007+ files</value>
+    <value>Fichiers PowerPoint 2007+</value>
   </data>
   <data name="MWOpenSAlone" xml:space="preserve">
-    <value>Stand-alone VBA project</value>
+    <value>Projet VBA autonome</value>
   </data>
   <data name="MWOpenSession" xml:space="preserve">
-    <value>Session files</value>
+    <value>Fichiers session</value>
   </data>
   <data name="MWOpenWord07" xml:space="preserve">
-    <value>Word 2007+ files</value>
+    <value>Fichiers Word 2007+</value>
   </data>
   <data name="MWOpenWord97" xml:space="preserve">
-    <value>Word 97-2003 files</value>
+    <value>Fichiers Word 97-2003</value>
   </data>
   <data name="MWPublish" xml:space="preserve">
-    <value>_Publish VBA to Office file</value>
+    <value>_Publier les modifications VBA vers le fichier Office</value>
   </data>
   <data name="MWRefreshAction" xml:space="preserve">
-    <value>_Refresh</value>
+    <value>_Raffraichir</value>
   </data>
   <data name="MWSaveSessionMenu" xml:space="preserve">
-    <value>_Save session</value>
+    <value>_Sauvegarder la session</value>
   </data>
   <data name="MWSettingsMenu" xml:space="preserve">
-    <value>_Settings</value>
+    <value>_Options</value>
   </data>
   <data name="MWTitle" xml:space="preserve">
     <value>VBA Sync Tool</value>
   </data>
   <data name="MWVBAFolder" xml:space="preserve">
-    <value>_VBA project folder</value>
+    <value>_Dossier du projet VBA</value>
   </data>
   <data name="OKAction" xml:space="preserve">
     <value>OK</value>
   </data>
   <data name="SWDiffTool" xml:space="preserve">
-    <value>_Diff tool (optional)</value>
+    <value>_Outil de Diff (optionnel)</value>
   </data>
   <data name="SWDiffToolParameters" xml:space="preserve">
-    <value>D_iff tool parameters</value>
+    <value>Paramètres de l'outil de D_iff</value>
   </data>
   <data name="SWDiffToolParametersHelp" xml:space="preserve">
-    <value>Macros: {OldFile}, {NewFile}</value>
+    <value>Macros: {OldFile}, {NewFile} (Fichiers ancien / nouveau)</value>
   </data>
   <data name="SWOpenApplications" xml:space="preserve">
     <value>Applications</value>
   </data>
   <data name="SWTitle" xml:space="preserve">
-    <value>Settings</value>
+    <value>Options</value>
   </data>
 </root>

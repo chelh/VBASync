@@ -1,7 +1,7 @@
 ﻿using System.Windows;
 using VBASync.Localization;
 
-namespace VBASync.WPF
+namespace VBASync
 {
     internal partial class App
     {

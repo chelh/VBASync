@@ -1,0 +1,204 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{69C03739-3447-441E-AFB2-BAF5F6C52CFE}</ProjectGuid>
+    <OutputType>WinExe</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VBASync</RootNamespace>
+    <AssemblyName>VBA Sync Tool</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>VBA Sync Simple.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0c15020868fd6249, processorArchitecture=MSIL">
+      <HintPath>..\packages\Ookii.Dialogs.1.0\lib\net35\Ookii.Dialogs.Wpf.dll</HintPath>
+    </Reference>
+    <Reference Include="OpenMcdf, Version=2.1.2.1274, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\OpenMcdf.2.1.2.1274\lib\OpenMcdf.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="VBACompressionCodec">
+      <HintPath>..\VBACompressionCodec.dll</HintPath>
+    </Reference>
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="App.xaml.cs">
+      <DependentUpon>App.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Localization\VBASyncResources.Designer.cs">
+      <DependentUpon>VBASyncResources.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Localization\VBASyncResources.fr-FR.Designer.cs">
+      <DependentUpon>VBASyncResources.fr-FR.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Model\AppIniFile.cs" />
+    <Compile Include="Model\DiffPlex_ModVba.cs" />
+    <Compile Include="Model\Extensions.cs" />
+    <Compile Include="Model\FrxObjects\CommandButtonControl.cs" />
+    <Compile Include="Model\FrxObjects\Common.cs" />
+    <Compile Include="Model\FrxObjects\FormControl.cs" />
+    <Compile Include="Model\FrxObjects\FrxReader.cs" />
+    <Compile Include="Model\FrxObjects\LabelControl.cs" />
+    <Compile Include="Model\FrxObjects\MorphDataControl.cs" />
+    <Compile Include="Model\IniFile.cs" />
+    <Compile Include="Model\Lib.cs" />
+    <Compile Include="Model\ModuleProcessing.cs" />
+    <Compile Include="Model\Patch.cs" />
+    <Compile Include="Model\ProjectIni.cs" />
+    <Compile Include="Model\SessionInterfaces.cs" />
+    <Compile Include="Model\VbaFolder.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="View\ChangesViewModel.cs" />
+    <Compile Include="View\MainViewModel.cs" />
+    <Compile Include="View\MainWindow.xaml.cs">
+      <DependentUpon>MainWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\SettingsWindow.xaml.cs">
+      <DependentUpon>SettingsWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\ViewModelBase.cs" />
+    <Compile Include="View\WpfConverter.cs" />
+    <Compile Include="View\WpfStatic.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="3RDPARTY\DiffPlex.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="3RDPARTY\Ookii.Dialogs.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="3RDPARTY\OpenMCDF.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="3RDPARTY\SharpZipLib.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="3RDPARTY\VBACompressionCodec.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\VBASyncResources.fr-FR.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>VBASyncResources.fr-FR.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Localization\VBASyncResources.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>VBASyncResources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Icons\ClassIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Icons\DocIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Icons\FormIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Icons\ModuleIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Icons\ProjectIcon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="View\Icons\VBA Sync Simple.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ApplicationDefinition Include="App.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </ApplicationDefinition>
+    <Page Include="View\MainWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="View\SettingsWindow.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="FodyWeavers.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LICENSE.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="VBA Sync Simple.ico" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>if exist "$(SolutionDir)..\dist\" rd /s /q "$(SolutionDir)..\dist\"
+mkdir "$(SolutionDir)..\dist\"
+copy /Y "$(TargetPath)" "$(SolutionDir)..\dist\"
+copy /Y "$(ProjectDir)LICENSE.txt" "$(SolutionDir)..\dist\"
+mkdir "$(SolutionDir)..\dist\3RDPARTY"
+copy /Y "$(ProjectDir)3RDPARTY\*" "$(SolutionDir)..\dist\3RDPARTY\"
+copy /Y "$(SolutionDir)VBACompressionCodec.dll" "$(SolutionDir)..\dist\"</PostBuildEvent>
+  </PropertyGroup>
+  <Import Project="..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="Exists('..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets'))" />
+    <Error Condition="!Exists('..\packages\Resource.Embedder.1.2.2\build\Resource.Embedder.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Resource.Embedder.1.2.2\build\Resource.Embedder.targets'))" />
+  </Target>
+  <Import Project="..\packages\Resource.Embedder.1.2.2\build\Resource.Embedder.targets" Condition="Exists('..\packages\Resource.Embedder.1.2.2\build\Resource.Embedder.targets')" />
+</Project>
