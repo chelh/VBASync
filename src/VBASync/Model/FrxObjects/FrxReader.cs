@@ -78,6 +78,8 @@ namespace VBASync.Model.FrxObjects
         public PicturePosition ReadPicturePosition() => (PicturePosition)ReadUInt32();
         public PictureSizeMode ReadPictureSizeMode() => (PictureSizeMode)ReadByte();
         public SpecialEffect ReadSpecialEffect() => (SpecialEffect)ReadByte();
+        public SpecialEffect ReadSpecialEffect2() => (SpecialEffect)ReadUInt16();
+        public SpecialEffect ReadSpecialEffect4() => (SpecialEffect)ReadUInt32();
 
         public Tuple<short, byte, short, uint, string> ReadStdFont()
         {

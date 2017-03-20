@@ -42,7 +42,7 @@ namespace VBASync.Model.FrxObjects
                 var captionCcb = PropMask.HasCaption ? r.ReadCcb() : Tuple.Create(0, false);
                 PicturePosition = PropMask.HasPicturePosition ? r.ReadPicturePosition() : PicturePosition.RightTop;
                 BorderColor = PropMask.HasBorderColor ? r.ReadOleColor() : null;
-                SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
+                SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect4() : SpecialEffect.Flat;
                 if (PropMask.HasMouseIcon)
                 {
                     r.Skip2Bytes();

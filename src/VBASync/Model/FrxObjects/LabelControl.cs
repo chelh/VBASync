@@ -26,7 +26,7 @@ namespace VBASync.Model.FrxObjects
                 MousePointer = PropMask.HasMousePointer ? r.ReadMousePointer() : MousePointer.Default;
                 BorderColor = PropMask.HasBorderColor ? r.ReadOleColor() : null;
                 BorderStyle = PropMask.HasBorderStyle ? r.ReadBorderStyle() : BorderStyle.None;
-                SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect() : SpecialEffect.Flat;
+                SpecialEffect = PropMask.HasSpecialEffect ? r.ReadSpecialEffect2() : SpecialEffect.Flat;
                 if (PropMask.HasPicture)
                 {
                     r.Skip2Bytes();
