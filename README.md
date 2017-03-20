@@ -64,6 +64,8 @@ to the `src` directory. Then build using Visual Studio 2017.
 ## License
 Copyright © 2017 Chelsea Hughes
 
+Thanks to GitHub user hectorticoli for the French translation.
+
 You may use this software for any purpose and alter it freely.
 You may redistribute it subject to these restrictions:
 
