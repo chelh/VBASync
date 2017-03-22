@@ -281,6 +281,12 @@ namespace VBASync.WPF {
 
         private void Window_Closed(object sender, EventArgs e) {
             _evf?.Dispose();
+
+            // switch the thread to invariant culture because of a bug in .Net that causes
+            // an assert failure (infinite recursion during resource lookup within mscorlib)
+            // when writing to isolated storage from a non-invariant-culture thread
+            System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
+            System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
             using (var st = new IsolatedStorageFileStream("LastSession.ini", FileMode.OpenOrCreate, FileAccess.Write, _store)) {
                 SaveSession(st);
             }
