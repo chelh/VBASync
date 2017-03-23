@@ -538,6 +538,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to _Language.
+        /// </summary>
+        public static string SWLanguage {
+            get {
+                return ResourceManager.GetString("SWLanguage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Applications.
         /// </summary>
         public static string SWOpenApplications {

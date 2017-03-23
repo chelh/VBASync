@@ -157,6 +157,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="VBA Sync Simple.ico" />
+    <Resource Include="View\Icons\English.png" />
+    <Resource Include="View\Icons\French.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
