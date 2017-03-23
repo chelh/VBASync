@@ -6,12 +6,23 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Loose files", "Loose files", "{C787BBEE-9AF4-4E60-923E-C67ECB69356F}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
+		..\Installer.iss = ..\Installer.iss
 		..\LICENSE.md = ..\LICENSE.md
+		..\LICENSE.rtf = ..\LICENSE.rtf
 		..\README.md = ..\README.md
 		VBACompressionCodec.dll = VBACompressionCodec.dll
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBASync", "VBASync\VBASync.csproj", "{69C03739-3447-441E-AFB2-BAF5F6C52CFE}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3RDPARTY", "3RDPARTY", "{FFC0997D-CCD5-49D3-A76E-F8AE83E2E890}"
+	ProjectSection(SolutionItems) = preProject
+		..\3RDPARTY\DiffPlex.txt = ..\3RDPARTY\DiffPlex.txt
+		..\3RDPARTY\Ookii.Dialogs.txt = ..\3RDPARTY\Ookii.Dialogs.txt
+		..\3RDPARTY\OpenMCDF.txt = ..\3RDPARTY\OpenMCDF.txt
+		..\3RDPARTY\SharpZipLib.txt = ..\3RDPARTY\SharpZipLib.txt
+		..\3RDPARTY\VBACompressionCodec.txt = ..\3RDPARTY\VBACompressionCodec.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

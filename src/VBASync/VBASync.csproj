@@ -106,28 +106,7 @@
     <Compile Include="View\WpfStatic.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="3RDPARTY\DiffPlex.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
     <None Include="Packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="3RDPARTY\Ookii.Dialogs.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="3RDPARTY\OpenMCDF.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="3RDPARTY\SharpZipLib.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="3RDPARTY\VBACompressionCodec.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Localization\VBASyncResources.fr-FR.resx">
@@ -177,20 +156,12 @@
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LICENSE.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="VBA Sync Simple.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>if exist "$(SolutionDir)..\dist\" rd /s /q "$(SolutionDir)..\dist\"
-mkdir "$(SolutionDir)..\dist\"
-copy /Y "$(TargetPath)" "$(SolutionDir)..\dist\"
-copy /Y "$(ProjectDir)LICENSE.txt" "$(SolutionDir)..\dist\"
-mkdir "$(SolutionDir)..\dist\3RDPARTY"
-copy /Y "$(ProjectDir)3RDPARTY\*" "$(SolutionDir)..\dist\3RDPARTY\"
-copy /Y "$(SolutionDir)VBACompressionCodec.dll" "$(SolutionDir)..\dist\"</PostBuildEvent>
+    <PostBuildEvent>
+    </PostBuildEvent>
   </PropertyGroup>
   <Import Project="..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets" Condition="Exists('..\packages\Fody.1.29.4\build\portable-net+sl+win+wpa+wp\Fody.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
