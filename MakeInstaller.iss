@@ -23,23 +23,25 @@ Compression=lzma
 SolidCompression=yes
 
 [Languages]
-Name: "english"; MessagesFile: "compiler:Default.isl"
-Name: "french"; MessagesFile: "compiler:Languages\French.isl"
+Name: "en"; MessagesFile: "compiler:Default.isl"
+Name: "fr"; MessagesFile: "compiler:Languages\French.isl"
 
 [Files]
 Source: "src\VBASync\bin\Release\VBA Sync Tool.exe"; DestDir: "{app}"; Flags: ignoreversion
 Source: "src\VBACompressionCodec.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE.rtf"; DestDir: "{app}"; Flags: ignoreversion
-Source: "3RDPARTY\DiffPlex.txt"; DestDir: "{app}\3RDPARTY"; Flags: ignoreversion
-Source: "3RDPARTY\Ookii.Dialogs.txt"; DestDir: "{app}\3RDPARTY"; Flags: ignoreversion
-Source: "3RDPARTY\OpenMCDF.txt"; DestDir: "{app}\3RDPARTY"; Flags: ignoreversion
-Source: "3RDPARTY\SharpZipLib.txt"; DestDir: "{app}\3RDPARTY"; Flags: ignoreversion
-Source: "3RDPARTY\VBACompressionCodec.txt"; DestDir: "{app}\3RDPARTY"; Flags: ignoreversion
+Source: "3RDPARTY\*"; DestDir: "{app}\3RDPARTY"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
-[Run]
+[Run]   
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
+[INI]
+Filename: "{app}\VBASync.ini"; Section: "General"; Key: "Language"; String: "{language}"; Flags: createkeyifdoesntexist
+
+[UninstallDelete]
+Type: files; Name: "{app}\VBASync.ini"
