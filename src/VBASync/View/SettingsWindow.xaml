@@ -71,25 +71,25 @@
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
                 Style="{StaticResource Level1Close}">
-                <ComboBoxItem IsSelected="True" Tag="en-US">
+                <ComboBoxItem IsSelected="True" Tag="en">
                     <ComboBoxItem.Content>
                         <StackPanel Orientation="Horizontal">
                             <Image Source="pack://application:,,,/View/Icons/English.png" />
-                            <Label
+                            <TextBlock
                                 Margin="4,0,0,0"
                                 Padding="0"
-                                Content="English" />
+                                Text="English" />
                         </StackPanel>
                     </ComboBoxItem.Content>
                 </ComboBoxItem>
-                <ComboBoxItem Tag="fr-FR">
+                <ComboBoxItem Tag="fr">
                     <ComboBoxItem.Content>
                         <StackPanel Orientation="Horizontal">
                             <Image Margin="2,0,0,0" Source="pack://application:,,,/View/Icons/French.png" />
-                            <Label
+                            <TextBlock
                                 Margin="6,0,0,0"
                                 Padding="0"
-                                Content="Français" />
+                                Text="Français" />
                         </StackPanel>
                     </ComboBoxItem.Content>
                 </ComboBoxItem>

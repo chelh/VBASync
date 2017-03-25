@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using VBASync.Localization;
 
 namespace VBASync.Model.FrxObjects
 {
@@ -84,7 +85,7 @@ namespace VBASync.Model.FrxObjects
         {
             if (b.Length != 4)
             {
-                throw new ArgumentException($"Error creating {nameof(OleColor)}. Expected 4 bytes but got {b.Length}.", nameof(b));
+                throw new ApplicationException(string.Format(VBASyncResources.ErrorFrxColorSizeMismatch, b.Length));
             }
 
             Blue = b[0];

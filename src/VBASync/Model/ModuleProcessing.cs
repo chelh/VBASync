@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using VBASync.Localization;
 
 namespace VBASync.Model
 {
@@ -24,7 +25,7 @@ namespace VBASync.Model
             case ModuleType.Ini:
                 return ".ini";
             default:
-                throw new ApplicationException("Unrecognized module type.");
+                throw new ApplicationException(VBASyncResources.ErrorUnrecognizedModuleType);
             }
         }
 

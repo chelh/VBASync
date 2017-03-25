@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using VBASync.Localization;
 
 namespace VBASync.Model.FrxObjects
 {
@@ -76,8 +77,8 @@ namespace VBASync.Model.FrxObjects
                 r.AlignTo(4);
                 if (cbForm != r.BaseStream.Position - 4)
                 {
-                    throw new ApplicationException("Error reading 'f' stream in .frx data: expected cbForm size "
-                                                   + $"{r.BaseStream.Position - 4}, but actual size was {cbForm}.");
+                    throw new ApplicationException(string.Format(VBASyncResources.ErrorFrxStreamSizeMismatch,
+                        "f", "cbForm", r.BaseStream.Position - 4, cbForm));
                 }
 
                 // StreamData
@@ -147,8 +148,8 @@ namespace VBASync.Model.FrxObjects
                 }
                 if (cbSites != r.BaseStream.Position - sitesStartPos)
                 {
-                    throw new ApplicationException("Error reading 'f' stream in .frx data: expected cbSites size "
-                        + $"{r.BaseStream.Position - sitesStartPos} but actual size was {cbSites}.");
+                    throw new ApplicationException(string.Format(VBASyncResources.ErrorFrxStreamSizeMismatch,
+                        "f", "cbSites", r.BaseStream.Position - sitesStartPos, cbSites));
                 }
 
                 Remainder = st.Position < st.Length ? r.Unaligned.ReadBytes((int)(st.Length - st.Position)) : new byte[0];
@@ -456,7 +457,7 @@ namespace VBASync.Model.FrxObjects
 
                 if (st.Position < st.Length)
                 {
-                    throw new ApplicationException("Expected end of OleSiteConcreteControl.");
+                    throw new ApplicationException(VBASyncResources.ErrorFrxExpectedEndOfOleSiteConcreteControl);
                 }
             }
         }

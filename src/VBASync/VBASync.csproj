@@ -71,8 +71,8 @@
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="Localization\VBASyncResources.fr-FR.Designer.cs">
-      <DependentUpon>VBASyncResources.fr-FR.resx</DependentUpon>
+    <Compile Include="Localization\VBASyncResources.fr.Designer.cs">
+      <DependentUpon>VBASyncResources.fr.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -109,9 +109,9 @@
     <None Include="Packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Localization\VBASyncResources.fr-FR.resx">
+    <EmbeddedResource Include="Localization\VBASyncResources.fr.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
-      <LastGenOutput>VBASyncResources.fr-FR.Designer.cs</LastGenOutput>
+      <LastGenOutput>VBASyncResources.fr.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Localization\VBASyncResources.resx">

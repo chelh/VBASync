@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using VBASync.Localization;
 
 namespace VBASync.Model
 {
@@ -403,7 +404,7 @@ namespace VBASync.Model
         {
             if (string.IsNullOrEmpty(filePath))
             {
-                throw new ArgumentException("Path to file cannot be null or empty.", nameof(filePath));
+                throw new ArgumentException(VBASyncResources.ErrorPathCannotbeNullOrEmpty, nameof(filePath));
             }
 
             File.Delete(Path.Combine(FolderPath, "vbaProject.bin"));
@@ -629,7 +630,7 @@ namespace VBASync.Model
                         var zipEntry = zipFile.Cast<ZipEntry>().FirstOrDefault(e => e.Name.EndsWith("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase));
                         if (zipEntry == null)
                         {
-                            throw new ApplicationException("Cannot find 'vbaProject.bin' in ZIP archive.");
+                            throw new ApplicationException(VBASyncResources.ErrorCannotFindVbaProject);
                         }
                         zipFile.BeginUpdate();
                         zipFile.Add(Path.Combine(FolderPath, "vbaProject.bin"));
@@ -693,7 +694,7 @@ namespace VBASync.Model
             }
             catch (Exception ex)
             {
-                throw new ApplicationException($"Error while decompressing stream '{sm.Name}': {ex.Message}", ex);
+                throw new ApplicationException(string.Format(VBASyncResources.ErrorDecompressingStream, sm.Name, ex.Message), ex);
             }
         }
 

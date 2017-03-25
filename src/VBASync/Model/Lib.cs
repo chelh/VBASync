@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using VBASync.Localization;
 using VBASync.Model.FrxObjects;
 
 namespace VBASync.Model
@@ -130,7 +131,7 @@ namespace VBASync.Model
             s2Names.Sort();
             if (!s1Names.SequenceEqual(s2Names))
             {
-                explain = $"Different file lists in storage '{s1.Name}'.\r\nFile 1: {{'{string.Join("', '", s1Names)}'}}\r\nFile 2: {{'{string.Join("'', '", s2Names)}'}}.";
+                explain = string.Format(VBASyncResources.ExplainFrxDifferentFileLists, s1.Name, string.Join("', '", s1Names), string.Join("', '", s2Names));
                 return true;
             }
             FormControl fc1 = null;
@@ -149,7 +150,7 @@ namespace VBASync.Model
                     var fc2 = new FormControl(s2.GetStream("f").GetData());
                     if (!fc1.Equals(fc2))
                     {
-                        explain = $"Different contents of stream 'f' in storage '{s1.Name}'.";
+                        explain = string.Format(VBASyncResources.ExplainFrxGeneralStreamDifference, "f", s1.Name);
                         return true;
                     }
                 }
@@ -160,7 +161,7 @@ namespace VBASync.Model
                     uint idx = 0;
                     foreach (var site in fc1.Sites)
                     {
-                        explain = $"Different contents of stream 'o', site '{site.Name}' in storage '{s1.Name}'.";
+                        explain = string.Format(VBASyncResources.ExplainFrxOStreamDifference, site.Name, s1.Name);
                         var o1Range = o1.Range(idx, site.ObjectStreamSize);
                         var o2Range = o2.Range(idx, site.ObjectStreamSize);
                         switch (site.ClsidCacheIndex)
@@ -201,7 +202,7 @@ namespace VBASync.Model
                 }
                 else if (!s1.GetStream(t.Item1).GetData().SequenceEqual(s2.GetStream(t.Item1).GetData()))
                 {
-                    explain = $"Different contents of stream '{t.Item1}' in storage '{s1.Name}'.";
+                    explain = string.Format(VBASyncResources.ExplainFrxGeneralStreamDifference, t.Item1, s1.Name);
                     return true;
                 }
             }

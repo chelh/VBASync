@@ -283,6 +283,64 @@
   <data name="SWTitle" xml:space="preserve">
     <value>Settings</value>
   </data>
+  <data name="CDChangeFileType" xml:space="preserve">
+    <value>{0} → {1} and file changed ({2})</value>
+    <comment>{0}: Original module type
+{1}: New module type
+{2}: Line difference (e.g., +8, -4, –)</comment>
+  </data>
+  <data name="CDWholeFile" xml:space="preserve">
+    <value>File changed ({0})</value>
+    <comment>{0}: Line difference (e.g., +8, -4, –)</comment>
+  </data>
+  <data name="ErrorCannotFindVbaProject" xml:space="preserve">
+    <value>Cannot find 'vbaProject.bin' in ZIP archive.</value>
+  </data>
+  <data name="ErrorDecompressingStream" xml:space="preserve">
+    <value>Error while decompressing stream '{0}': {1}</value>
+    <comment>{0}: Name of stream being processed
+{1}: Inner exception text</comment>
+  </data>
+  <data name="ErrorFrxColorSizeMismatch" xml:space="preserve">
+    <value>Error creating OleColor: expected 4 bytes but saw {0} bytes as read.</value>
+    <comment>{0}: Size of structure as read</comment>
+  </data>
+  <data name="ErrorFrxExpectedEndOfOleSiteConcreteControl" xml:space="preserve">
+    <value>Expected end of OleSiteConcreteControl.</value>
+  </data>
+  <data name="ErrorFrxStreamSizeMismatch" xml:space="preserve">
+    <value>Error reading '{0}' stream in .frx data: expected {1} size {2}, but saw {3} bytes as read.</value>
+    <comment>{0}: Stream name (f or o)
+{1}: Size field name in headers
+{2}: Expected size of structure
+{3}: Size of structure as read</comment>
+  </data>
+  <data name="ErrorPathCannotbeNullOrEmpty" xml:space="preserve">
+    <value>Path to file cannot be null or empty.</value>
+  </data>
+  <data name="ErrorUnrecognizedModuleType" xml:space="preserve">
+    <value>Unrecognized module type.</value>
+  </data>
+  <data name="ExplainFrxDifferentFileLists" xml:space="preserve">
+    <value>Different stream lists in storage '{0}'.
+
+File 1: {'{1}'}
+
+File 2: {'{2}'}</value>
+    <comment>{0}: Name of storage in .frx data
+{1}: List of streams in file 1, separated by ', '
+{2}: List of streams in file 2, separated by ', '</comment>
+  </data>
+  <data name="ExplainFrxGeneralStreamDifference" xml:space="preserve">
+    <value>Different contents of stream '{0}' in storage '{1}'.</value>
+    <comment>{0}: Stream name where differences detected
+{1}: Storage containing stream</comment>
+  </data>
+  <data name="ExplainFrxOStreamDifference" xml:space="preserve">
+    <value>Different contents of stream 'o', site '{0}' in storage '{1}'.</value>
+    <comment>{0}: Storage containing stream with differences
+{1}: Site name where differences were detected</comment>
+  </data>
   <data name="SWLanguage" xml:space="preserve">
     <value>_Language</value>
   </data>

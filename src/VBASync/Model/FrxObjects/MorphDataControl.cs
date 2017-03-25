@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using VBASync.Localization;
 
 namespace VBASync.Model.FrxObjects
 {
@@ -65,8 +66,8 @@ namespace VBASync.Model.FrxObjects
                 r.AlignTo(4);
                 if (cbMorphData != r.BaseStream.Position - 4)
                 {
-                    throw new ApplicationException("Error reading 'o' stream in .frx data: expected cbMorphData size "
-                                                   + $"{r.BaseStream.Position - 4}, but actual size was {cbMorphData}.");
+                    throw new ApplicationException(string.Format(VBASyncResources.ErrorFrxStreamSizeMismatch,
+                        "o", "cbMorphData", r.BaseStream.Position - 4, cbMorphData));
                 }
 
                 // StreamData

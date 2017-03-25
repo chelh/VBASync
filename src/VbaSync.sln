@@ -6,9 +6,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Loose files", "Loose files", "{C787BBEE-9AF4-4E60-923E-C67ECB69356F}"
 	ProjectSection(SolutionItems) = preProject
 		..\.gitignore = ..\.gitignore
-		..\Installer.iss = ..\Installer.iss
 		..\LICENSE.md = ..\LICENSE.md
 		..\LICENSE.rtf = ..\LICENSE.rtf
+		..\MakeInstaller.iss = ..\MakeInstaller.iss
+		..\MakePortable.bat = ..\MakePortable.bat
 		..\README.md = ..\README.md
 		VBACompressionCodec.dll = VBACompressionCodec.dll
 	EndProjectSection

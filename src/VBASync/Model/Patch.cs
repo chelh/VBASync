@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using VBASync.Localization;
 
 namespace VBASync.Model
 {
@@ -91,13 +92,13 @@ namespace VBASync.Model
             if (args.OldType == args.NewType)
             {
                 patches.Add(new Patch(args.NewType, args.Name, ChangeType.WholeFile,
-                        $"File changed ({lineDiff.ToString("+#;-#;—")})",
+                        string.Format(VBASyncResources.CDWholeFile, lineDiff.ToString("+#;-#;—")),
                         chunks: new[] { new Chunk { OldStartLine = 1, NewStartLine = 1, OldText = args.OldText, NewText = args.NewText } }));
             }
             else
             {
                 patches.Add(new Patch(args.NewType, args.Name, ChangeType.ChangeFileType,
-                        $"{GetEnumDescription(args.OldType)} → {GetEnumDescription(args.NewType)} and file changed ({lineDiff.ToString("+#;-#;—")})",
+                        string.Format(VBASyncResources.CDChangeFileType, GetModuleTypeName(args.OldType), GetModuleTypeName(args.NewType), lineDiff.ToString("+#;-#;—")),
                         chunks: new[] { new Chunk { OldStartLine = 1, NewStartLine = 1, OldText = args.OldText, NewText = args.NewText } }));
             }
             return patches;
@@ -141,11 +142,23 @@ namespace VBASync.Model
             return i;
         }
 
-        private static string GetEnumDescription(object v)
+        private static string GetModuleTypeName(ModuleType mt)
         {
-            dynamic attr = v.GetType().GetMember(v.ToString())[0]
-                    ?.GetCustomAttributes(typeof(DescriptionAttribute), false)[0];
-            return attr?.Description ?? v.ToString();
+            switch (mt)
+            {
+                case ModuleType.Standard:
+                    return VBASyncResources.MTStandard;
+                case ModuleType.StaticClass:
+                    return VBASyncResources.MTStaticClass;
+                case ModuleType.Class:
+                    return VBASyncResources.MTClass;
+                case ModuleType.Form:
+                    return VBASyncResources.MTForm;
+                case ModuleType.Ini:
+                    return VBASyncResources.MTIni;
+                default:
+                    return null;
+            }
         }
     }
 }

@@ -13,16 +13,23 @@ using VBASync.Model;
 
 namespace VBASync.WPF {
     internal partial class MainWindow {
-        private readonly IsolatedStorageFile _store;
+        private readonly MainViewModel _vm;
+
         private bool _doUpdateIncludeAll = true;
         private VbaFolder _evf;
 
-        public MainWindow() {
+        public MainWindow(MainViewModel vm) {
             InitializeComponent();
-            DataContext = new MainViewModel();
+            DataContext = _vm = vm;
             DataContextChanged += (s, e) => QuietRefreshIfInputsOk();
-            ((INotifyPropertyChanged)DataContext).PropertyChanged += (s, e) => QuietRefreshIfInputsOk();
-            _store = IsolatedStorageFile.GetStore(IsolatedStorageScope.User | IsolatedStorageScope.Assembly, null, null);
+            ((INotifyPropertyChanged)DataContext).PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == "Action" || e.PropertyName == "FilePath" || e.PropertyName == "FolderPath")
+                {
+                    QuietRefreshIfInputsOk();
+                }
+            };
+            QuietRefreshIfInputsOk();
         }
 
         private ISession Session => (ISession)DataContext;
@@ -176,12 +183,14 @@ namespace VBASync.WPF {
             Session.Action = ini.GetActionType("General", "ActionType") ?? ActionType.Extract;
             Session.FolderPath = ini.GetString("General", "FolderPath");
             Session.FilePath = ini.GetString("General", "FilePath");
+            Session.Language = ini.GetString("General", "Language");
             Session.DiffTool = ini.GetString("DiffTool", "Path");
             Session.DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"";
         }
 
         private void LoadLastMenu_Click(object sender, RoutedEventArgs e) {
-            LoadIni(new AppIniFile(_store, "LastSession.ini", Encoding.UTF8));
+            LoadIni(new AppIniFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "VBA Sync Tool", "LastSession.ini")));
         }
 
         private void LoadSessionMenu_Click(object sender, RoutedEventArgs e) {
@@ -237,7 +246,8 @@ namespace VBASync.WPF {
             var nl = Environment.NewLine;
             var buf = Encoding.UTF8.GetBytes($"ActionType={actionTypeText}{nl}"
                                              + $"FolderPath=\"{Session.FolderPath}\"{nl}"
-                                             + $"FilePath=\"{Session.FilePath}\"{nl}{nl}"
+                                             + $"FilePath=\"{Session.FilePath}\"{nl}"
+                                             + $"Language=\"{Session.Language}\"{nl}{nl}"
                                              + $"[DiffTool]{nl}"
                                              + $"Path=\"{Session.DiffTool}\"{nl}"
                                              + $"Parameters=\"{Session.DiffToolParameters}\"{nl}");
@@ -255,13 +265,13 @@ namespace VBASync.WPF {
                 if (!Path.HasExtension(path)) {
                     path += ".ini";
                 }
-                using (var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write)) {
+                using (var fs = new FileStream(path, FileMode.Create)) {
                     SaveSession(fs);
                 }
             }
         }
 
-        private void SettingsMenu_Click(object sender, RoutedEventArgs e) {
+        internal void SettingsMenu_Click(object sender, RoutedEventArgs e) {
             new SettingsWindow(Session, s => DataContext = s).ShowDialog();
         }
 
@@ -282,50 +292,21 @@ namespace VBASync.WPF {
         private void Window_Closed(object sender, EventArgs e) {
             _evf?.Dispose();
 
-            // switch the thread to invariant culture because of a bug in .Net that causes
-            // an assert failure (infinite recursion during resource lookup within mscorlib)
-            // when writing to isolated storage from a non-invariant-culture thread
-            System.Threading.Thread.CurrentThread.CurrentCulture = System.Globalization.CultureInfo.InvariantCulture;
-            System.Threading.Thread.CurrentThread.CurrentUICulture = System.Globalization.CultureInfo.InvariantCulture;
-            using (var st = new IsolatedStorageFileStream("LastSession.ini", FileMode.OpenOrCreate, FileAccess.Write, _store)) {
+            var lastSessionPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "VBA Sync Tool", "LastSession.ini");
+            Directory.CreateDirectory(Path.GetDirectoryName(lastSessionPath));
+            using (var st = new FileStream(lastSessionPath, FileMode.Create))
+            {
                 SaveSession(st);
             }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
-            var ini = new AppIniFile(_store, "LastSession.ini", Encoding.UTF8);
+            QuietRefreshIfInputsOk();
 
-            // don't persist these settings
-            ini.Delete("General", "ActionType");
-            ini.Delete("General", "FolderPath");
-            ini.Delete("General", "FilePath");
-            ini.Delete("General", "AutoRun");
-
-            ini.AddFile(Path.Combine(Environment.CurrentDirectory, "VBASync.ini"));
-            ini.AddFile(Path.Combine(Environment.CurrentDirectory, Process.GetCurrentProcess().ProcessName + ".ini"));
-            var args = Environment.GetCommandLineArgs();
-            var autoRunSwitch = false;
-            for (var i = 1; i < args.Length; i++) {
-                switch (args[i].ToUpperInvariant()) {
-                case "-R":
-                case "/R":
-                    autoRunSwitch = true;
-                    break;
-                default:
-                    ini.AddFile(args[i]);
-                    break;
-                }
-            }
-
-            Session.Action = ini.GetActionType("General", "ActionType") ?? ActionType.Extract;
-            Session.FolderPath = ini.GetString("General", "FolderPath");
-            Session.FilePath = ini.GetString("General", "FilePath");
-            Session.DiffTool = ini.GetString("DiffTool", "Path");
-            Session.DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"";
-
-            if (!string.IsNullOrEmpty(Session.FolderPath) && !string.IsNullOrEmpty(Session.FilePath)) {
+            if (!string.IsNullOrEmpty(_vm.FolderPath) && !string.IsNullOrEmpty(_vm.FilePath)) {
                 RefreshButton_Click(null, null);
-                if (autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false)) {
+                if (_vm.AutoRun) {
                     OkButton_Click(null, null);
                 }
             }

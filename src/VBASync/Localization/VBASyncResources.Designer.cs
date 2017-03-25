@@ -88,6 +88,24 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} → {1} and file changed ({2}).
+        /// </summary>
+        public static string CDChangeFileType {
+            get {
+                return ResourceManager.GetString("CDChangeFileType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File changed ({0}).
+        /// </summary>
+        public static string CDWholeFile {
+            get {
+                return ResourceManager.GetString("CDWholeFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Add file.
         /// </summary>
         public static string CTAddFile {
@@ -219,6 +237,100 @@ namespace VBASync.Localization {
         public static string CTWholeFile {
             get {
                 return ResourceManager.GetString("CTWholeFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot find &apos;vbaProject.bin&apos; in ZIP archive..
+        /// </summary>
+        public static string ErrorCannotFindVbaProject {
+            get {
+                return ResourceManager.GetString("ErrorCannotFindVbaProject", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error while decompressing stream &apos;{0}&apos;: {1}.
+        /// </summary>
+        public static string ErrorDecompressingStream {
+            get {
+                return ResourceManager.GetString("ErrorDecompressingStream", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error creating OleColor: expected 4 bytes but saw {0} bytes as read..
+        /// </summary>
+        public static string ErrorFrxColorSizeMismatch {
+            get {
+                return ResourceManager.GetString("ErrorFrxColorSizeMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Expected end of OleSiteConcreteControl..
+        /// </summary>
+        public static string ErrorFrxExpectedEndOfOleSiteConcreteControl {
+            get {
+                return ResourceManager.GetString("ErrorFrxExpectedEndOfOleSiteConcreteControl", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error reading &apos;{0}&apos; stream in .frx data: expected {1} size {2}, but saw {3} bytes as read..
+        /// </summary>
+        public static string ErrorFrxStreamSizeMismatch {
+            get {
+                return ResourceManager.GetString("ErrorFrxStreamSizeMismatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Path to file cannot be null or empty..
+        /// </summary>
+        public static string ErrorPathCannotbeNullOrEmpty {
+            get {
+                return ResourceManager.GetString("ErrorPathCannotbeNullOrEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Unrecognized module type..
+        /// </summary>
+        public static string ErrorUnrecognizedModuleType {
+            get {
+                return ResourceManager.GetString("ErrorUnrecognizedModuleType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Different stream lists in storage &apos;{0}&apos;.
+        ///
+        ///File 1: {&apos;{1}&apos;}
+        ///
+        ///File 2: {&apos;{2}&apos;}.
+        /// </summary>
+        public static string ExplainFrxDifferentFileLists {
+            get {
+                return ResourceManager.GetString("ExplainFrxDifferentFileLists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Different contents of stream &apos;{0}&apos; in storage &apos;{1}&apos;..
+        /// </summary>
+        public static string ExplainFrxGeneralStreamDifference {
+            get {
+                return ResourceManager.GetString("ExplainFrxGeneralStreamDifference", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Different contents of stream &apos;o&apos;, site &apos;{0}&apos; in storage &apos;{1}&apos;..
+        /// </summary>
+        public static string ExplainFrxOStreamDifference {
+            get {
+                return ResourceManager.GetString("ExplainFrxOStreamDifference", resourceCulture);
             }
         }
         
