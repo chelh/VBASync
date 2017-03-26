@@ -304,11 +304,8 @@ namespace VBASync.WPF {
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             QuietRefreshIfInputsOk();
 
-            if (!string.IsNullOrEmpty(_vm.FolderPath) && !string.IsNullOrEmpty(_vm.FilePath)) {
-                RefreshButton_Click(null, null);
-                if (_vm.AutoRun) {
-                    OkButton_Click(null, null);
-                }
+            if (_vm.AutoRun) {
+                OkButton_Click(null, null);
             }
         }
     }

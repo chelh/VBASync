@@ -90,7 +90,7 @@ namespace VBASync
                 }
                 var mw = new WPF.MainWindow(initialSession);
                 mw.Show();
-                if (!File.Exists(lastSessionPath))
+                if (!File.Exists(lastSessionPath) && !initialSession.AutoRun)
                 {
                     mw.SettingsMenu_Click(null, null);
                 }
