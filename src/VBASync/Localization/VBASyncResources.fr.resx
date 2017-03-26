@@ -1,17 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
-  <!-- 
-    Microsoft ResX Schema 
-    
+  <!--
+    Microsoft ResX Schema
+
     Version 2.0
-    
-    The primary goals of this format is to allow a simple XML format 
-    that is mostly human readable. The generation and parsing of the 
-    various data types are done through the TypeConverter classes 
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
     associated with the data types.
-    
+
     Example:
-    
+
     ... ado.net/XML headers & schema ...
     <resheader name="resmimetype">text/microsoft-resx</resheader>
     <resheader name="version">2.0</resheader>
@@ -26,36 +26,36 @@
         <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
         <comment>This is a comment</comment>
     </data>
-                
-    There are any number of "resheader" rows that contain simple 
+
+    There are any number of "resheader" rows that contain simple
     name/value pairs.
-    
-    Each data row contains a name, and value. The row also contains a 
-    type or mimetype. Type corresponds to a .NET class that support 
-    text/value conversion through the TypeConverter architecture. 
-    Classes that don't support this are serialized and stored with the 
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
     mimetype set.
-    
-    The mimetype is used for serialized objects, and tells the 
-    ResXResourceReader how to depersist the object. This is currently not 
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
     extensible. For a given mimetype the value must be set accordingly:
-    
-    Note - application/x-microsoft.net.object.binary.base64 is the format 
-    that the ResXResourceWriter will generate, however the reader can 
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
     read any of the formats listed below.
-    
+
     mimetype: application/x-microsoft.net.object.binary.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
             : and then encoded with base64 encoding.
-    
+
     mimetype: application/x-microsoft.net.object.soap.base64
-    value   : The object must be serialized with 
+    value   : The object must be serialized with
             : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
             : and then encoded with base64 encoding.
 
     mimetype: application/x-microsoft.net.object.bytearray.base64
-    value   : The object must be serialized into a byte array 
+    value   : The object must be serialized into a byte array
             : using a System.ComponentModel.TypeConverter
             : and then encoded with base64 encoding.
     -->
@@ -282,5 +282,66 @@
   </data>
   <data name="SWTitle" xml:space="preserve">
     <value>Options</value>
+  </data>
+  <data name="CDChangeFileType" xml:space="preserve">
+    <value>{0} → {1} et fichier modifié ({2})</value>
+    <comment>{0}: Original module type
+{1}: New module type
+{2}: Line difference (e.g., +8, -4, –)</comment>
+  </data>
+  <data name="CDWholeFile" xml:space="preserve">
+    <value>Fichier modifié ({0})</value>
+    <comment>{0}: Line difference (e.g., +8, -4, –)</comment>
+  </data>
+  <data name="ErrorCannotFindVbaProject" xml:space="preserve">
+    <value>'vbaProject.bin' non trouvé dans l'archive ZIP (le fichier Office).</value>
+  </data>
+  <data name="ErrorDecompressingStream" xml:space="preserve">
+    <value>Erreur lors de la décompression du flux '{0}': {1}</value>
+    <comment>{0}: Name of stream being processed
+{1}: Inner exception text</comment>
+  </data>
+  <data name="ErrorFrxColorSizeMismatch" xml:space="preserve">
+    <value>Erreur lors de la création d'OleColor: 4 octets attendus, mais {0} octets lus.</value>
+    <comment>{0}: Size of structure as read</comment>
+  </data>
+  <data name="ErrorFrxExpectedEndOfOleSiteConcreteControl" xml:space="preserve">
+    <value>Fin attendue d'OleSiteConcreteControl.</value>
+  </data>
+  <data name="ErrorFrxStreamSizeMismatch" xml:space="preserve">
+    <value>Erreur de lecture du flux '{0}' dans les données .frx : le champ {1} doit faire {2} octets, mais {3} octets lus.</value>
+    <comment>{0}: Stream name (f or o)
+{1}: Size field name in headers
+{2}: Expected size of structure
+{3}: Size of structure as read</comment>
+  </data>
+  <data name="ErrorPathCannotbeNullOrEmpty" xml:space="preserve">
+    <value>Le chemin d'accès au fichier ne doit pas être null ou vide.</value>
+  </data>
+  <data name="ErrorUnrecognizedModuleType" xml:space="preserve">
+    <value>Type de module non reconnu.</value>
+  </data>
+  <data name="ExplainFrxDifferentFileLists" xml:space="preserve">
+    <value>Listes de flux différentes dans le stockage '{0}'.
+
+Fichier 1 : {'{1}'}
+
+Fichier 2 : {'{2}'}</value>
+    <comment>{0}: Name of storage in .frx data
+{1}: List of streams in file 1, separated by ', '
+{2}: List of streams in file 2, separated by ', '</comment>
+  </data>
+  <data name="ExplainFrxGeneralStreamDifference" xml:space="preserve">
+    <value>Contenus différents du flux '{0}' dans le stockage '{1}'.</value>
+    <comment>{0}: Stream name where differences detected
+{1}: Storage containing stream</comment>
+  </data>
+  <data name="ExplainFrxOStreamDifference" xml:space="preserve">
+    <value>Contenus différents du flux 'o', site '{0}' dans le stockage '{1}'.</value>
+    <comment>{0}: Storage containing stream with differences
+{1}: Site name where differences were detected</comment>
+  </data>
+  <data name="SWLanguage" xml:space="preserve">
+    <value>_Langue</value>
   </data>
 </root>
