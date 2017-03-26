@@ -43,12 +43,24 @@ to synchronize, click **Apply** or **OK**.
 You can save and load session settings from the **File** menu. Settings
 are saved as `.ini` files. If a settings file is named `VBASync.ini`
 and located in the working directory, VBA Sync Tool will load those
-settings automatically. You can also specify a settings file on
-the command-line. I recommend launching VBA Sync Tool from a shortcut,
-to avoid having to specify the folder and file each time you need
-to synchronize.
+settings automatically. I recommend taking advantage of this and
+launching VBA Sync Tool from a shortcut with the working directory overridden,
+to avoid having to specify the folder and file each time you need to synchronize.
 
 ![VBA Sync after selecting folder and file locations](http://i.imgur.com/GrXx2VH.png)
+
+## Command-line
+You can also specify settings on the command-line via switches:
+
+Switch | Meaning
+------ | ------
+`/X`   | Extract VBA from Office file (default)
+`/P`   | Publish VBA to Office file
+`/F <file>` | Specify Office file
+`/D <dir>` | Specify version-control directory
+`/R`   | Do the selected action, then immediately exit
+
+Any other parameter passed to VBA Sync Tool will be read and parsed as a session `.ini` file.
 
 ## Contributing
 I appreciate any code contributions, but am especially interested
