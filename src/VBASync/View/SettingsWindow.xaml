@@ -70,6 +70,7 @@
                 Grid.Row="1"
                 Grid.Column="0"
                 Grid.ColumnSpan="2"
+                SelectionChanged="LanguageComboBox_SelectionChanged"
                 Style="{StaticResource Level1Close}">
                 <ComboBoxItem IsSelected="True" Tag="en">
                     <ComboBoxItem.Content>

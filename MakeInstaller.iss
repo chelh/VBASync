@@ -37,11 +37,11 @@ Source: "3RDPARTY\*"; DestDir: "{app}\3RDPARTY"; Flags: ignoreversion
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 
-[Run]   
+[Run]
 Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, '&', '&&')}}"; Flags: nowait postinstall skipifsilent
 
 [INI]
-Filename: "{app}\VBASync.ini"; Section: "General"; Key: "Language"; String: "{language}"; Flags: createkeyifdoesntexist
+Filename: "{app}\VBASync.ini"; Section: "General"; Key: "Language"; String: """{language}"""; Flags: createkeyifdoesntexist
 
 [UninstallDelete]
 Type: files; Name: "{app}\VBASync.ini"

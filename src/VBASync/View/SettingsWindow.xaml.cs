@@ -1,6 +1,8 @@
 ﻿using Ookii.Dialogs.Wpf;
 using System;
+using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using VBASync.Localization;
 using VBASync.Model;
 
@@ -8,6 +10,7 @@ namespace VBASync.WPF
 {
     internal partial class SettingsWindow
     {
+        private readonly bool _initialized;
         private readonly Action<ISession> _replaceSession;
 
         public SettingsWindow(ISession session, Action<ISession> replaceSession)
@@ -15,6 +18,14 @@ namespace VBASync.WPF
             InitializeComponent();
             DataContext = session.Copy();
             _replaceSession = replaceSession;
+            foreach (var cbi in LanguageComboBox.Items.Cast<ComboBoxItem>())
+            {
+                if ((string)cbi.Tag == Session.Language)
+                {
+                    cbi.IsSelected = true;
+                }
+            }
+            _initialized = true;
         }
 
         private ISession Session => (ISession)DataContext;
@@ -40,6 +51,15 @@ namespace VBASync.WPF
             {
                 Session.DiffTool = dlg.FileName;
             }
+        }
+
+        private void LanguageComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!_initialized)
+            {
+                return;
+            }
+            Session.Language = (e.AddedItems[0] as ComboBoxItem).Tag as string;
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
