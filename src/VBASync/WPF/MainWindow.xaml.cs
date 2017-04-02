@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using System.IO.IsolatedStorage;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Windows;
 using System.Windows.Input;
@@ -242,6 +243,7 @@ namespace VBASync.WPF {
         }
 
         private void SaveSession(Stream st) {
+            // don't save the Portable settting, as that is only intended to be set in the VBASync.ini in the program dir
             var actionTypeText = Session.Action == ActionType.Extract ? "Extract" : "Publish";
             var nl = Environment.NewLine;
             var buf = Encoding.UTF8.GetBytes($"ActionType={actionTypeText}{nl}"
@@ -292,9 +294,18 @@ namespace VBASync.WPF {
         private void Window_Closed(object sender, EventArgs e) {
             _evf?.Dispose();
 
-            var lastSessionPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "VBA Sync Tool", "LastSession.ini");
-            Directory.CreateDirectory(Path.GetDirectoryName(lastSessionPath));
+            string lastSessionPath;
+            if (Session.Portable)
+            {
+                var exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                lastSessionPath = Path.Combine(exeDir, "LastSession.ini");
+            }
+            else
+            {
+                lastSessionPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "VBA Sync Tool", "LastSession.ini");
+                Directory.CreateDirectory(Path.GetDirectoryName(lastSessionPath));
+            }
             using (var st = new FileStream(lastSessionPath, FileMode.Create))
             {
                 SaveSession(st);

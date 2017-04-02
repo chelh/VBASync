@@ -82,7 +82,8 @@ namespace VBASync
                     DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
                     FilePath = filePathSwitch ?? ini.GetString("General", "FilePath"),
                     FolderPath = folderPathSwitch ?? ini.GetString("General", "FolderPath"),
-                    Language = ini.GetString("General", "Language")
+                    Language = ini.GetString("General", "Language"),
+                    Portable = ini.GetBool("General", "Portable") ?? false
                 };
                 if (!string.IsNullOrEmpty(initialSession.Language))
                 {

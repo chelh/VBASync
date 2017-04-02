@@ -15,6 +15,7 @@
         string FilePath { get; set; }
         string FolderPath { get; set; }
         string Language { get; set; }
+        bool Portable { get; set; }
         ISession Copy();
     }
 }

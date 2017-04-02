@@ -11,6 +11,7 @@ namespace VBASync.WPF
         private string _filePath;
         private string _folderPath;
         private string _language;
+        private bool _portable;
 
         public ActionType Action
         {
@@ -54,6 +55,12 @@ namespace VBASync.WPF
             set { SetField(ref _language, value, nameof(Language)); }
         }
 
+        public bool Portable
+        {
+            get { return _portable; }
+            set { SetField(ref _portable, value, nameof(Portable)); }
+        }
+
         public ISession Copy() => new MainViewModel {
             _action = _action,
             _autoRun = _autoRun,
@@ -61,7 +68,8 @@ namespace VBASync.WPF
             _diffToolParameters = _diffToolParameters,
             _filePath = _filePath,
             _folderPath = _folderPath,
-            _language = _language
+            _language = _language,
+            _portable = _portable
         };
     }
 }
