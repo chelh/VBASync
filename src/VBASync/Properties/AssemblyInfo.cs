@@ -5,4 +5,4 @@
 [assembly: AssemblyProduct("VBA Sync Tool")]
 [assembly: AssemblyCopyright("Copyright © 2017 Chelsea Hughes")]
 
-[assembly: AssemblyVersion("1.2.0")]
+[assembly: AssemblyVersion("1.3.0")]
