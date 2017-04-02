@@ -75,7 +75,7 @@
                 <ComboBoxItem IsSelected="True" Tag="en">
                     <ComboBoxItem.Content>
                         <StackPanel Orientation="Horizontal">
-                            <Image Source="pack://application:,,,/View/Icons/English.png" />
+                            <Image Source="pack://application:,,,/WPF/Icons/English.png" />
                             <TextBlock
                                 Margin="4,0,0,0"
                                 Padding="0"
@@ -86,7 +86,7 @@
                 <ComboBoxItem Tag="fr">
                     <ComboBoxItem.Content>
                         <StackPanel Orientation="Horizontal">
-                            <Image Margin="2,0,0,0" Source="pack://application:,,,/View/Icons/French.png" />
+                            <Image Margin="2,0,0,0" Source="pack://application:,,,/WPF/Icons/French.png" />
                             <TextBlock
                                 Margin="6,0,0,0"
                                 Padding="0"
