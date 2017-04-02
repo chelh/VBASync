@@ -342,6 +342,6 @@ File 2: {'{2}'}</value>
 {1}: Site name where differences were detected</comment>
   </data>
   <data name="SWLanguage" xml:space="preserve">
-    <value>_Language</value>
+    <value>_Language (requires restart)</value>
   </data>
 </root>

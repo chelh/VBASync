@@ -650,7 +650,7 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to _Language.
+        ///   Looks up a localized string similar to _Language (requires restart).
         /// </summary>
         public static string SWLanguage {
             get {
