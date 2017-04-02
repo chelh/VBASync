@@ -93,17 +93,17 @@
     <Compile Include="Model\SessionInterfaces.cs" />
     <Compile Include="Model\VbaFolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="View\ChangesViewModel.cs" />
-    <Compile Include="View\MainViewModel.cs" />
-    <Compile Include="View\MainWindow.xaml.cs">
+    <Compile Include="WPF\ChangesViewModel.cs" />
+    <Compile Include="WPF\MainViewModel.cs" />
+    <Compile Include="WPF\MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\SettingsWindow.xaml.cs">
+    <Compile Include="WPF\SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
-    <Compile Include="View\ViewModelBase.cs" />
-    <Compile Include="View\WpfConverter.cs" />
-    <Compile Include="View\WpfStatic.cs" />
+    <Compile Include="WPF\ViewModelBase.cs" />
+    <Compile Include="WPF\WpfConverter.cs" />
+    <Compile Include="WPF\WpfStatic.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Packages.config" />
@@ -121,33 +121,33 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="View\Icons\ClassIcon.png" />
+    <Resource Include="WPF\Icons\ClassIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="View\Icons\DocIcon.png" />
+    <Resource Include="WPF\Icons\DocIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="View\Icons\FormIcon.png" />
+    <Resource Include="WPF\Icons\FormIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="View\Icons\ModuleIcon.png" />
+    <Resource Include="WPF\Icons\ModuleIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="View\Icons\ProjectIcon.png" />
+    <Resource Include="WPF\Icons\ProjectIcon.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="View\Icons\VBA Sync Simple.ico" />
+    <Resource Include="WPF\Icons\VBA Sync Simple.ico" />
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="View\MainWindow.xaml">
+    <Page Include="WPF\MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\SettingsWindow.xaml">
+    <Page Include="WPF\SettingsWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -157,8 +157,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="VBA Sync Simple.ico" />
-    <Resource Include="View\Icons\English.png" />
-    <Resource Include="View\Icons\French.png" />
+    <Resource Include="WPF\Icons\English.png" />
+    <Resource Include="WPF\Icons\French.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
