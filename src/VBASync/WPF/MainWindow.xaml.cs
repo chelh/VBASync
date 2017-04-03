@@ -3,7 +3,6 @@ using System;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -33,7 +32,7 @@ namespace VBASync.WPF {
             QuietRefreshIfInputsOk();
         }
 
-        private ISession Session => (ISession)DataContext;
+        private ISession Session => _vm.Session;
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e) {
             var vm = ChangesGrid.DataContext as ChangesViewModel;
@@ -109,12 +108,12 @@ namespace VBASync.WPF {
                 Lib.FrxFilesAreDifferent(oldPath, newPath, out var explain);
                 MessageBox.Show(explain, "FRX file difference", MessageBoxButton.OK, MessageBoxImage.Information);
             } else {
-                var diffExePath = Environment.ExpandEnvironmentVariables(Session.DiffTool);
+                var diffExePath = Environment.ExpandEnvironmentVariables(_vm.Settings.DiffTool);
                 if (!File.Exists(oldPath) || !File.Exists(newPath) || !File.Exists(diffExePath)) {
                     return;
                 }
                 var p = new Process {
-                    StartInfo = new ProcessStartInfo(diffExePath, Session.DiffToolParameters.Replace("{OldFile}", oldPath).Replace("{NewFile}", newPath)) {
+                    StartInfo = new ProcessStartInfo(diffExePath, _vm.Settings.DiffToolParameters.Replace("{OldFile}", oldPath).Replace("{NewFile}", newPath)) {
                         UseShellExecute = false
                     }
                 };
@@ -124,44 +123,6 @@ namespace VBASync.WPF {
 
         private void ExitMenu_Click(object sender, RoutedEventArgs e) {
             CancelButton_Click(null, null);
-        }
-
-        private void FileBrowseBox_PreviewKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Enter) {
-                OkButton.Focus();
-            }
-        }
-
-        private void FileBrowseButton_Click(object sender, RoutedEventArgs e) {
-            var dlg = new VistaOpenFileDialog {
-                Filter = $"{VBASyncResources.MWOpenAllFiles}|*.*|"
-                    + $"{VBASyncResources.MWOpenAllSupported}|*.doc;*.dot;*.xls;*.xlt;*.docm;*.dotm;*.docb;*.xlsm;*.xla;*.xlam;*.xlsb;"
-                    + "*.pptm;*.potm;*.ppam;*.ppsm;*.sldm;*.docx;*.dotx;*.xlsx;*.xltx;*.pptx;*.potx;*.ppsx;*.sldx;*.otm;*.bin|"
-                    + $"{VBASyncResources.MWOpenWord97}|*.doc;*.dot|"
-                    + $"{VBASyncResources.MWOpenExcel97}|*.xls;*.xlt;*.xla|"
-                    + $"{VBASyncResources.MWOpenWord07}|*.docx;*.docm;*.dotx;*.dotm;*.docb|"
-                    + $"{VBASyncResources.MWOpenExcel07}|*.xlsx;*.xlsm;*.xltx;*.xltm;*.xlsb;*.xlam|"
-                    + $"{VBASyncResources.MWOpenPpt07}|*.pptx;*.pptm;*.potx;*.potm;*.ppam;*.ppsx;*.ppsm;*.sldx;*.sldm|"
-                    + $"{VBASyncResources.MWOpenOutlook}|*.otm|"
-                    + $"{VBASyncResources.MWOpenSAlone}|*.bin",
-                FilterIndex = 2
-            };
-            if (dlg.ShowDialog() == true) {
-                Session.FilePath = dlg.FileName;
-            }
-        }
-
-        private void FolderBrowseBox_PreviewKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Enter) {
-                OkButton.Focus();
-            }
-        }
-
-        private void FolderBrowseButton_Click(object sender, RoutedEventArgs e) {
-            var dlg = new VistaFolderBrowserDialog();
-            if (dlg.ShowDialog() == true) {
-                Session.FolderPath = dlg.SelectedPath;
-            }
         }
 
         private void IncludeAllBox_Click(object sender, RoutedEventArgs e) {
@@ -184,9 +145,6 @@ namespace VBASync.WPF {
             Session.Action = ini.GetActionType("General", "ActionType") ?? ActionType.Extract;
             Session.FolderPath = ini.GetString("General", "FolderPath");
             Session.FilePath = ini.GetString("General", "FilePath");
-            Session.Language = ini.GetString("General", "Language");
-            Session.DiffTool = ini.GetString("DiffTool", "Path");
-            Session.DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"";
         }
 
         private void LoadLastMenu_Click(object sender, RoutedEventArgs e) {
@@ -242,17 +200,21 @@ namespace VBASync.WPF {
             UpdateIncludeAllBox();
         }
 
-        private void SaveSession(Stream st) {
-            // don't save the Portable settting, as that is only intended to be set in the VBASync.ini in the program dir
-            var actionTypeText = Session.Action == ActionType.Extract ? "Extract" : "Publish";
-            var nl = Environment.NewLine;
-            var buf = Encoding.UTF8.GetBytes($"ActionType={actionTypeText}{nl}"
-                                             + $"FolderPath=\"{Session.FolderPath}\"{nl}"
-                                             + $"FilePath=\"{Session.FilePath}\"{nl}"
-                                             + $"Language=\"{Session.Language}\"{nl}{nl}"
-                                             + $"[DiffTool]{nl}"
-                                             + $"Path=\"{Session.DiffTool}\"{nl}"
-                                             + $"Parameters=\"{Session.DiffToolParameters}\"{nl}");
+        private void SaveSession(Stream st, bool saveSettings) {
+            var sb = new StringBuilder();
+            sb.AppendLine("ActionType=" + (Session.Action == ActionType.Extract ? "Extract" : "Publish"));
+            sb.AppendLine($"FolderPath=\"{Session.FolderPath}\"");
+            sb.AppendLine($"FilePath=\"{Session.FilePath}\"");
+            if (saveSettings)
+            {
+                sb.AppendLine($"Language=\"{_vm.Settings.Language}\"");
+                sb.AppendLine("");
+                sb.AppendLine("[DiffTool]");
+                sb.AppendLine($"Path =\"{_vm.Settings.DiffTool}\"");
+                sb.AppendLine($"Parameters=\"{_vm.Settings.DiffToolParameters}\"");
+            }
+
+            var buf = Encoding.UTF8.GetBytes(sb.ToString());
             st.Write(buf, 0, buf.Length);
         }
 
@@ -268,13 +230,13 @@ namespace VBASync.WPF {
                     path += ".ini";
                 }
                 using (var fs = new FileStream(path, FileMode.Create)) {
-                    SaveSession(fs);
+                    SaveSession(fs, false);
                 }
             }
         }
 
         internal void SettingsMenu_Click(object sender, RoutedEventArgs e) {
-            new SettingsWindow(Session, s => DataContext = s).ShowDialog();
+            new SettingsWindow(_vm.Settings, s => _vm.Settings = s).ShowDialog();
         }
 
         private void UpdateIncludeAllBox() {
@@ -295,7 +257,7 @@ namespace VBASync.WPF {
             _evf?.Dispose();
 
             string lastSessionPath;
-            if (Session.Portable)
+            if (_vm.Settings.Portable)
             {
                 var exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 lastSessionPath = Path.Combine(exeDir, "LastSession.ini");
@@ -308,14 +270,14 @@ namespace VBASync.WPF {
             }
             using (var st = new FileStream(lastSessionPath, FileMode.Create))
             {
-                SaveSession(st);
+                SaveSession(st, true);
             }
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e) {
             QuietRefreshIfInputsOk();
 
-            if (_vm.AutoRun) {
+            if (Session.AutoRun) {
                 OkButton_Click(null, null);
             }
         }

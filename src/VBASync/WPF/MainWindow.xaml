@@ -4,7 +4,6 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:l10n="clr-namespace:VBASync.Localization"
-    xmlns:lib="clr-namespace:VBASync.Model"
     xmlns:local="clr-namespace:VBASync.WPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="{x:Static l10n:VBASyncResources.MWTitle}"
@@ -40,101 +39,13 @@
         <Grid Margin="4">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
-                <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            <StackPanel
-                MinWidth="350"
-                Margin="0,0,0,3.698"
-                d:LayoutOverrides="Height">
-                <Label
-                    Padding="0"
-                    Content="{x:Static l10n:VBASyncResources.MWActionText}"
-                    Style="{StaticResource Level1Solid}" />
-                <RadioButton
-                    x:Name="ExtractFromFileButton"
-                    Content="{x:Static l10n:VBASyncResources.MWExtract}"
-                    IsChecked="{Binding Action, ConverterParameter={x:Static lib:ActionType.Extract}, Converter={x:Static local:WpfStatic.EnumToBoolean}}"
-                    Style="{StaticResource Level1}" />
-                <RadioButton
-                    x:Name="PublishToFileButton"
-                    Content="{x:Static l10n:VBASyncResources.MWPublish}"
-                    IsChecked="{Binding Action, ConverterParameter={x:Static lib:ActionType.Publish}, Converter={x:Static local:WpfStatic.EnumToBoolean}}"
-                    Style="{StaticResource Level1Close}" />
-                <Grid
-                    VerticalAlignment="Top"
-                    ScrollViewer.VerticalScrollBarVisibility="Disabled"
-                    Style="{StaticResource Level1}">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="auto" MinWidth="75" />
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                        <RowDefinition Height="auto" />
-                    </Grid.RowDefinitions>
-                    <Label
-                        Padding="0"
-                        Content="{x:Static l10n:VBASyncResources.MWVBAFolder}"
-                        Style="{StaticResource Level1}"
-                        Target="{Binding ElementName=FolderBrowseBox}" />
-                    <TextBox
-                        x:Name="FolderBrowseBox"
-                        Grid.Row="1"
-                        Grid.Column="0"
-                        Height="23"
-                        VerticalAlignment="Center"
-                        PreviewKeyDown="FolderBrowseBox_PreviewKeyDown"
-                        Style="{StaticResource Level1Close}"
-                        Text="{Binding FolderPath}" />
-                    <Button
-                        x:Name="FolderBrowseButton"
-                        Grid.Row="1"
-                        Grid.Column="1"
-                        Height="23"
-                        MinWidth="75"
-                        Margin="4,0,0,0"
-                        VerticalAlignment="Bottom"
-                        Click="FolderBrowseButton_Click"
-                        Content="{x:Static l10n:VBASyncResources.BrowseAction}" />
-                    <Label
-                        Grid.Row="2"
-                        Grid.Column="0"
-                        Padding="0"
-                        Content="{x:Static l10n:VBASyncResources.MWOfficeFile}"
-                        Style="{StaticResource Level1}"
-                        Target="{Binding ElementName=FileBrowseBox}" />
-                    <TextBox
-                        x:Name="FileBrowseBox"
-                        Grid.Row="3"
-                        Grid.Column="0"
-                        Height="23"
-                        VerticalAlignment="Center"
-                        PreviewKeyDown="FileBrowseBox_PreviewKeyDown"
-                        Style="{StaticResource Level1Close}"
-                        Text="{Binding FilePath}" />
-                    <Button
-                        x:Name="FileBrowseButton"
-                        Grid.Row="3"
-                        Grid.Column="1"
-                        Height="23"
-                        MinWidth="75"
-                        Margin="4,0,0,0"
-                        VerticalAlignment="Bottom"
-                        Click="FileBrowseButton_Click"
-                        Content="{x:Static l10n:VBASyncResources.BrowseAction}" />
-                </Grid>
-            </StackPanel>
+            <local:SessionView DataContext="{Binding Session}" FocusControlOnEnter="{Binding ElementName=OkButton}" />
             <DataGrid
                 x:Name="ChangesGrid"
-                Grid.Row="2"
+                Grid.Row="1"
                 Margin="0,26,0,0"
                 AutoGenerateColumns="False"
                 BorderBrush="{x:Null}"
@@ -241,12 +152,12 @@
             </DataGrid>
             <CheckBox
                 x:Name="IncludeAllBox"
-                Grid.Row="2"
+                Grid.Row="1"
                 Margin="8,29,0,0"
                 HorizontalAlignment="Left"
                 VerticalAlignment="Top"
                 Click="IncludeAllBox_Click" />
-            <Grid Grid.Row="3" Style="{StaticResource Level1}">
+            <Grid Grid.Row="2" Style="{StaticResource Level1}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*" />
                     <ColumnDefinition Width="*" />

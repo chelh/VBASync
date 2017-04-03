@@ -76,22 +76,28 @@ namespace VBASync
 
                 var initialSession = new WPF.MainViewModel
                 {
-                    Action = actionSwitch ?? ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract,
-                    AutoRun = autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false),
-                    DiffTool = ini.GetString("DiffTool", "Path"),
-                    DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
-                    FilePath = filePathSwitch ?? ini.GetString("General", "FilePath"),
-                    FolderPath = folderPathSwitch ?? ini.GetString("General", "FolderPath"),
-                    Language = ini.GetString("General", "Language"),
-                    Portable = ini.GetBool("General", "Portable") ?? false
+                    Session = new WPF.SessionViewModel
+                    {
+                        Action = actionSwitch ?? ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract,
+                        AutoRun = autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false),
+                        FilePath = filePathSwitch ?? ini.GetString("General", "FilePath"),
+                        FolderPath = folderPathSwitch ?? ini.GetString("General", "FolderPath")
+                    },
+                    Settings = new WPF.SettingsViewModel
+                    {
+                        DiffTool = ini.GetString("DiffTool", "Path"),
+                        DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
+                        Language = ini.GetString("General", "Language"),
+                        Portable = ini.GetBool("General", "Portable") ?? false
+                    }
                 };
-                if (!string.IsNullOrEmpty(initialSession.Language))
+                if (!string.IsNullOrEmpty(initialSession.Settings.Language))
                 {
-                    VBASyncResources.Culture = new CultureInfo(initialSession.Language);
+                    VBASyncResources.Culture = new CultureInfo(initialSession.Settings.Language);
                 }
                 var mw = new WPF.MainWindow(initialSession);
                 mw.Show();
-                if (!File.Exists(lastSessionPath) && !initialSession.AutoRun)
+                if (!File.Exists(lastSessionPath) && !initialSession.Session.AutoRun)
                 {
                     mw.SettingsMenu_Click(null, null);
                 }

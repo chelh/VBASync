@@ -10,12 +10,7 @@
     {
         ActionType Action { get; set; }
         bool AutoRun { get; set; }
-        string DiffTool { get; set; }
-        string DiffToolParameters { get; set; }
         string FilePath { get; set; }
         string FolderPath { get; set; }
-        string Language { get; set; }
-        bool Portable { get; set; }
-        ISession Copy();
     }
 }

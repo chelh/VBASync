@@ -11,16 +11,18 @@ namespace VBASync.WPF
     internal partial class SettingsWindow
     {
         private readonly bool _initialized;
-        private readonly Action<ISession> _replaceSession;
+        private readonly Action<SettingsViewModel> _replaceSettings;
+        private readonly SettingsViewModel _vm;
 
-        public SettingsWindow(ISession session, Action<ISession> replaceSession)
+        public SettingsWindow(SettingsViewModel settings, Action<SettingsViewModel> replaceSettings)
         {
             InitializeComponent();
-            DataContext = session.Copy();
-            _replaceSession = replaceSession;
+            _vm = settings.Clone();
+            DataContext = _vm;
+            _replaceSettings = replaceSettings;
             foreach (var cbi in LanguageComboBox.Items.Cast<ComboBoxItem>())
             {
-                if ((string)cbi.Tag == Session.Language)
+                if ((string)cbi.Tag == _vm.Language)
                 {
                     cbi.IsSelected = true;
                 }
@@ -28,11 +30,9 @@ namespace VBASync.WPF
             _initialized = true;
         }
 
-        private ISession Session => (ISession)DataContext;
-
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            _replaceSession(Session.Copy());
+            _replaceSettings(_vm.Clone());
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e)
@@ -49,7 +49,7 @@ namespace VBASync.WPF
             };
             if (dlg.ShowDialog() == true)
             {
-                Session.DiffTool = dlg.FileName;
+                _vm.DiffTool = dlg.FileName;
             }
         }
 
@@ -59,7 +59,7 @@ namespace VBASync.WPF
             {
                 return;
             }
-            Session.Language = (e.AddedItems[0] as ComboBoxItem).Tag as string;
+            _vm.Language = (e.AddedItems[0] as ComboBoxItem).Tag as string;
         }
 
         private void OkButton_Click(object sender, RoutedEventArgs e)
