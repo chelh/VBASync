@@ -25,5 +25,5 @@ You may redistribute it subject to these restrictions:
     source code.
 
 This software is provided “as-is,” without any express or implied
-warranty. In no event will I be held liable for any damages arising
-from the use of this software.
+warranty. In no event will I or any other contributor be held liable
+for any damages arising from the use of this software.
