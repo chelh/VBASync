@@ -91,6 +91,12 @@ namespace VBASync
                         Portable = ini.GetBool("General", "Portable") ?? false
                     }
                 };
+                var j = 1;
+                while (j <= 5 && !string.IsNullOrEmpty(ini.GetString("RecentFiles", j.ToString(CultureInfo.InvariantCulture))))
+                {
+                    initialSession.RecentFiles.Add(ini.GetString("RecentFiles", j.ToString(CultureInfo.InvariantCulture)));
+                    ++j;
+                }
                 if (!string.IsNullOrEmpty(initialSession.Settings.Language))
                 {
                     VBASyncResources.Culture = new CultureInfo(initialSession.Settings.Language);

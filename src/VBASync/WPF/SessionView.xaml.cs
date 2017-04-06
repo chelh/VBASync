@@ -8,21 +8,21 @@ namespace VBASync.WPF
 {
     internal partial class SessionView : UserControl
     {
+        public static readonly DependencyProperty FocusControlOnEnterProperty
+            = DependencyProperty.Register("FocusControlOnEnter", typeof(Control), typeof(SessionView));
+
         public SessionView()
         {
             InitializeComponent();
         }
-
-        private Model.ISession Session => (Model.ISession)DataContext;
-
-        public static readonly DependencyProperty FocusControlOnEnterProperty
-            = DependencyProperty.Register("FocusControlOnEnter", typeof(Control), typeof(SessionView));
 
         public Control FocusControlOnEnter
         {
             get => (Control)GetValue(FocusControlOnEnterProperty);
             set => SetValue(FocusControlOnEnterProperty, value);
         }
+
+        private Model.ISession Session => (Model.ISession)DataContext;
 
         private void FileBrowseBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {

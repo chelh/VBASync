@@ -107,6 +107,7 @@
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="WPF\ViewModelBase.cs" />
+    <Compile Include="WPF\WpfCommand.cs" />
     <Compile Include="WPF\WpfConverter.cs" />
     <Compile Include="WPF\WpfStatic.cs" />
   </ItemGroup>

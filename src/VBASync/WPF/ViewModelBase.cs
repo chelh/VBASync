@@ -7,6 +7,11 @@ namespace VBASync.WPF
     {
         public event PropertyChangedEventHandler PropertyChanged;
 
+        protected void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
         protected bool SetField<T>(ref T field, T value, string propertyName)
         {
             if (EqualityComparer<T>.Default.Equals(field, value))

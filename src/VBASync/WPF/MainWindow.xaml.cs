@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -22,7 +23,7 @@ namespace VBASync.WPF {
             InitializeComponent();
             DataContext = _vm = vm;
             DataContextChanged += (s, e) => QuietRefreshIfInputsOk();
-            ((INotifyPropertyChanged)DataContext).PropertyChanged += (s, e) =>
+            _vm.Session.PropertyChanged += (s, e) =>
             {
                 if (e.PropertyName == "Action" || e.PropertyName == "FilePath" || e.PropertyName == "FolderPath")
                 {
@@ -34,7 +35,13 @@ namespace VBASync.WPF {
 
         private ISession Session => _vm.Session;
 
-        private void ApplyButton_Click(object sender, RoutedEventArgs e) {
+        internal void SettingsMenu_Click(object sender, RoutedEventArgs e)
+        {
+            new SettingsWindow(_vm.Settings, s => _vm.Settings = s).ShowDialog();
+        }
+
+        private void ApplyButton_Click(object sender, RoutedEventArgs e)
+        {
             var vm = ChangesGrid.DataContext as ChangesViewModel;
             if (vm == null) {
                 return;
@@ -125,7 +132,8 @@ namespace VBASync.WPF {
             CancelButton_Click(null, null);
         }
 
-        private void IncludeAllBox_Click(object sender, RoutedEventArgs e) {
+        private void IncludeAllBox_Click(object sender, RoutedEventArgs e)
+        {
             var vm = ChangesGrid.DataContext as ChangesViewModel;
             if (vm == null || IncludeAllBox.IsChecked == null) {
                 return;
@@ -141,14 +149,8 @@ namespace VBASync.WPF {
             ChangesGrid.Items.Refresh();
         }
 
-        private void LoadIni(AppIniFile ini) {
-            Session.Action = ini.GetActionType("General", "ActionType") ?? ActionType.Extract;
-            Session.FolderPath = ini.GetString("General", "FolderPath");
-            Session.FilePath = ini.GetString("General", "FilePath");
-        }
-
         private void LoadLastMenu_Click(object sender, RoutedEventArgs e) {
-            LoadIni(new AppIniFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            _vm.LoadIni(new AppIniFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "VBA Sync Tool", "LastSession.ini")));
         }
 
@@ -159,7 +161,8 @@ namespace VBASync.WPF {
                 FilterIndex = 2
             };
             if (dlg.ShowDialog() == true) {
-                LoadIni(new AppIniFile(dlg.FileName, Encoding.UTF8));
+                _vm.LoadIni(new AppIniFile(dlg.FileName, Encoding.UTF8));
+                _vm.AddRecentFile(dlg.FileName);
             }
         }
 
@@ -212,6 +215,17 @@ namespace VBASync.WPF {
                 sb.AppendLine("[DiffTool]");
                 sb.AppendLine($"Path =\"{_vm.Settings.DiffTool}\"");
                 sb.AppendLine($"Parameters=\"{_vm.Settings.DiffToolParameters}\"");
+                if (_vm.RecentFiles.Count > 0)
+                {
+                    sb.AppendLine("");
+                    sb.AppendLine("[RecentFiles]");
+                }
+                var i = 0;
+                while (_vm.RecentFiles.Count > i)
+                {
+                    sb.AppendLine($"{(i+1).ToString(CultureInfo.InvariantCulture)}=\"{_vm.RecentFiles[i]}\"");
+                    ++i;
+                }
             }
 
             var buf = Encoding.UTF8.GetBytes(sb.ToString());
@@ -232,11 +246,8 @@ namespace VBASync.WPF {
                 using (var fs = new FileStream(path, FileMode.Create)) {
                     SaveSession(fs, false);
                 }
+                _vm.AddRecentFile(path);
             }
-        }
-
-        internal void SettingsMenu_Click(object sender, RoutedEventArgs e) {
-            new SettingsWindow(_vm.Settings, s => _vm.Settings = s).ShowDialog();
         }
 
         private void UpdateIncludeAllBox() {

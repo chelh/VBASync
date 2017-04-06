@@ -6,6 +6,7 @@
     xmlns:l10n="clr-namespace:VBASync.Localization"
     xmlns:local="clr-namespace:VBASync.WPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    x:Name="ThisWindow"
     Title="{x:Static l10n:VBASyncResources.MWTitle}"
     Width="400"
     Height="600"
@@ -18,14 +19,37 @@
     Loaded="Window_Loaded"
     mc:Ignorable="d">
     <DockPanel>
-        <Menu
-            x:Name="Menu"
-            Margin="4"
-            DockPanel.Dock="Top">
+        <Menu Margin="4" DockPanel.Dock="Top">
             <MenuItem Header="{x:Static l10n:VBASyncResources.MWFileMenu}">
                 <MenuItem Click="SaveSessionMenu_Click" Header="{x:Static l10n:VBASyncResources.MWSaveSessionMenu}" />
                 <MenuItem Click="LoadSessionMenu_Click" Header="{x:Static l10n:VBASyncResources.MWLoadSessionMenu}" />
                 <MenuItem Click="LoadLastMenu_Click" Header="{x:Static l10n:VBASyncResources.MWLoadLastMenu}" />
+                <Separator Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=1}" />
+                <MenuItem
+                    Command="{Binding OpenRecentCommand}"
+                    CommandParameter="1"
+                    Header="{Binding RecentFiles, Converter={x:Static local:WpfStatic.RecentFilesHeader}, ConverterParameter=1}"
+                    Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=1}" />
+                <MenuItem
+                    Command="{Binding OpenRecentCommand}"
+                    CommandParameter="2"
+                    Header="{Binding RecentFiles, Converter={x:Static local:WpfStatic.RecentFilesHeader}, ConverterParameter=2}"
+                    Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=2}" />
+                <MenuItem
+                    Command="{Binding OpenRecentCommand}"
+                    CommandParameter="3"
+                    Header="{Binding RecentFiles, Converter={x:Static local:WpfStatic.RecentFilesHeader}, ConverterParameter=3}"
+                    Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=3}" />
+                <MenuItem
+                    Command="{Binding OpenRecentCommand}"
+                    CommandParameter="4"
+                    Header="{Binding RecentFiles, Converter={x:Static local:WpfStatic.RecentFilesHeader}, ConverterParameter=4}"
+                    Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=4}" />
+                <MenuItem
+                    Command="{Binding OpenRecentCommand}"
+                    CommandParameter="5"
+                    Header="{Binding RecentFiles, Converter={x:Static local:WpfStatic.RecentFilesHeader}, ConverterParameter=5}"
+                    Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=5}" />
                 <Separator />
                 <MenuItem Click="SettingsMenu_Click" Header="{x:Static l10n:VBASyncResources.MWSettingsMenu}" />
                 <Separator />

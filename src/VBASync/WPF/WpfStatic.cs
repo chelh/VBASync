@@ -1,4 +1,6 @@
-﻿using System.Windows.Data;
+﻿using System.Windows;
+using System.Windows.Data;
+using System.Windows.Media;
 using VBASync.Localization;
 using VBASync.Model;
 
@@ -6,6 +8,9 @@ namespace VBASync.WPF
 {
     public static class WpfStatic
     {
+        public static readonly WpfConverter BindingListToVisibleIfHasItemCount = new WpfConverter(
+            (v, p) => v.Count >= int.Parse(p) ? Visibility.Visible : Visibility.Collapsed);
+
         public static readonly WpfConverter ChangeTypeToDescriptionOneWay = new WpfConverter(
             v => {
                 switch ((ChangeType)v)
@@ -67,6 +72,27 @@ namespace VBASync.WPF
                 default:
                     return null;
                 }
+            });
+
+        public static readonly WpfConverter RecentFilesHeader = new WpfConverter(
+            (v, t, p, c) =>
+            {
+                var i = int.Parse(p);
+                if (i > v.Count)
+                {
+                    return null;
+                }
+
+                var s = (string)v[i - 1];
+                var u = (string)p;
+                // TODO: maybe trim the path based on actual width instead of number of characters
+                //var tf = new Typeface(p.FontFamily, p.FontStyle, p.FontWeight, p.FontStretch);
+                //var ft = new FormattedText(v, c, FlowDirection.LeftToRight, tf, p.FontSize, Brushes.Black);
+                if (s.Length > 40)
+                {
+                    return "_" + u + "   " + s.Substring(0, 12) + "…" + s.Substring(s.Length - 24, 24);
+                }
+                return "_" + u + "   " + s;
             });
     }
 }
