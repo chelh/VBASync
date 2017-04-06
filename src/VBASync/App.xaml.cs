@@ -24,8 +24,10 @@ namespace VBASync
                 var exeBaseName = Process.GetCurrentProcess().ProcessName;
                 var ini = new Model.AppIniFile(Path.Combine(exeDir, "VBASync.ini"));
                 ini.AddFile(Path.Combine(exeDir, exeBaseName + ".ini"));
-                var lastSessionPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "VBA Sync Tool", "LastSession.ini");
+                var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+                var lastSessionPath = ini.GetBool("General", "Portable") ?? false
+                    ? Path.Combine(exeDir, "LastSession.ini")
+                    : Path.Combine(appDataDir, "VBA Sync Tool", "LastSession.ini");
                 ini.AddFile(lastSessionPath);
 
                 // don't persist these settings
