@@ -24,6 +24,8 @@
                 <MenuItem Click="SaveSessionMenu_Click" Header="{x:Static l10n:VBASyncResources.MWSaveSessionMenu}" />
                 <MenuItem Click="LoadSessionMenu_Click" Header="{x:Static l10n:VBASyncResources.MWLoadSessionMenu}" />
                 <MenuItem Click="LoadLastMenu_Click" Header="{x:Static l10n:VBASyncResources.MWLoadLastMenu}" />
+                <Separator />
+                <MenuItem Click="SettingsMenu_Click" Header="{x:Static l10n:VBASyncResources.MWSettingsMenu}" />
                 <Separator Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=1}" />
                 <MenuItem
                     Command="{Binding OpenRecentCommand}"
@@ -50,8 +52,6 @@
                     CommandParameter="5"
                     Header="{Binding RecentFiles, Converter={x:Static local:WpfStatic.RecentFilesHeader}, ConverterParameter=5}"
                     Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=5}" />
-                <Separator />
-                <MenuItem Click="SettingsMenu_Click" Header="{x:Static l10n:VBASyncResources.MWSettingsMenu}" />
                 <Separator />
                 <MenuItem Click="ExitMenu_Click" Header="{x:Static l10n:VBASyncResources.MWExitMenu}" />
             </MenuItem>
