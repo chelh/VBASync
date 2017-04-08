@@ -344,4 +344,28 @@ File 2: {'{2}'}</value>
   <data name="SWLanguage" xml:space="preserve">
     <value>_Language (requires restart)</value>
   </data>
+  <data name="AWTitle" xml:space="preserve">
+    <value>About VBA Sync Tool</value>
+  </data>
+  <data name="AWVBASyncTool" xml:space="preserve">
+    <value>VBA Sync Tool</value>
+  </data>
+  <data name="AWVersion" xml:space="preserve">
+    <value>Version {0}</value>
+    <comment>{0}: Version number (e.g., '1.3.0')</comment>
+  </data>
+  <data name="AWCopyright" xml:space="preserve">
+    <value>Copyright © {0} Chelsea Hughes. See LICENSE.rtf
+for more details.</value>
+  </data>
+  <data name="AWWTFIsThis" xml:space="preserve">
+    <value>Synchronizes macros from an Office VBA-enabled file
+with a version-controlled folder.</value>
+  </data>
+  <data name="MWAboutMenu" xml:space="preserve">
+    <value>_About</value>
+  </data>
+  <data name="MWHelpMenu" xml:space="preserve">
+    <value>_Help</value>
+  </data>
 </root>

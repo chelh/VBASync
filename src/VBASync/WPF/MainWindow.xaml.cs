@@ -14,6 +14,10 @@ using VBASync.Model;
 
 namespace VBASync.WPF {
     internal partial class MainWindow {
+        internal const int CopyrightYear = 2017;
+
+        internal static readonly Version Version = new Version(1, 3, 0);
+
         private readonly MainViewModel _vm;
 
         private bool _doUpdateIncludeAll = true;
@@ -291,6 +295,11 @@ namespace VBASync.WPF {
             if (Session.AutoRun) {
                 OkButton_Click(null, null);
             }
+        }
+
+        private void AboutMenu_Click(object sender, RoutedEventArgs e)
+        {
+            new AboutWindow().ShowDialog();
         }
     }
 }

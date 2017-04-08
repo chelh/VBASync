@@ -70,6 +70,53 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Copyright © {0} Chelsea Hughes. See LICENSE.rtf
+        ///for more details..
+        /// </summary>
+        public static string AWCopyright {
+            get {
+                return ResourceManager.GetString("AWCopyright", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to About VBA Sync Tool.
+        /// </summary>
+        public static string AWTitle {
+            get {
+                return ResourceManager.GetString("AWTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to VBA Sync Tool.
+        /// </summary>
+        public static string AWVBASyncTool {
+            get {
+                return ResourceManager.GetString("AWVBASyncTool", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0}.
+        /// </summary>
+        public static string AWVersion {
+            get {
+                return ResourceManager.GetString("AWVersion", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Synchronizes macros from an Office VBA-enabled file
+        ///with a version-controlled folder..
+        /// </summary>
+        public static string AWWTFIsThis {
+            get {
+                return ResourceManager.GetString("AWWTFIsThis", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Browse.
         /// </summary>
         public static string BrowseAction {
@@ -380,6 +427,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to _About.
+        /// </summary>
+        public static string MWAboutMenu {
+            get {
+                return ResourceManager.GetString("MWAboutMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Action.
         /// </summary>
         public static string MWActionText {
@@ -430,6 +486,15 @@ namespace VBASync.Localization {
         public static string MWFileMenu {
             get {
                 return ResourceManager.GetString("MWFileMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to _Help.
+        /// </summary>
+        public static string MWHelpMenu {
+            get {
+                return ResourceManager.GetString("MWHelpMenu", resourceCulture);
             }
         }
         

@@ -55,12 +55,15 @@
                 <Separator />
                 <MenuItem Click="ExitMenu_Click" Header="{x:Static l10n:VBASyncResources.MWExitMenu}" />
             </MenuItem>
+            <MenuItem Header="{x:Static l10n:VBASyncResources.MWHelpMenu}">
+                <MenuItem Click="AboutMenu_Click" Header="{x:Static l10n:VBASyncResources.MWAboutMenu}" />
+            </MenuItem>
         </Menu>
         <Border
             Height="1"
             Background="DimGray"
             DockPanel.Dock="Top" />
-        <Grid Margin="4">
+        <Grid Margin="4,8,4,4">
             <Grid.RowDefinitions>
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="*" />
