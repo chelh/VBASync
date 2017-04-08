@@ -1,18 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+﻿using System.Windows;
 
 namespace VBASync.WPF
 {
@@ -22,13 +8,12 @@ namespace VBASync.WPF
         {
             InitializeComponent();
 
-            var asm = Assembly.GetExecutingAssembly();
-            var version = asm.GetName().Version;
-
             VersionLabel.Content = ((string)VersionLabel.Content).Replace("{0}",
                 MainWindow.Version.ToString());
             CopyrightLabel.Content = ((string)CopyrightLabel.Content).Replace("{0}",
                 MainWindow.CopyrightYear.ToString());
+            WebsiteLabel.Content = ((string)WebsiteLabel.Content).Replace("{0}",
+                MainWindow.SupportUrl);
         }
 
         private void OKButton_Click(object sender, RoutedEventArgs e)

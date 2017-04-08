@@ -107,6 +107,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Visit {0} for support..
+        /// </summary>
+        public static string AWWebsite {
+            get {
+                return ResourceManager.GetString("AWWebsite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Synchronizes macros from an Office VBA-enabled file
         ///with a version-controlled folder..
         /// </summary>

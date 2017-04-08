@@ -358,6 +358,9 @@ File 2: {'{2}'}</value>
     <value>Copyright © {0} Chelsea Hughes. See LICENSE.rtf
 for more details.</value>
   </data>
+  <data name="AWWebsite" xml:space="preserve">
+    <value>Visit {0} for support.</value>
+  </data>
   <data name="AWWTFIsThis" xml:space="preserve">
     <value>Synchronizes macros from an Office VBA-enabled file
 with a version-controlled folder.</value>

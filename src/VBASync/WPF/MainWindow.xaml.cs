@@ -15,6 +15,7 @@ using VBASync.Model;
 namespace VBASync.WPF {
     internal partial class MainWindow {
         internal const int CopyrightYear = 2017;
+        internal const string SupportUrl = "https://github.com/chelh/VBASync";
 
         internal static readonly Version Version = new Version(1, 3, 0);
 

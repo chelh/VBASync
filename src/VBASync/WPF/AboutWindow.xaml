@@ -27,6 +27,7 @@
             x:Name="CopyrightLabel"
             Margin="0,12,0,0"
             Content="{x:Static l10n:VBASyncResources.AWCopyright}" />
+        <Label x:Name="WebsiteLabel" Content="{x:Static l10n:VBASyncResources.AWWebsite}" />
         <StackPanel
             Margin="0,12,0,0"
             HorizontalAlignment="Right"
