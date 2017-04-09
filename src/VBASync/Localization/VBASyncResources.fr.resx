@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!-- 
     Microsoft ResX Schema 
@@ -343,5 +343,32 @@ Fichier 2 : {'{2}'}</value>
   </data>
   <data name="SWLanguage" xml:space="preserve">
     <value>_Langue (redémarrage nécessaire)</value>
+  </data>
+  <data name="AWTitle" xml:space="preserve">
+    <value>À propos de VBA Sync Tool</value>
+  </data>
+  <data name="AWVBASyncTool" xml:space="preserve">
+    <value>VBA Sync Tool</value>
+  </data>
+  <data name="AWVersion" xml:space="preserve">
+    <value>Version {0}</value>
+  </data>
+  <data name="AWCopyright" xml:space="preserve">
+    <value>Droits d'auteur © {0} Chelsea Hughes. Pour plus de détails, 
+lisez le fichier LICENSE.rtf.</value>
+  </data>
+  <data name="AWWebsite" xml:space="preserve">
+    <value>Support du logiciel sur le site {0}.</value>
+  </data>
+  <data name="AWWTFIsThis" xml:space="preserve">
+    <value>Synchronise les macros VBA d'un fichier Office avec un dossier,
+typiquement suivie par un système de gestion de configuration
+(Git, SVN, etc.).</value>
+  </data>
+  <data name="MWAboutMenu" xml:space="preserve">
+    <value>À propos (_A)</value>
+  </data>
+  <data name="MWHelpMenu" xml:space="preserve">
+    <value>Aide (_H)</value>
   </data>
 </root>
