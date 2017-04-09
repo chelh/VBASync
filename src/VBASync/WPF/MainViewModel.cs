@@ -1,6 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.IO;
+using System.Reflection;
 using System.Text;
+using System.Windows;
 
 namespace VBASync.WPF
 {
@@ -33,14 +36,20 @@ namespace VBASync.WPF
             set => SetField(ref _settings, value, nameof(Settings));
         }
 
-        public void AddRecentFile(string relativePath)
+        public void AddRecentFile(string path)
         {
-            var absPath = Path.GetFullPath(relativePath);
-            if (RecentFiles.Contains(absPath))
+            var exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            var exeDirWithTrailing = exeDir + Path.DirectorySeparatorChar;
+            var displayPath = Path.GetFullPath(path);
+            if (displayPath.StartsWith(exeDirWithTrailing))
             {
-                RecentFiles.Remove(absPath);
+                displayPath = displayPath.Substring(exeDirWithTrailing.Length);
             }
-            RecentFiles.Insert(0, absPath);
+            if (RecentFiles.Contains(displayPath))
+            {
+                RecentFiles.Remove(displayPath);
+            }
+            RecentFiles.Insert(0, displayPath);
             while (RecentFiles.Count > 5)
             {
                 RecentFiles.RemoveAt(5);
@@ -56,9 +65,38 @@ namespace VBASync.WPF
 
         private void LoadRecent(string index)
         {
-            var i = int.Parse(index) - 1;
-            LoadIni(new Model.AppIniFile(RecentFiles[i], Encoding.UTF8));
-            AddRecentFile(RecentFiles[i]);
+            try
+            {
+                var exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                var i = int.Parse(index) - 1;
+                try
+                {
+                    var path = RecentFiles[i];
+                    if (!Path.IsPathRooted(path))
+                    {
+                        path = Path.Combine(exeDir, path);
+                    }
+                    if (!File.Exists(RecentFiles[i]))
+                    {
+                        throw new FileNotFoundException();
+                    }
+                    LoadIni(new Model.AppIniFile(RecentFiles[i], Encoding.UTF8));
+                    AddRecentFile(RecentFiles[i]);
+                }
+                catch
+                {
+                    if (i < RecentFiles.Count)
+                    {
+                        RecentFiles.RemoveAt(i);
+                    }
+                    throw;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, Localization.VBASyncResources.MWTitle,
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
     }
 }
