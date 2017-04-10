@@ -184,6 +184,12 @@ namespace VBASync.Model
                                 return true;
                             }
                             break;
+                        case 18: // TabStrip
+                            if (!new TabStripControl(o1Range).Equals(new TabStripControl(o2Range)))
+                            {
+                                return true;
+                            }
+                            break;
                         case 21: // Label
                             if (!new LabelControl(o1Range).Equals(new LabelControl(o2Range)))
                             {

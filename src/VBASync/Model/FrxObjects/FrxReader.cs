@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using VBASync.Localization;
 
 namespace VBASync.Model.FrxObjects
 {
@@ -30,6 +32,32 @@ namespace VBASync.Model.FrxObjects
 
         public void Dispose() => Unaligned.Dispose();
         public bool GetFontIsStdFont() => new Guid(Unaligned.ReadBytes(16)) == StdFontGuid;
+
+        public string[] ReadArrayStrings(uint cbArrayString)
+        {
+            if (cbArrayString == 0)
+            {
+                return new string[0];
+            }
+
+            var startPos = Unaligned.BaseStream.Position;
+            var endPos = startPos + cbArrayString;
+            var ret = new List<string>();
+
+            while (Unaligned.BaseStream.Position < endPos)
+            {
+                ret.Add(ReadStringFromCcb(ReadCcb()));
+            }
+
+            if (Unaligned.BaseStream.Position != endPos)
+            {
+                throw new ApplicationException(string.Format(VBASyncResources.ErrorFrxStreamSizeMismatch,
+                    "o", "cbArrayString", BaseStream.Position - startPos, cbArrayString));
+            }
+
+            return ret.ToArray();
+        }
+
         public BorderStyle ReadBorderStyle() => (BorderStyle)ReadByte();
         public byte ReadByte() => Unaligned.ReadByte();
 

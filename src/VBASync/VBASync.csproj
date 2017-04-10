@@ -85,6 +85,7 @@
     <Compile Include="Model\FrxObjects\FrxReader.cs" />
     <Compile Include="Model\FrxObjects\LabelControl.cs" />
     <Compile Include="Model\FrxObjects\MorphDataControl.cs" />
+    <Compile Include="Model\FrxObjects\TabStripControl.cs" />
     <Compile Include="Model\IniFile.cs" />
     <Compile Include="Model\Lib.cs" />
     <Compile Include="Model\ModuleProcessing.cs" />
