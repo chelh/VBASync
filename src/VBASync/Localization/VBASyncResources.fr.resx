@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <root>
   <!--
     Microsoft ResX Schema
@@ -362,7 +362,7 @@ lisez le fichier LICENSE.rtf.</value>
   </data>
   <data name="AWWTFIsThis" xml:space="preserve">
     <value>Synchronise les macros VBA d'un fichier Office avec un dossier,
-typiquement suivie par un système de gestion de configuration
+typiquement suivi par un système de gestion de configuration
 (Git, SVN, etc.).</value>
   </data>
   <data name="MWAboutMenu" xml:space="preserve">
