@@ -4,6 +4,8 @@ Microsoft Office VBA code is usually held in binary format, making proper
 version control difficult. VBA Sync Tool synchronizes macros between a
 VBA-enabled file and a folder, enabling easy version control using any VCS.
 
+[**Download latest release**](https://github.com/chelh/VBASync/releases/latest)
+
 ## Features
 VBA Sync Tool works *directly with the Office file,* unlike most
 other solutions, which use a host application (e.g., Excel) to manipulate
