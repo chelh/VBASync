@@ -45,6 +45,11 @@ namespace VBASync.WPF {
             new SettingsWindow(_vm.Settings, s => _vm.Settings = s).ShowDialog();
         }
 
+        private void AboutMenu_Click(object sender, RoutedEventArgs e)
+        {
+            new AboutWindow().ShowDialog();
+        }
+
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
             FixQuotesEnclosingPaths();
@@ -316,11 +321,6 @@ namespace VBASync.WPF {
             if (Session.AutoRun) {
                 OkButton_Click(null, null);
             }
-        }
-
-        private void AboutMenu_Click(object sender, RoutedEventArgs e)
-        {
-            new AboutWindow().ShowDialog();
         }
     }
 }
