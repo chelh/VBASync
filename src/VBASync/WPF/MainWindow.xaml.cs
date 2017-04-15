@@ -47,6 +47,7 @@ namespace VBASync.WPF {
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            FixQuotesEnclosingPaths();
             var vm = ChangesGrid.DataContext as ChangesViewModel;
             if (vm == null) {
                 return;
@@ -137,6 +138,23 @@ namespace VBASync.WPF {
             CancelButton_Click(null, null);
         }
 
+        private void FixQuotesEnclosingPaths()
+        {
+            if (!string.IsNullOrEmpty(_vm.Session.FilePath) && _vm.Session.FilePath.Length > 2 && !File.Exists(_vm.Session.FilePath)
+                && _vm.Session.FilePath.StartsWith("\"") && _vm.Session.FilePath.EndsWith("\"")
+                && File.Exists(_vm.Session.FilePath.Substring(1, _vm.Session.FilePath.Length - 2)))
+            {
+                _vm.Session.FilePath = _vm.Session.FilePath.Substring(1, _vm.Session.FilePath.Length - 2);
+            }
+            if (!string.IsNullOrEmpty(_vm.Session.FolderPath) && _vm.Session.FolderPath.Length > 2 && !Directory.Exists(_vm.Session.FolderPath)
+                && _vm.Session.FolderPath.StartsWith("\"") && _vm.Session.FolderPath.EndsWith("\"")
+                && (Directory.Exists(_vm.Session.FolderPath.Substring(1, _vm.Session.FolderPath.Length - 2))
+                || Path.IsPathRooted(_vm.Session.FolderPath.Substring(1, _vm.Session.FolderPath.Length - 2))))
+            {
+                _vm.Session.FolderPath = _vm.Session.FolderPath.Substring(1, _vm.Session.FolderPath.Length - 2);
+            }
+        }
+
         private void IncludeAllBox_Click(object sender, RoutedEventArgs e)
         {
             var vm = ChangesGrid.DataContext as ChangesViewModel;
@@ -177,6 +195,7 @@ namespace VBASync.WPF {
         }
 
         private void QuietRefreshIfInputsOk() {
+            FixQuotesEnclosingPaths();
             if (!File.Exists(Session.FilePath) || !Directory.Exists(Session.FolderPath)) {
                 return;
             }
@@ -191,6 +210,7 @@ namespace VBASync.WPF {
             if (string.IsNullOrEmpty(Session.FolderPath) || string.IsNullOrEmpty(Session.FilePath)) {
                 return;
             }
+            FixQuotesEnclosingPaths();
             var folderModules = Lib.GetFolderModules(Session.FolderPath);
             _evf?.Dispose();
             _evf = new VbaFolder();

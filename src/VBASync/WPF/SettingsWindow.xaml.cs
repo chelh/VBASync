@@ -1,5 +1,6 @@
 ﻿using Ookii.Dialogs.Wpf;
 using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -32,6 +33,7 @@ namespace VBASync.WPF
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
+            FixQuotesEnclosingPath();
             _replaceSettings(_vm.Clone());
         }
 
@@ -50,6 +52,16 @@ namespace VBASync.WPF
             if (dlg.ShowDialog() == true)
             {
                 _vm.DiffTool = dlg.FileName;
+            }
+        }
+
+        private void FixQuotesEnclosingPath()
+        {
+            if (!string.IsNullOrEmpty(_vm.DiffTool) && _vm.DiffTool.Length > 2 && !File.Exists(_vm.DiffTool)
+                && _vm.DiffTool.StartsWith("\"") && _vm.DiffTool.EndsWith("\"")
+                && File.Exists(_vm.DiffTool.Substring(1, _vm.DiffTool.Length - 2)))
+            {
+                _vm.DiffTool = _vm.DiffTool.Substring(1, _vm.DiffTool.Length - 2);
             }
         }
 
