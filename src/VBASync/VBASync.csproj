@@ -8,7 +8,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VBASync</RootNamespace>
-    <AssemblyName>VBA Sync Tool</AssemblyName>
+    <AssemblyName>VBASync</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -41,17 +41,12 @@
     <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
       <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
     </Reference>
-    <Reference Include="Ookii.Dialogs.Wpf, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0c15020868fd6249, processorArchitecture=MSIL">
-      <HintPath>..\packages\Ookii.Dialogs.1.0\lib\net35\Ookii.Dialogs.Wpf.dll</HintPath>
-    </Reference>
     <Reference Include="OpenMcdf, Version=2.1.2.1274, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\OpenMcdf.2.1.2.1274\lib\OpenMcdf.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Xaml" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -60,12 +55,11 @@
     <Reference Include="VBACompressionCodec">
       <HintPath>..\VBACompressionCodec.dll</HintPath>
     </Reference>
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="App.xaml.cs">
-      <DependentUpon>App.xaml</DependentUpon>
-    </Compile>
+    <Compile Include="Model\ActiveSession.cs" />
+    <Compile Include="Model\Startup.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Localization\VBASyncResources.Designer.cs">
       <DependentUpon>VBASyncResources.resx</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -94,26 +88,6 @@
     <Compile Include="Model\SessionInterfaces.cs" />
     <Compile Include="Model\VbaFolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WPF\AboutWindow.xaml.cs">
-      <DependentUpon>AboutWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="WPF\ChangesViewModel.cs" />
-    <Compile Include="WPF\MainViewModel.cs" />
-    <Compile Include="WPF\MainWindow.xaml.cs">
-      <DependentUpon>MainWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="WPF\SessionView.xaml.cs">
-      <DependentUpon>SessionView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="WPF\SessionViewModel.cs" />
-    <Compile Include="WPF\SettingsViewModel.cs" />
-    <Compile Include="WPF\SettingsWindow.xaml.cs">
-      <DependentUpon>SettingsWindow.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="WPF\ViewModelBase.cs" />
-    <Compile Include="WPF\WpfCommand.cs" />
-    <Compile Include="WPF\WpfConverter.cs" />
-    <Compile Include="WPF\WpfStatic.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Packages.config" />
@@ -131,52 +105,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="WPF\Icons\ClassIcon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="WPF\Icons\DocIcon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="WPF\Icons\FormIcon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="WPF\Icons\ModuleIcon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="WPF\Icons\ProjectIcon.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="WPF\Icons\VBA Sync Simple.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <ApplicationDefinition Include="App.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </ApplicationDefinition>
-    <Page Include="WPF\AboutWindow.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="WPF\MainWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="WPF\SessionView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="WPF\SettingsWindow.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-  </ItemGroup>
-  <ItemGroup>
     <Resource Include="FodyWeavers.xml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="VBA Sync Simple.ico" />
-    <Resource Include="WPF\Icons\English.png" />
-    <Resource Include="WPF\Icons\French.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

@@ -125,7 +125,7 @@ namespace VBASync.Model
             string line;
             while ((line = sr.ReadLine()) != null)
             {
-                line = line.Trim();
+                line = line.TrimEnd('\r').Trim();
                 if (line.StartsWith("["))
                 {
                     subject = line.Substring(1, line.Length - 2);

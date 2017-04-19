@@ -1,8 +1,8 @@
 #define MyAppName "VBA Sync Tool"
-#define MyAppVersion "1.3.1"
+#define MyAppVersion "2.0.0"
 #define MyAppPublisher "Chelsea Hughes"
 #define MyAppURL "https://github.com/chelh/VBASync"
-#define MyAppExeName "VBA Sync Tool.exe"
+#define MyAppExeName "VBASync.exe"
 
 [Setup]
 AppId={{FCE92422-DABC-447E-8DC4-504C206D2784}
@@ -27,7 +27,8 @@ Name: "en"; MessagesFile: "compiler:Default.isl"
 Name: "fr"; MessagesFile: "compiler:Languages\French.isl"
 
 [Files]
-Source: "src\VBASync\bin\Release\VBA Sync Tool.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "src\VBASync\bin\Release\VBASync.exe"; DestDir: "{app}"; Flags: ignoreversion
+Source: "src\VBASync.WPF\bin\Release\VBASync.WPF.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "src\VBACompressionCodec.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LICENSE.rtf"; DestDir: "{app}"; Flags: ignoreversion
 Source: "3RDPARTY\*"; DestDir: "{app}\3RDPARTY"; Flags: ignoreversion

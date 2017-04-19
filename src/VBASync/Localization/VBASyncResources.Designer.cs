@@ -306,6 +306,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot load WPF UI. If your system is non-Windows or otherwise doesn&apos;t support WPF, you may only run VBA Sync Tool by specifying every parameter on the command-line..
+        /// </summary>
+        public static string ErrorCannotLoadGUI {
+            get {
+                return ResourceManager.GetString("ErrorCannotLoadGUI", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Error while decompressing stream &apos;{0}&apos;: {1}.
         /// </summary>
         public static string ErrorDecompressingStream {

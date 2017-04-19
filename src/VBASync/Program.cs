@@ -1,27 +1,22 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
-using System.Windows;
 using VBASync.Localization;
+using Forms = System.Windows.Forms;
 
 namespace VBASync
 {
-    internal partial class App
+    internal static class Program
     {
-        private void Application_Startup(object sender, StartupEventArgs e)
+        [STAThread]
+        private static void Main(string[] args)
         {
-            DispatcherUnhandledException += (s, e2) => {
-                MessageBox.Show(e2.Exception.Message, VBASyncResources.MWTitle,
-                    MessageBoxButton.OK, MessageBoxImage.Error);
-                e2.Handled = true;
-            };
-
             try
             {
                 var exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                var exeBaseName = Process.GetCurrentProcess().ProcessName;
+                var exeBaseName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
                 var ini = new Model.AppIniFile(Path.Combine(exeDir, "VBASync.ini"));
                 ini.AddFile(Path.Combine(exeDir, exeBaseName + ".ini"));
                 var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
@@ -41,7 +36,6 @@ namespace VBASync
                     ini.AddFile(Path.Combine(Environment.CurrentDirectory, "VBASync.ini"));
                     ini.AddFile(Path.Combine(Environment.CurrentDirectory, exeBaseName + ".ini"));
                 }
-                var args = Environment.GetCommandLineArgs();
                 var autoRunSwitch = false;
                 Model.ActionType? actionSwitch = null;
                 string filePathSwitch = null;
@@ -76,43 +70,53 @@ namespace VBASync
                     }
                 }
 
-                var initialSession = new WPF.MainViewModel
+                var startup = new Model.Startup
                 {
-                    Session = new WPF.SessionViewModel
-                    {
-                        Action = actionSwitch ?? ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract,
-                        AutoRun = autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false),
-                        FilePath = filePathSwitch ?? ini.GetString("General", "FilePath"),
-                        FolderPath = folderPathSwitch ?? ini.GetString("General", "FolderPath")
-                    },
-                    Settings = new WPF.SettingsViewModel
-                    {
-                        DiffTool = ini.GetString("DiffTool", "Path"),
-                        DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
-                        Language = ini.GetString("General", "Language"),
-                        Portable = ini.GetBool("General", "Portable") ?? false
-                    }
+                    Action = actionSwitch ?? ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract,
+                    AutoRun = autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false),
+                    FilePath = filePathSwitch ?? ini.GetString("General", "FilePath"),
+                    FolderPath = folderPathSwitch ?? ini.GetString("General", "FolderPath"),
+                    DiffTool = ini.GetString("DiffTool", "Path"),
+                    DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
+                    Language = ini.GetString("General", "Language"),
+                    Portable = ini.GetBool("General", "Portable") ?? false
                 };
                 var j = 1;
                 while (j <= 5 && !string.IsNullOrEmpty(ini.GetString("RecentFiles", j.ToString(CultureInfo.InvariantCulture))))
                 {
-                    initialSession.RecentFiles.Add(ini.GetString("RecentFiles", j.ToString(CultureInfo.InvariantCulture)));
+                    startup.RecentFiles.Add(ini.GetString("RecentFiles", j.ToString(CultureInfo.InvariantCulture)));
                     ++j;
                 }
-                if (!string.IsNullOrEmpty(initialSession.Settings.Language))
+                if (!string.IsNullOrEmpty(startup.Language))
                 {
-                    VBASyncResources.Culture = new CultureInfo(initialSession.Settings.Language);
+                    VBASyncResources.Culture = new CultureInfo(startup.Language);
                 }
-                var mw = new WPF.MainWindow(initialSession);
-                mw.Show();
-                if (!File.Exists(lastSessionPath) && !initialSession.Session.AutoRun)
+                if (startup.AutoRun)
                 {
-                    mw.SettingsMenu_Click(null, null);
+                    using (var actor = new Model.ActiveSession(startup))
+                    {
+                        actor.Apply(actor.GetPatches().ToList());
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        Assembly.Load("VBASync.WPF")
+                            .GetType("VBASync.WPF.WpfManager")
+                            .GetMethod("RunWpf", BindingFlags.Public | BindingFlags.Static)
+                            .Invoke(null, new object[] { startup, !File.Exists(lastSessionPath) });
+                    }
+                    catch
+                    {
+                        throw new ApplicationException(VBASyncResources.ErrorCannotLoadGUI);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message, VBASyncResources.MWTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                Forms.MessageBox.Show(ex.Message, VBASyncResources.MWTitle,
+                    Forms.MessageBoxButtons.OK, Forms.MessageBoxIcon.Error);
             }
         }
     }

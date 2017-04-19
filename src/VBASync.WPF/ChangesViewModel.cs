@@ -46,15 +46,15 @@ namespace VBASync.WPF {
                 (v, t, p, c) => {
                     switch ((ModuleType)v) {
                     case ModuleType.Class:
-                        return "pack://application:,,,/WPF/Icons/ClassIcon.png";
+                        return "Icons/ClassIcon.png";
                     case ModuleType.Standard:
-                        return "pack://application:,,,/WPF/Icons/ModuleIcon.png";
+                        return "Icons/ModuleIcon.png";
                     case ModuleType.Form:
-                        return "pack://application:,,,/WPF/Icons/FormIcon.png";
+                        return "Icons/FormIcon.png";
                     case ModuleType.Ini:
-                        return "pack://application:,,,/WPF/Icons/ProjectIcon.png";
+                        return "Icons/ProjectIcon.png";
                     default:
-                        return "pack://application:,,,/WPF/Icons/DocIcon.png";
+                        return "Icons/DocIcon.png";
                     }
                 }) {
         }

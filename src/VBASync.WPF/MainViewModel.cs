@@ -9,6 +9,7 @@ namespace VBASync.WPF
 {
     internal class MainViewModel : ViewModelBase
     {
+        private Model.ActiveSession _activeSession;
         private SessionViewModel _session;
         private SettingsViewModel _settings;
 
@@ -24,10 +25,16 @@ namespace VBASync.WPF
         public WpfCommand OpenRecentCommand { get; }
         public BindingList<string> RecentFiles { get; }
 
+        public Model.ActiveSession ActiveSession => _activeSession;
+
         public SessionViewModel Session
         {
             get => _session;
-            set => SetField(ref _session, value, nameof(Session));
+            set
+            {
+                SetField(ref _session, value, nameof(Session));
+                RefreshActiveSession();
+            }
         }
 
         public SettingsViewModel Settings
@@ -97,6 +104,12 @@ namespace VBASync.WPF
                 MessageBox.Show(ex.Message, Localization.VBASyncResources.MWTitle,
                     MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        public void RefreshActiveSession()
+        {
+            _activeSession?.Dispose();
+            _activeSession = new Model.ActiveSession(_session);
         }
     }
 }

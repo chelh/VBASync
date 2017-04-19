@@ -1,18 +1,20 @@
 ﻿/* This file contains various parts of the DiffPlex package, modified for use with VBA.
  * All modifications to the DiffPlex code are licensed under the following terms:
  *
- * * Copyright (c) 2016 Chelsea Hughes
+ * * Copyright © 2017 Chelsea Hughes
  * *
- * * You may use this software for any purpose and alter it freely. You may redistribute it
- * * subject to these restrictions:
+ * * You may use this software for any purpose and alter it freely.
+ * * You may redistribute it subject to these restrictions:
  * *
- * * (a) You must not misrepresent the software's original authorship.
- * * (b) Altered versions must be clearly marked as such, in a way visible to a typical user,
- * *     and must not be misrepresented as the original.
- * * (c) This notice must remain intact in any source code distribution.
+ * *  1. Don’t misrepresent the software’s origin.
+ * *  2. Clearly mark any altered versions, and don’t misrepresent them
+ * *     as the original.
+ * *  3. Keep this notice intact when you distribute the software’s
+ * *     source code.
  * *
- * * This software is provided "as-is," without any express or implied warranty. In no event
- * * will the author be held liable for any damages arising from the use of this software.
+ * * This software is provided “as-is,” without any express or
+ * * implied warranty. In no event will I or any other contributor
+ * * be held liable for any damages arising from the use of this software.
  *
  * DiffPlex is distributed under the Apache License, included below:
  *

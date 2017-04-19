@@ -27,6 +27,7 @@ the VBA code. This gives it several advantages:
     as any other module.
   * Supports Excel 97-2003, Excel 2007+, Word 97-2003, Word 2007+,
     PowerPoint 2007+, and Outlook files.
+  * Compatible with every platform supported by the .Net Framework.
 
 ## Using
 VBA Sync Tool has two modes: **Extract**&nbsp;mode extracts modules
@@ -56,11 +57,11 @@ You can also specify settings on the command-line via switches:
 
 Switch | Meaning
 ------ | ------
-`/X`   | Extract VBA from Office file (default)
-`/P`   | Publish VBA to Office file
-`/F <file>` | Specify Office file
-`/D <dir>` | Specify version-control directory
-`/R`   | Do the selected action, then immediately exit
+`-x`   | Extract VBA from Office file (default)
+`-p`   | Publish VBA to Office file
+`-f <file>` | Specify Office file
+`-d <dir>` | Specify version-control directory
+`-r`   | Do the selected action, then immediately exit
 
 Any other parameter passed to VBA Sync Tool will be read and parsed as a session `.ini` file.
 

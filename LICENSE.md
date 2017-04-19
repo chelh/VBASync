@@ -1,5 +1,5 @@
-The following license applies to all of `VBA Sync Tool.exe` except these
-statically-linked third-party libraries:
+The following license applies to all of `VBASync.exe` and `VBASync.WPF.dll`
+except these statically-linked third-party libraries:
 
   * DiffPlex (modified by me for use with VBA)
   * OpenMCDF

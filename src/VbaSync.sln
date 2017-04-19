@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.9
+VisualStudioVersion = 15.0.26403.7
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Loose files", "Loose files", "{C787BBEE-9AF4-4E60-923E-C67ECB69356F}"
 	ProjectSection(SolutionItems) = preProject
@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3RDPARTY", "3RDPARTY", "{FF
 		..\3RDPARTY\VBACompressionCodec.txt = ..\3RDPARTY\VBACompressionCodec.txt
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBASync.WPF", "VBASync.WPF\VBASync.WPF.csproj", "{2B02695F-5E12-4CEF-9541-CA134B2F0480}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,6 +37,10 @@ Global
 		{69C03739-3447-441E-AFB2-BAF5F6C52CFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{69C03739-3447-441E-AFB2-BAF5F6C52CFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{69C03739-3447-441E-AFB2-BAF5F6C52CFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B02695F-5E12-4CEF-9541-CA134B2F0480}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B02695F-5E12-4CEF-9541-CA134B2F0480}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B02695F-5E12-4CEF-9541-CA134B2F0480}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B02695F-5E12-4CEF-9541-CA134B2F0480}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

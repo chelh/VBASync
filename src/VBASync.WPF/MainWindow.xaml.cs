@@ -1,6 +1,5 @@
 ﻿using Ookii.Dialogs.Wpf;
 using System;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -17,16 +16,33 @@ namespace VBASync.WPF {
         internal const int CopyrightYear = 2017;
         internal const string SupportUrl = "https://github.com/chelh/VBASync";
 
-        internal static readonly Version Version = new Version(1, 3, 1);
+        internal static readonly Version Version = new Version(2, 0, 0);
 
         private readonly MainViewModel _vm;
 
         private bool _doUpdateIncludeAll = true;
-        private VbaFolder _evf;
 
-        public MainWindow(MainViewModel vm) {
+        public MainWindow(Model.Startup startup) {
             InitializeComponent();
-            DataContext = _vm = vm;
+
+            DataContext = _vm = new MainViewModel
+            {
+                Session = new SessionViewModel
+                {
+                    Action = startup.Action,
+                    AutoRun = startup.AutoRun,
+                    FilePath = startup.FilePath,
+                    FolderPath = startup.FolderPath
+                },
+                Settings = new SettingsViewModel
+                {
+                    DiffTool = startup.DiffTool,
+                    DiffToolParameters = startup.DiffToolParameters,
+                    Language = startup.Language,
+                    Portable = startup.Portable
+                }
+            };
+
             DataContextChanged += (s, e) => QuietRefreshIfInputsOk();
             _vm.Session.PropertyChanged += (s, e) =>
             {
@@ -53,56 +69,16 @@ namespace VBASync.WPF {
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
             FixQuotesEnclosingPaths();
-            var vm = ChangesGrid.DataContext as ChangesViewModel;
-            if (vm == null) {
+
+            var changes = ChangesGrid.DataContext as ChangesViewModel;
+            var committedChanges = changes?.Where(p => p.Commit).ToList();
+            if (committedChanges == null || committedChanges.Count == 0)
+            {
                 return;
             }
-            if (Session.Action == ActionType.Extract) {
-                foreach (var p in vm.Where(p => p.Commit).ToArray()) {
-                    var fileName = p.ModuleName + ModuleProcessing.ExtensionFromType(p.ModuleType);
-                    switch (p.ChangeType) {
-                    case ChangeType.DeleteFile:
-                        File.Delete(Path.Combine(Session.FolderPath, fileName));
-                        if (p.ModuleType == ModuleType.Form) {
-                            File.Delete(Path.Combine(Session.FolderPath, p.ModuleName + ".frx"));
-                        }
-                        break;
-                    case ChangeType.ChangeFormControls:
-                        File.Copy(Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), true);
-                        break;
-                    default:
-                        File.Copy(Path.Combine(_evf.FolderPath, fileName), Path.Combine(Session.FolderPath, fileName), true);
-                        if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form) {
-                            File.Copy(Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), true);
-                        }
-                        break;
-                    }
-                    vm.Remove(p);
-                }
-            } else {
-                foreach (var p in vm.Where(p => p.Commit).ToArray()) {
-                    var fileName = p.ModuleName + ModuleProcessing.ExtensionFromType(p.ModuleType);
-                    switch (p.ChangeType) {
-                    case ChangeType.DeleteFile:
-                        File.Delete(Path.Combine(_evf.FolderPath, fileName));
-                        if (p.ModuleType == ModuleType.Form) {
-                            File.Delete(Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"));
-                        }
-                        break;
-                    case ChangeType.ChangeFormControls:
-                        File.Copy(Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), true);
-                        break;
-                    default:
-                        File.Copy(Path.Combine(Session.FolderPath, fileName), Path.Combine(_evf.FolderPath, fileName), true);
-                        if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form) {
-                            File.Copy(Path.Combine(Session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_evf.FolderPath, p.ModuleName + ".frx"), true);
-                        }
-                        break;
-                    }
-                    vm.Remove(p);
-                }
-                _evf.Write(Session.FilePath);
-            }
+
+            _vm.ActiveSession.Apply(committedChanges, p => changes.Remove(p));
+
             UpdateIncludeAllBox();
         }
 
@@ -117,9 +93,9 @@ namespace VBASync.WPF {
             string newPath;
             if (Session.Action == ActionType.Extract) {
                 oldPath = Path.Combine(Session.FolderPath, fileName);
-                newPath = Path.Combine(_evf.FolderPath, fileName);
+                newPath = Path.Combine(_vm.ActiveSession.FolderPath, fileName);
             } else {
-                oldPath = Path.Combine(_evf.FolderPath, fileName);
+                oldPath = Path.Combine(_vm.ActiveSession.FolderPath, fileName);
                 newPath = Path.Combine(Session.FolderPath, fileName);
             }
             if (sel.ChangeType == ChangeType.ChangeFormControls) {
@@ -216,19 +192,12 @@ namespace VBASync.WPF {
                 return;
             }
             FixQuotesEnclosingPaths();
-            var folderModules = Lib.GetFolderModules(Session.FolderPath);
-            _evf?.Dispose();
-            _evf = new VbaFolder();
-            _evf.Read(Session.FilePath, folderModules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1));
-            var changes = Lib.GetModulePatches(Session, _evf.FolderPath, folderModules, _evf.ModuleTexts.ToList()).ToList();
-            var projChange = Lib.GetProjectPatch(Session, _evf.FolderPath);
-            if (projChange != null) {
-                changes.Add(projChange);
-            }
-            var cvm = new ChangesViewModel(changes);
-            ChangesGrid.DataContext = cvm;
-            foreach (var ch in cvm) {
-                ch.CommitChanged += (s2, e2) => UpdateIncludeAllBox();
+            _vm.RefreshActiveSession();
+
+            var changes = new ChangesViewModel(_vm.ActiveSession.GetPatches());
+            ChangesGrid.DataContext = changes;
+            foreach (var p in changes) {
+                p.CommitChanged += (s2, e2) => UpdateIncludeAllBox();
             }
             UpdateIncludeAllBox();
         }
@@ -295,7 +264,7 @@ namespace VBASync.WPF {
         }
 
         private void Window_Closed(object sender, EventArgs e) {
-            _evf?.Dispose();
+            _vm.ActiveSession?.Dispose();
 
             string lastSessionPath;
             if (_vm.Settings.Portable)
