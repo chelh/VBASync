@@ -633,7 +633,7 @@ namespace VBASync.Model
                             throw new ApplicationException(VBASyncResources.ErrorCannotFindVbaProject);
                         }
                         zipFile.BeginUpdate();
-                        zipFile.Add(Path.Combine(FolderPath, "vbaProject.bin"));
+                        zipFile.Add(Path.Combine(FolderPath, "vbaProject.bin"), zipEntry.Name);
                         zipFile.CommitUpdate();
                         zipFile.Close();
                     }
