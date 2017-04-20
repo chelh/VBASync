@@ -361,7 +361,8 @@ namespace VBASync.Model
                     projStrings.AddRange(refer.GetConfigStrings());
                 }
 
-                File.WriteAllLines(Path.Combine(FolderPath, "Project.ini"), projStrings, projEncoding);
+                // don't use WriteAllLines because we need \r\n line endings specifically
+                File.WriteAllText(Path.Combine(FolderPath, "Project.ini"), string.Join("\r\n", projStrings), projEncoding);
 
                 ModuleTexts.Clear();
                 foreach (var m in modules)
@@ -729,7 +730,7 @@ namespace VBASync.Model
             using (var sr = new StringReader(moduleText))
             {
                 string line;
-                while ((line = sr.ReadLine()) != null)
+                while ((line = sr.ReadLine()?.TrimEnd('\r')) != null)
                 {
                     var start = line.TrimStart();
                     if (start.Length < $"Attribute {attribName} ".Length)

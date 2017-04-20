@@ -131,15 +131,8 @@ namespace VBASync.Model
 
         private static int CountStringLines(string s)
         {
-            var i = 0;
-            using (var r = new StringReader(s))
-            {
-                while (r.ReadLine() != null)
-                {
-                    i++;
-                }
-            }
-            return i;
+            // s is guaranteed to have \r\n line endings
+            return string.IsNullOrEmpty(s) ? 0 : s.Length - s.Replace("\r", "").Length;
         }
 
         private static string GetModuleTypeName(ModuleType mt)
