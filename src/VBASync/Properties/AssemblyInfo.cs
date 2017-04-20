@@ -1,8 +1,11 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 
 [assembly: AssemblyTitle("VBA Sync Tool")]
 [assembly: AssemblyDescription("Cross-platform tool to synchronize an Office VBA file with a version-controlled folder")]
 [assembly: AssemblyProduct("VBA Sync Tool")]
 [assembly: AssemblyCopyright("Copyright © 2017 Chelsea Hughes")]
 
-[assembly: AssemblyVersion("2.0.0")]
+[assembly: AssemblyVersion("2.0.1")]
+
+[assembly: InternalsVisibleTo("VBASync.Tests")]

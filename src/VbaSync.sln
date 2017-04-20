@@ -27,6 +27,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3RDPARTY", "3RDPARTY", "{FF
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBASync.WPF", "VBASync.WPF\VBASync.WPF.csproj", "{2B02695F-5E12-4CEF-9541-CA134B2F0480}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VBASync.Tests", "VBASync.Tests\VBASync.Tests.csproj", "{15432F02-5D62-47F7-96A7-372CBDA98D66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,10 @@ Global
 		{2B02695F-5E12-4CEF-9541-CA134B2F0480}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2B02695F-5E12-4CEF-9541-CA134B2F0480}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2B02695F-5E12-4CEF-9541-CA134B2F0480}.Release|Any CPU.Build.0 = Release|Any CPU
+		{15432F02-5D62-47F7-96A7-372CBDA98D66}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{15432F02-5D62-47F7-96A7-372CBDA98D66}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{15432F02-5D62-47F7-96A7-372CBDA98D66}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{15432F02-5D62-47F7-96A7-372CBDA98D66}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

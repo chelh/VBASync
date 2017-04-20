@@ -39,7 +39,12 @@ namespace VBASync.Model
             {
                 while (bPos < db.InsertStartB)
                 {
-                    sb.AppendLine(dr.PiecesOld[aPos++]);
+                    // don't use AppendLine since we want to always have DOS line endings
+                    if (sb.Length > 0)
+                    {
+                        sb.Append("\r\n");
+                    }
+                    sb.Append(dr.PiecesOld[aPos++]);
                     bPos++;
                 }
                 var i = 0;
@@ -52,21 +57,36 @@ namespace VBASync.Model
                                        && (dr.PiecesOld[i + db.DeleteStartA].StartsWith("Attribute VB_Base =", StringComparison.InvariantCultureIgnoreCase)
                                            || dr.PiecesOld[i + db.DeleteStartA].StartsWith("Attribute VB_Base=", StringComparison.InvariantCultureIgnoreCase))
                                        && !dr.PiecesOld[i + db.DeleteStartA].EndsWith("_");
-                    sb.AppendLine(isVbBaseLine ? dr.PiecesOld[i++ + db.DeleteStartA] : dr.PiecesNew[i++ + db.InsertStartB]);
+                    // don't use AppendLine since we want to always have DOS line endings
+                    if (sb.Length > 0)
+                    {
+                        sb.Append("\r\n");
+                    }
+                    sb.Append(isVbBaseLine ? dr.PiecesOld[i++ + db.DeleteStartA] : dr.PiecesNew[i++ + db.InsertStartB]);
                     bPos++;
                 }
                 if (db.InsertCountB > db.DeleteCountA)
                 {
                     while (i < db.InsertCountB)
                     {
-                        sb.AppendLine(dr.PiecesNew[i++ + db.InsertStartB]);
+                        // don't use AppendLine since we want to always have DOS line endings
+                        if (sb.Length > 0)
+                        {
+                            sb.Append("\r\n");
+                        }
+                        sb.Append(dr.PiecesNew[i++ + db.InsertStartB]);
                         bPos++;
                     }
                 }
             }
             while (aPos < dr.PiecesOld.Length)
             {
-                sb.AppendLine(dr.PiecesOld[aPos++]);
+                // don't use AppendLine since we want to always have DOS line endings
+                if (sb.Length > 0)
+                {
+                    sb.Append("\r\n");
+                }
+                sb.Append(dr.PiecesOld[aPos++]);
             }
             return sb.ToString();
         }
