@@ -376,4 +376,7 @@ with a version-controlled folder.</value>
   <data name="ErrorCannotLoadGUI" xml:space="preserve">
     <value>Cannot load WPF UI. If your system is non-Windows or otherwise doesn't support WPF, you may only run VBA Sync Tool by specifying every parameter on the command-line.</value>
   </data>
+  <data name="ExplainFrxTitle" xml:space="preserve">
+    <value>FRX file difference</value>
+  </data>
 </root>

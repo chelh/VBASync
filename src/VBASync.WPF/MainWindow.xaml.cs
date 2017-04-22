@@ -100,7 +100,7 @@ namespace VBASync.WPF {
             }
             if (sel.ChangeType == ChangeType.ChangeFormControls) {
                 Lib.FrxFilesAreDifferent(oldPath, newPath, out var explain);
-                MessageBox.Show(explain, "FRX file difference", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(explain, VBASyncResources.ExplainFrxTitle, MessageBoxButton.OK, MessageBoxImage.Information);
             } else {
                 var diffExePath = Environment.ExpandEnvironmentVariables(_vm.Settings.DiffTool);
                 if (!File.Exists(oldPath) || !File.Exists(newPath) || !File.Exists(diffExePath)) {

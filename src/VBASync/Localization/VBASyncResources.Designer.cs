@@ -400,6 +400,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to FRX file difference.
+        /// </summary>
+        public static string ExplainFrxTitle {
+            get {
+                return ResourceManager.GetString("ExplainFrxTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Class.
         /// </summary>
         public static string MTClass {
