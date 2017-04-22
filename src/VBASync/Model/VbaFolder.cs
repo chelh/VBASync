@@ -468,7 +468,7 @@ namespace VBASync.Model
             foreach (var modPath in Directory.GetFiles(FolderPath).Where(s => modExts.Contains(Path.GetExtension(s) ?? "", StringComparer.InvariantCultureIgnoreCase)))
             {
                 var modName = Path.GetFileNameWithoutExtension(modPath);
-                var modText = File.ReadAllText(modPath, projEncoding);
+                var modText = EnsureCrLfEndings(File.ReadAllText(modPath, projEncoding));
                 var modType = ModuleProcessing.TypeFromText(modText);
                 projIni.RegisterModule(modName, modType, (uint)(projIni.GetInt("DocTLibVersions", modName) ?? 0));
                 mods.Add(new Module {
@@ -723,6 +723,11 @@ namespace VBASync.Model
                 }
                 target.Delete(i.Name);
             }, false);
+        }
+
+        private static string EnsureCrLfEndings(string text)
+        {
+            return string.Join("\r\n", text?.Split('\n').Select(s => s.Trim('\r')) ?? new string[0]);
         }
 
         private static string GetAttribute(string moduleText, string attribName)
