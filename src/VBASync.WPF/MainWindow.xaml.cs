@@ -22,7 +22,7 @@ namespace VBASync.WPF {
 
         private bool _doUpdateIncludeAll = true;
 
-        public MainWindow(Model.Startup startup) {
+        public MainWindow(Startup startup) {
             InitializeComponent();
 
             DataContext = _vm = new MainViewModel
