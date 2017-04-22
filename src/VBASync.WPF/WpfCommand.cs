@@ -11,7 +11,7 @@ namespace VBASync.WPF
         internal WpfCommand(Action<dynamic> command, Func<dynamic, bool> canExecute = null)
         {
             _command = command;
-            _canExecute = canExecute ?? (p => true);
+            _canExecute = canExecute ?? (v => true);
         }
 
         public event EventHandler CanExecuteChanged;
