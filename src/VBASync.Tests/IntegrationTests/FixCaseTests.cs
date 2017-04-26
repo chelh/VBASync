@@ -96,5 +96,37 @@ End Sub
 ";
             Assert.AreEqual(newFileFix, ModuleProcessing.FixCase(oldFile, newFileRaw));
         }
+
+        [TestMethod]
+        public void FixCaseWasDuplicatingLines()
+        {
+            const string oldFile = @"Attribute VB_Name = ""Module1""
+Option Explicit
+
+
+Sub StubbedOuttes()
+    MsgBox ""Hello, world!""
+End Sub
+
+Sub StubbedOuttes2()
+
+    MsgBox ""Hello, world!""
+End Sub
+";
+
+            const string newFile = @"Attribute VB_Name = ""Module1""
+Option Explicit
+
+Sub tes()
+    MsgBox ""Hello, world!""
+End Sub
+
+Sub tes2()
+    MsgBox ""Hello, world!""
+End Sub
+";
+
+            Assert.AreEqual(newFile, ModuleProcessing.FixCase(oldFile, newFile));
+        }
     }
 }
