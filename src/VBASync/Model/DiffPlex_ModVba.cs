@@ -298,6 +298,8 @@ namespace VBASync.Model
             for (var i = 0; i < pieces.Length; i++)
             {
                 var piece = UppercaseVbaSymbols(pieces[i], ref startInComment);
+                if (ignoreWhitespace) piece = piece.Trim();
+                if (ignoreCase) piece = piece.ToUpperInvariant();
 
                 if (pieceHash.ContainsKey(piece))
                 {
