@@ -18,7 +18,7 @@ namespace VBASync.Model
 
         public string FolderPath => _vf.FolderPath;
 
-        public void Apply(IEnumerable<Patch> changes, Action<Patch> onCommitted = null)
+        public void Apply(IEnumerable<Patch> changes)
         {
             if (_session.Action == ActionType.Extract)
             {
@@ -45,7 +45,6 @@ namespace VBASync.Model
                             }
                             break;
                     }
-                    onCommitted?.Invoke(p);
                 }
             }
             else
@@ -73,7 +72,6 @@ namespace VBASync.Model
                             }
                             break;
                     }
-                    onCommitted?.Invoke(p);
                 }
                 _vf.Write(_session.FilePath);
             }

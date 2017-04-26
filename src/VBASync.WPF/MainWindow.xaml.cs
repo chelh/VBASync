@@ -77,9 +77,9 @@ namespace VBASync.WPF {
                 return;
             }
 
-            _vm.ActiveSession.Apply(committedChanges, p => changes.Remove(p));
+            _vm.ActiveSession.Apply(committedChanges);
 
-            UpdateIncludeAllBox();
+            QuietRefreshIfInputsOk();
         }
 
         private void CancelButton_Click(object sender, RoutedEventArgs e) {
