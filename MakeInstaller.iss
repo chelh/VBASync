@@ -34,6 +34,9 @@ Source: "LICENSE.rtf"; DestDir: "{app}"; Flags: ignoreversion
 Source: "3RDPARTY\*"; DestDir: "{app}\3RDPARTY"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
+[InstallDelete]
+Type: files; Name: "{app}\VBA Sync Tool.exe"
+
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
