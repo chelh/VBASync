@@ -83,12 +83,12 @@ namespace VBASync.WPF
                     {
                         path = Path.Combine(exeDir, path);
                     }
-                    if (!File.Exists(RecentFiles[i]))
+                    if (!File.Exists(path))
                     {
                         throw new FileNotFoundException();
                     }
-                    LoadIni(new Model.AppIniFile(RecentFiles[i], Encoding.UTF8));
-                    AddRecentFile(RecentFiles[i]);
+                    LoadIni(new Model.AppIniFile(path, Encoding.UTF8));
+                    AddRecentFile(path);
                 }
                 catch
                 {
