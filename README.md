@@ -28,7 +28,7 @@ the VBA code. This gives it several advantages:
     as any other module.
   * Supports Excel 97-2003, Excel 2007+, Word 97-2003, Word 2007+,
     PowerPoint 2007+, and Outlook files.
-  * Compatible with every platform supported by the .Net Framework.
+  * Compatible with Windows, Linux, and Mac.
 
 ## Using
 VBA Sync Tool has two modes: **Extract**&nbsp;mode extracts modules
