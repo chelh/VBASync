@@ -42,6 +42,10 @@ namespace VBASync.WPF {
                     Portable = startup.Portable
                 }
             };
+            foreach (var recentFile in startup.RecentFiles)
+            {
+                _vm.RecentFiles.Add(recentFile);
+            }
 
             DataContextChanged += (s, e) => QuietRefreshIfInputsOk();
             _vm.Session.PropertyChanged += (s, e) =>
