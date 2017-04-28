@@ -129,6 +129,9 @@
                 Grid.Column="0"
                 Height="23"
                 VerticalAlignment="Center"
+                Drop="TextBoxFileDrop"
+                PreviewDragEnter="TextBoxFilePreviewDragEnter"
+                PreviewDragOver="TextBoxFilePreviewDragOver"
                 Style="{StaticResource Level1Close}"
                 Text="{Binding DiffTool}" />
             <Button

@@ -76,6 +76,9 @@
                 Grid.Column="0"
                 Height="23"
                 VerticalAlignment="Center"
+                Drop="TextBoxFileDrop"
+                PreviewDragEnter="TextBoxFilePreviewDragEnter"
+                PreviewDragOver="TextBoxFilePreviewDragOver"
                 PreviewKeyDown="FolderBrowseBox_PreviewKeyDown"
                 Style="{StaticResource Level1Close}"
                 Text="{Binding FolderPath}" />
@@ -102,6 +105,9 @@
                 Grid.Column="0"
                 Height="23"
                 VerticalAlignment="Center"
+                Drop="TextBoxFileDrop"
+                PreviewDragEnter="TextBoxFilePreviewDragEnter"
+                PreviewDragOver="TextBoxFilePreviewDragOver"
                 PreviewKeyDown="FileBrowseBox_PreviewKeyDown"
                 Style="{StaticResource Level1Close}"
                 Text="{Binding FilePath}" />

@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using VBASync.Localization;
 using VBASync.Model;
 
@@ -79,6 +80,29 @@ namespace VBASync.WPF
             ApplyButton_Click(null, null);
             DialogResult = true;
             Close();
+        }
+
+        private void TextBoxFileDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
+            {
+                ((TextBox)sender).Text = files[0];
+                BindingOperations.GetBindingExpression((TextBox)sender, TextBox.TextProperty)?.UpdateSource();
+            }
+        }
+
+        private void TextBoxFilePreviewDragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects |= DragDropEffects.Copy;
+            }
+            e.Handled = true;
+        }
+
+        private void TextBoxFilePreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
         }
     }
 }

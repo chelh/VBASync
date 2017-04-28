@@ -1,6 +1,7 @@
 ﻿using Ookii.Dialogs.Wpf;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Input;
 using VBASync.Localization;
 
@@ -69,6 +70,29 @@ namespace VBASync.WPF
             {
                 Session.FolderPath = dlg.SelectedPath;
             }
+        }
+
+        private void TextBoxFileDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetData(DataFormats.FileDrop) is string[] files && files.Length > 0)
+            {
+                ((TextBox)sender).Text = files[0];
+                BindingOperations.GetBindingExpression((TextBox)sender, TextBox.TextProperty)?.UpdateSource();
+            }
+        }
+
+        private void TextBoxFilePreviewDragEnter(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                e.Effects |= DragDropEffects.Copy;
+            }
+            e.Handled = true;
+        }
+
+        private void TextBoxFilePreviewDragOver(object sender, DragEventArgs e)
+        {
+            e.Handled = true;
         }
     }
 }
