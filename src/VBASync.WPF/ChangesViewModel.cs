@@ -52,6 +52,7 @@ namespace VBASync.WPF {
                     case ModuleType.Form:
                         return "Icons/FormIcon.png";
                     case ModuleType.Ini:
+                    case ModuleType.Licenses:
                         return "Icons/ProjectIcon.png";
                     default:
                         return "Icons/DocIcon.png";

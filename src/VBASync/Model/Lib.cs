@@ -42,6 +42,37 @@ namespace VBASync.Model
             return modulesText.ToList();
         }
 
+        public static Patch GetLicensesPatch(ISession session, string evfPath)
+        {
+            var folderLicensesPath = Path.Combine(session.FolderPath, "LicenseKeys.bin");
+            var fileLicensesPath = Path.Combine(evfPath, "LicenseKeys.bin");
+            var folderHasLicenses = File.Exists(folderLicensesPath);
+            var fileHasLicenses = File.Exists(fileLicensesPath);
+            if (folderHasLicenses && fileHasLicenses)
+            {
+                if (session.Action == ActionType.Extract)
+                {
+                    return Patch.MakeLicensesChange(File.ReadAllBytes(folderLicensesPath), File.ReadAllBytes(fileLicensesPath));
+                }
+                else
+                {
+                    return Patch.MakeLicensesChange(File.ReadAllBytes(fileLicensesPath), File.ReadAllBytes(folderLicensesPath));
+                }
+            }
+            else if (!folderHasLicenses && !fileHasLicenses)
+            {
+                return null;
+            }
+            else if (session.Action == ActionType.Extract ? !folderHasLicenses : !fileHasLicenses)
+            {
+                return Patch.MakeLicensesChange(new byte[0], File.ReadAllBytes(session.Action == ActionType.Extract ? fileLicensesPath : folderLicensesPath));
+            }
+            else
+            {
+                return null; // never suggest deleting LicenseKeys.BIN
+            }
+        }
+
         public static IEnumerable<Patch> GetModulePatches(ISession session, string vbaFolderPath,
             IList<KeyValuePair<string, Tuple<string, ModuleType>>> folderModules,
             IList<KeyValuePair<string, Tuple<string, ModuleType>>> fileModules)

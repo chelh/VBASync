@@ -23,7 +23,8 @@ namespace VBASync.Model
         ChangeFileType = 11,
         WholeFile = 12,
         MoveSub = 13,
-        Project = 14
+        Project = 14,
+        Licenses = 15
     }
 
     public enum ModuleType
@@ -32,7 +33,8 @@ namespace VBASync.Model
         StaticClass = 1,
         Class = 2,
         Form = 3,
-        Ini = 4
+        Ini = 4,
+        Licenses = 5
     }
 
     internal struct Chunk
@@ -116,6 +118,18 @@ namespace VBASync.Model
                 => new Patch(type, name, ChangeType.AddFile,
                         chunks: new[] { new Chunk { OldStartLine = 1, NewStartLine = 1, NewText = module } });
 
+        internal static Patch MakeLicensesChange(byte[] oldBytes, byte[] newBytes)
+        {
+            if (oldBytes.SequenceEqual(newBytes))
+            {
+                return null;
+            }
+            else
+            {
+                return new Patch(ModuleType.Licenses, "LicenseKeys", ChangeType.Licenses);
+            }
+        }
+
         internal static Patch MakeProjectChange(string oldText, string newText)
         {
             if (oldText == newText)
@@ -125,7 +139,8 @@ namespace VBASync.Model
             else
             {
                 var lineDiff = CountStringLines(newText) - CountStringLines(oldText);
-                return new Patch(ModuleType.Ini, "Project", ChangeType.Project, $"File changed ({lineDiff.ToString("+#;-#;—")})");
+                return new Patch(ModuleType.Ini, "Project", ChangeType.Project,
+                    string.Format(VBASyncResources.CDWholeFile, lineDiff.ToString("+#;-#;—")));
             }
         }
 

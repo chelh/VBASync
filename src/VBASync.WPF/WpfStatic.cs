@@ -45,6 +45,8 @@ namespace VBASync.WPF
                     return VBASyncResources.CTMoveSub;
                 case ChangeType.Project:
                     return VBASyncResources.CTProject;
+                case ChangeType.Licenses:
+                    return VBASyncResources.CTLicenses;
                 default:
                     return null;
                 }

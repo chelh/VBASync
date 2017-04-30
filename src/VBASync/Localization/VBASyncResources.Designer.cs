@@ -261,6 +261,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Licenses.
+        /// </summary>
+        public static string CTLicenses {
+            get {
+                return ResourceManager.GetString("CTLicenses", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rename file.
         /// </summary>
         public static string CTMoveFile {
@@ -468,6 +477,15 @@ namespace VBASync.Localization {
         public static string MTIni {
             get {
                 return ResourceManager.GetString("MTIni", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Licenses.
+        /// </summary>
+        public static string MTLicenses {
+            get {
+                return ResourceManager.GetString("MTLicenses", resourceCulture);
             }
         }
         

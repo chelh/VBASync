@@ -92,6 +92,11 @@ namespace VBASync.Model
             {
                 yield return projPatch;
             }
+            var licensesPatch = Lib.GetLicensesPatch(_session, _vf.FolderPath);
+            if (licensesPatch != null)
+            {
+                yield return licensesPatch;
+            }
         }
     }
 }

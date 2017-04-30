@@ -24,6 +24,8 @@ namespace VBASync.Model
                 return ".cls";
             case ModuleType.Ini:
                 return ".ini";
+            case ModuleType.Licenses:
+                return ".bin";
             default:
                 throw new ApplicationException(VBASyncResources.ErrorUnrecognizedModuleType);
             }

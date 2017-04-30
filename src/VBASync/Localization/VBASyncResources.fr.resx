@@ -389,4 +389,10 @@ typiquement suivi par un système de gestion de configuration
   <data name="CtrlS" xml:space="preserve">
     <value>Ctrl+S</value>
   </data>
+  <data name="MTLicenses" xml:space="preserve">
+    <value>Licenses</value>
+  </data>
+  <data name="CTLicenses" xml:space="preserve">
+    <value>Licenses</value>
+  </data>
 </root>
