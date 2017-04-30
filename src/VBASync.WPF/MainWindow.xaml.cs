@@ -72,7 +72,7 @@ namespace VBASync.WPF {
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            FixQuotesEnclosingPaths();
+            CheckAndFixErrors();
 
             var changes = ChangesGrid.DataContext as ChangesViewModel;
             var committedChanges = changes?.Where(p => p.Commit).ToList();
@@ -119,25 +119,36 @@ namespace VBASync.WPF {
             }
         }
 
-        private void ExitMenu_Click(object sender, RoutedEventArgs e) {
-            CancelButton_Click(null, null);
+        private void CheckAndFixErrors()
+        {
+            var filePath = _vm.Session.FilePath;
+            var folderPath = _vm.Session.FolderPath;
+            if (!string.IsNullOrEmpty(filePath) && filePath.Length > 2 && !FileOrFolderExists(filePath)
+                && filePath.StartsWith("\"") && filePath.EndsWith("\"")
+                && FileOrFolderExistsOrIsRooted(filePath.Substring(1, filePath.Length - 2)))
+            {
+                filePath = filePath.Substring(1, filePath.Length - 2);
+                _vm.Session.FilePath = filePath;
+            }
+            if (!string.IsNullOrEmpty(folderPath) && folderPath.Length > 2 && !FileOrFolderExists(folderPath)
+                && folderPath.StartsWith("\"") && folderPath.EndsWith("\"")
+                && FileOrFolderExistsOrIsRooted(folderPath.Substring(1, folderPath.Length - 2)))
+            {
+                folderPath = folderPath.Substring(1, folderPath.Length - 2);
+                _vm.Session.FolderPath = folderPath;
+            }
+            if (!File.Exists(filePath) && !Directory.Exists(folderPath) && File.Exists(folderPath) && Directory.Exists(filePath))
+            {
+                _vm.Session.FolderPath = filePath;
+                _vm.Session.FilePath = folderPath;
+            }
+
+            bool FileOrFolderExists(string path) => File.Exists(path) || Directory.Exists(path);
+            bool FileOrFolderExistsOrIsRooted(string path) => FileOrFolderExists(path) || Path.IsPathRooted(path);
         }
 
-        private void FixQuotesEnclosingPaths()
-        {
-            if (!string.IsNullOrEmpty(_vm.Session.FilePath) && _vm.Session.FilePath.Length > 2 && !File.Exists(_vm.Session.FilePath)
-                && _vm.Session.FilePath.StartsWith("\"") && _vm.Session.FilePath.EndsWith("\"")
-                && File.Exists(_vm.Session.FilePath.Substring(1, _vm.Session.FilePath.Length - 2)))
-            {
-                _vm.Session.FilePath = _vm.Session.FilePath.Substring(1, _vm.Session.FilePath.Length - 2);
-            }
-            if (!string.IsNullOrEmpty(_vm.Session.FolderPath) && _vm.Session.FolderPath.Length > 2 && !Directory.Exists(_vm.Session.FolderPath)
-                && _vm.Session.FolderPath.StartsWith("\"") && _vm.Session.FolderPath.EndsWith("\"")
-                && (Directory.Exists(_vm.Session.FolderPath.Substring(1, _vm.Session.FolderPath.Length - 2))
-                || Path.IsPathRooted(_vm.Session.FolderPath.Substring(1, _vm.Session.FolderPath.Length - 2))))
-            {
-                _vm.Session.FolderPath = _vm.Session.FolderPath.Substring(1, _vm.Session.FolderPath.Length - 2);
-            }
+        private void ExitMenu_Click(object sender, RoutedEventArgs e) {
+            CancelButton_Click(null, null);
         }
 
         private void IncludeAllBox_Click(object sender, RoutedEventArgs e)
@@ -180,7 +191,7 @@ namespace VBASync.WPF {
         }
 
         private void QuietRefreshIfInputsOk() {
-            FixQuotesEnclosingPaths();
+            CheckAndFixErrors();
             if (!File.Exists(Session.FilePath) || !Directory.Exists(Session.FolderPath)) {
                 return;
             }
@@ -195,7 +206,7 @@ namespace VBASync.WPF {
             if (string.IsNullOrEmpty(Session.FolderPath) || string.IsNullOrEmpty(Session.FilePath)) {
                 return;
             }
-            FixQuotesEnclosingPaths();
+            CheckAndFixErrors();
             _vm.RefreshActiveSession();
 
             var changes = new ChangesViewModel(_vm.ActiveSession.GetPatches());
