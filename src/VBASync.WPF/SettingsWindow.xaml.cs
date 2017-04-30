@@ -28,7 +28,6 @@ namespace VBASync.WPF
                 if (!string.IsNullOrEmpty(_vm.Language) && (string)cbi.Tag == _vm.Language)
                 {
                     cbi.IsSelected = true;
-                    _vm.Language = (string)cbi.Tag;
                     break;
                 }
                 else if (string.IsNullOrEmpty(_vm.Language)
