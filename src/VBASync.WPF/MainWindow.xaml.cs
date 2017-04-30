@@ -25,36 +25,9 @@ namespace VBASync.WPF {
         public MainWindow(Startup startup) {
             InitializeComponent();
 
-            DataContext = _vm = new MainViewModel
-            {
-                Session = new SessionViewModel
-                {
-                    Action = startup.Action,
-                    AutoRun = startup.AutoRun,
-                    FilePath = startup.FilePath,
-                    FolderPath = startup.FolderPath
-                },
-                Settings = new SettingsViewModel
-                {
-                    DiffTool = startup.DiffTool,
-                    DiffToolParameters = startup.DiffToolParameters,
-                    Language = startup.Language,
-                    Portable = startup.Portable
-                }
-            };
-            foreach (var recentFile in startup.RecentFiles)
-            {
-                _vm.RecentFiles.Add(recentFile);
-            }
-
+            DataContext = _vm = new MainViewModel(startup);
             DataContextChanged += (s, e) => QuietRefreshIfInputsOk();
-            _vm.Session.PropertyChanged += (s, e) =>
-            {
-                if (e.PropertyName == "Action" || e.PropertyName == "FilePath" || e.PropertyName == "FolderPath")
-                {
-                    QuietRefreshIfInputsOk();
-                }
-            };
+            _vm.Session.PropertyChanged += (s, e) => QuietRefreshIfInputsOk();
             QuietRefreshIfInputsOk();
         }
 
@@ -168,23 +141,6 @@ namespace VBASync.WPF {
             ChangesGrid.Items.Refresh();
         }
 
-        private void LoadLastMenu_Click(object sender, RoutedEventArgs e) {
-            _vm.LoadIni(new AppIniFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "VBA Sync Tool", "LastSession.ini")));
-        }
-
-        private void LoadSessionMenu_Click(object sender, RoutedEventArgs e) {
-            var dlg = new VistaOpenFileDialog {
-                Filter = $"{VBASyncResources.MWOpenAllFiles}|*.*|"
-                    + $"{VBASyncResources.MWOpenSession}|*.ini",
-                FilterIndex = 2
-            };
-            if (dlg.ShowDialog() == true) {
-                _vm.LoadIni(new AppIniFile(dlg.FileName, Encoding.UTF8));
-                _vm.AddRecentFile(dlg.FileName);
-            }
-        }
-
         private void OkButton_Click(object sender, RoutedEventArgs e) {
             ApplyButton_Click(null, null);
             Application.Current.Shutdown();
@@ -215,53 +171,6 @@ namespace VBASync.WPF {
                 p.CommitChanged += (s2, e2) => UpdateIncludeAllBox();
             }
             UpdateIncludeAllBox();
-        }
-
-        private void SaveSession(Stream st, bool saveSettings) {
-            var sb = new StringBuilder();
-            sb.AppendLine("ActionType=" + (Session.Action == ActionType.Extract ? "Extract" : "Publish"));
-            sb.AppendLine($"FolderPath=\"{Session.FolderPath}\"");
-            sb.AppendLine($"FilePath=\"{Session.FilePath}\"");
-            if (saveSettings)
-            {
-                sb.AppendLine($"Language=\"{_vm.Settings.Language}\"");
-                sb.AppendLine("");
-                sb.AppendLine("[DiffTool]");
-                sb.AppendLine($"Path =\"{_vm.Settings.DiffTool}\"");
-                sb.AppendLine($"Parameters=\"{_vm.Settings.DiffToolParameters}\"");
-                if (_vm.RecentFiles.Count > 0)
-                {
-                    sb.AppendLine("");
-                    sb.AppendLine("[RecentFiles]");
-                }
-                var i = 0;
-                while (_vm.RecentFiles.Count > i)
-                {
-                    sb.AppendLine($"{(i+1).ToString(CultureInfo.InvariantCulture)}=\"{_vm.RecentFiles[i]}\"");
-                    ++i;
-                }
-            }
-
-            var buf = Encoding.UTF8.GetBytes(sb.ToString());
-            st.Write(buf, 0, buf.Length);
-        }
-
-        private void SaveSessionMenu_Click(object sender, RoutedEventArgs e) {
-            var dlg = new VistaSaveFileDialog {
-                Filter = $"{VBASyncResources.MWOpenAllFiles}|*.*|"
-                    + $"{VBASyncResources.MWOpenSession}|*.ini",
-                FilterIndex = 2
-            };
-            if (dlg.ShowDialog() == true) {
-                var path = dlg.FileName;
-                if (!Path.HasExtension(path)) {
-                    path += ".ini";
-                }
-                using (var fs = new FileStream(path, FileMode.Create)) {
-                    SaveSession(fs, false);
-                }
-                _vm.AddRecentFile(path);
-            }
         }
 
         private void UpdateIncludeAllBox() {
@@ -295,7 +204,7 @@ namespace VBASync.WPF {
             }
             using (var st = new FileStream(lastSessionPath, FileMode.Create))
             {
-                SaveSession(st, true);
+                _vm.SaveSession(st, true);
             }
         }
 

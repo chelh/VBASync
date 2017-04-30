@@ -11,6 +11,7 @@ namespace VBASync.Model
         public string FilePath { get; set; }
         public string FolderPath { get; set; }
         public string Language { get; set; }
+        public string LastSessionPath { get; set; }
         public bool Portable { get; set; }
         public List<string> RecentFiles { get; } = new List<string>();
     }

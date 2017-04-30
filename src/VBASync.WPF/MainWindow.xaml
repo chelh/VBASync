@@ -18,6 +18,20 @@
     Icon="Icons/VBA Sync Simple.ico"
     Loaded="Window_Loaded"
     mc:Ignorable="d">
+    <Window.InputBindings>
+        <KeyBinding
+            Key="L"
+            Command="{Binding LoadLastSessionCommand}"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Key="O"
+            Command="{Binding BrowseForSessionCommand}"
+            Modifiers="Ctrl" />
+        <KeyBinding
+            Key="S"
+            Command="{Binding SaveSessionCommand}"
+            Modifiers="Ctrl" />
+    </Window.InputBindings>
     <Window.Resources>
         <Style x:Key="Level1" TargetType="{x:Type FrameworkElement}">
             <Setter Property="Margin" Value="4,8,0,0" />
@@ -42,9 +56,18 @@
     <DockPanel>
         <Menu Margin="4" DockPanel.Dock="Top">
             <MenuItem Header="{x:Static l10n:VBASyncResources.MWFileMenu}">
-                <MenuItem Click="SaveSessionMenu_Click" Header="{x:Static l10n:VBASyncResources.MWSaveSessionMenu}" />
-                <MenuItem Click="LoadSessionMenu_Click" Header="{x:Static l10n:VBASyncResources.MWLoadSessionMenu}" />
-                <MenuItem Click="LoadLastMenu_Click" Header="{x:Static l10n:VBASyncResources.MWLoadLastMenu}" />
+                <MenuItem
+                    Command="{Binding SaveSessionCommand}"
+                    Header="{x:Static l10n:VBASyncResources.MWSaveSessionMenu}"
+                    InputGestureText="{x:Static l10n:VBASyncResources.CtrlS}" />
+                <MenuItem
+                    Command="{Binding BrowseForSessionCommand}"
+                    Header="{x:Static l10n:VBASyncResources.MWLoadSessionMenu}"
+                    InputGestureText="{x:Static l10n:VBASyncResources.CtrlO}" />
+                <MenuItem
+                    Command="{Binding LoadLastSessionCommand}"
+                    Header="{x:Static l10n:VBASyncResources.MWLoadLastMenu}"
+                    InputGestureText="{x:Static l10n:VBASyncResources.CtrlL}" />
                 <Separator />
                 <MenuItem Click="SettingsMenu_Click" Header="{x:Static l10n:VBASyncResources.MWSettingsMenu}" />
                 <Separator Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=1}" />
@@ -74,7 +97,10 @@
                     Header="{Binding RecentFiles, Converter={x:Static local:WpfStatic.RecentFilesHeader}, ConverterParameter=5}"
                     Visibility="{Binding RecentFiles, Converter={x:Static local:WpfStatic.BindingListToVisibleIfHasItemCount}, ConverterParameter=5}" />
                 <Separator />
-                <MenuItem Click="ExitMenu_Click" Header="{x:Static l10n:VBASyncResources.MWExitMenu}" />
+                <MenuItem
+                    Click="ExitMenu_Click"
+                    Header="{x:Static l10n:VBASyncResources.MWExitMenu}"
+                    InputGestureText="{x:Static l10n:VBASyncResources.AltF4}" />
             </MenuItem>
             <MenuItem Header="{x:Static l10n:VBASyncResources.MWEditMenu}">
                 <MenuItem Command="ApplicationCommands.Undo" />

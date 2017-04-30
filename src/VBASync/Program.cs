@@ -75,11 +75,12 @@ namespace VBASync
                 {
                     Action = actionSwitch ?? ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract,
                     AutoRun = autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false),
-                    FilePath = filePathSwitch ?? ini.GetString("General", "FilePath"),
-                    FolderPath = folderPathSwitch ?? ini.GetString("General", "FolderPath"),
                     DiffTool = ini.GetString("DiffTool", "Path"),
                     DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
+                    FilePath = filePathSwitch ?? ini.GetString("General", "FilePath"),
+                    FolderPath = folderPathSwitch ?? ini.GetString("General", "FolderPath"),
                     Language = ini.GetString("General", "Language"),
+                    LastSessionPath = lastSessionPath,
                     Portable = ini.GetBool("General", "Portable") ?? false
                 };
                 var j = 1;

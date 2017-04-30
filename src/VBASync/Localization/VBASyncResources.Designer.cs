@@ -61,6 +61,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Alt+F4.
+        /// </summary>
+        public static string AltF4 {
+            get {
+                return ResourceManager.GetString("AltF4", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Apply.
         /// </summary>
         public static string ApplyAction {
@@ -288,6 +297,33 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ctrl+L.
+        /// </summary>
+        public static string CtrlL {
+            get {
+                return ResourceManager.GetString("CtrlL", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+O.
+        /// </summary>
+        public static string CtrlO {
+            get {
+                return ResourceManager.GetString("CtrlO", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Ctrl+S.
+        /// </summary>
+        public static string CtrlS {
+            get {
+                return ResourceManager.GetString("CtrlS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Module.
         /// </summary>
         public static string CTWholeFile {
@@ -454,7 +490,7 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to _About.
+        ///   Looks up a localized string similar to _About VBA Sync Tool.
         /// </summary>
         public static string MWAboutMenu {
             get {
