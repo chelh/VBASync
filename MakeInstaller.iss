@@ -1,5 +1,5 @@
 #define MyAppName "VBA Sync Tool"
-#define MyAppVersion "2.1.0"
+#define MyAppVersion "2.1.2"
 #define MyAppPublisher "Chelsea Hughes"
 #define MyAppURL "https://github.com/chelh/VBASync"
 #define MyAppExeName "VBASync.exe"
