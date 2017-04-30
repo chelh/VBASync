@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -19,16 +20,26 @@ namespace VBASync.WPF
         public SettingsWindow(SettingsViewModel settings, Action<SettingsViewModel> replaceSettings)
         {
             InitializeComponent();
-            _vm = settings.Clone();
-            DataContext = _vm;
+            DataContext = _vm = settings.Clone();
             _replaceSettings = replaceSettings;
+
             foreach (var cbi in LanguageComboBox.Items.Cast<ComboBoxItem>())
             {
-                if ((string)cbi.Tag == _vm.Language)
+                if (!string.IsNullOrEmpty(_vm.Language) && (string)cbi.Tag == _vm.Language)
                 {
                     cbi.IsSelected = true;
+                    _vm.Language = (string)cbi.Tag;
+                    break;
+                }
+                else if (string.IsNullOrEmpty(_vm.Language)
+                    && Thread.CurrentThread.CurrentUICulture.ToString().StartsWith((string)cbi.Tag))
+                {
+                    cbi.IsSelected = true;
+                    _vm.Language = (string)cbi.Tag;
+                    break;
                 }
             }
+
             _initialized = true;
         }
 
