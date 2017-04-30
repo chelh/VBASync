@@ -360,6 +360,7 @@ namespace VBASync.Model
                     projStrings.Add($"[Reference {refer.Name}]");
                     projStrings.AddRange(refer.GetConfigStrings());
                 }
+                projStrings.Add("");
 
                 // don't use WriteAllLines because we need \r\n line endings specifically
                 File.WriteAllText(Path.Combine(FolderPath, "Project.ini"), string.Join("\r\n", projStrings), projEncoding);
