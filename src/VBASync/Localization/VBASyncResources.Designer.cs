@@ -306,7 +306,7 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Cannot load WPF UI. If your system is non-Windows or otherwise doesn&apos;t support WPF, you may only run VBA Sync Tool by specifying every parameter on the command-line..
+        ///   Looks up a localized string similar to Cannot load WPF UI. If your system is non-Windows or otherwise doesn&apos;t support WPF, you may only run VBA Sync Tool by specifying -r on the command-line..
         /// </summary>
         public static string ErrorCannotLoadGUI {
             get {
@@ -490,6 +490,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to _Edit.
+        /// </summary>
+        public static string MWEditMenu {
+            get {
+                return ResourceManager.GetString("MWEditMenu", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to E_xit.
         /// </summary>
         public static string MWExitMenu {
@@ -499,7 +508,7 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to _Extract VBA from Office file.
+        ///   Looks up a localized string similar to E_xtract VBA from Office file.
         /// </summary>
         public static string MWExtract {
             get {

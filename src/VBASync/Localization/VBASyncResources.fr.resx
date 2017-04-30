@@ -199,7 +199,7 @@
     <value>_Quitter</value>
   </data>
   <data name="MWExtract" xml:space="preserve">
-    <value>_Extraire le VBA du fichier Office</value>
+    <value>E_xtraire le VBA du fichier Office</value>
   </data>
   <data name="MWFileMenu" xml:space="preserve">
     <value>_Fichier</value>
@@ -214,7 +214,7 @@
     <value>Module</value>
   </data>
   <data name="MWOfficeFile" xml:space="preserve">
-    <value>_Fichier Office</value>
+    <value>Fichier _Office</value>
   </data>
   <data name="MWOpenAllFiles" xml:space="preserve">
     <value>Tous les fichiers</value>
@@ -247,7 +247,7 @@
     <value>Fichiers Word 97-2003</value>
   </data>
   <data name="MWPublish" xml:space="preserve">
-    <value>_Publier les modifications VBA vers le fichier Office</value>
+    <value>Pu_blier les modifications VBA vers le fichier Office</value>
   </data>
   <data name="MWRefreshAction" xml:space="preserve">
     <value>_Rafraichir</value>
@@ -355,10 +355,10 @@ Fichier 2 : {'{2}'}</value>
   </data>
   <data name="AWCopyright" xml:space="preserve">
     <value>Droits d'auteur © {0} Chelsea Hughes. Pour plus de détails,
-lisez le fichier LICENSE.rtf.</value>
+lisez le fichier LICENSE.rtf</value>
   </data>
   <data name="AWWebsite" xml:space="preserve">
-    <value>Support du logiciel sur le site {0}.</value>
+    <value>Support du logiciel sur le site {0}</value>
   </data>
   <data name="AWWTFIsThis" xml:space="preserve">
     <value>Synchronise les macros VBA d'un fichier Office avec un dossier,
@@ -370,5 +370,11 @@ typiquement suivi par un système de gestion de configuration
   </data>
   <data name="MWHelpMenu" xml:space="preserve">
     <value>Aide (_H)</value>
+  </data>
+  <data name="ExplainFrxTitle" xml:space="preserve">
+    <value>Différence dans le fichier FRX</value>
+  </data>
+  <data name="MWEditMenu" xml:space="preserve">
+    <value>Édition (_E)</value>
   </data>
 </root>

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using VBASync.Localization;
 using Forms = System.Windows.Forms;
 
@@ -89,7 +90,7 @@ namespace VBASync
                 }
                 if (!string.IsNullOrEmpty(startup.Language))
                 {
-                    VBASyncResources.Culture = new CultureInfo(startup.Language);
+                    Thread.CurrentThread.CurrentUICulture = new CultureInfo(startup.Language);
                 }
                 if (startup.AutoRun)
                 {

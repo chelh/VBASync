@@ -81,7 +81,21 @@
                 PreviewDragOver="TextBoxFilePreviewDragOver"
                 PreviewKeyDown="FolderBrowseBox_PreviewKeyDown"
                 Style="{StaticResource Level1Close}"
-                Text="{Binding FolderPath}" />
+                Text="{Binding FolderPath}">
+                <TextBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="ApplicationCommands.Undo" />
+                        <MenuItem Command="ApplicationCommands.Redo" />
+                        <Separator />
+                        <MenuItem Command="ApplicationCommands.Cut" />
+                        <MenuItem Command="ApplicationCommands.Copy" />
+                        <MenuItem Command="ApplicationCommands.Paste" />
+                        <MenuItem Command="ApplicationCommands.Delete" />
+                        <Separator />
+                        <MenuItem Command="ApplicationCommands.SelectAll" />
+                    </ContextMenu>
+                </TextBox.ContextMenu>
+            </TextBox>
             <Button
                 x:Name="FolderBrowseButton"
                 Grid.Row="1"
@@ -110,7 +124,21 @@
                 PreviewDragOver="TextBoxFilePreviewDragOver"
                 PreviewKeyDown="FileBrowseBox_PreviewKeyDown"
                 Style="{StaticResource Level1Close}"
-                Text="{Binding FilePath}" />
+                Text="{Binding FilePath}">
+                <TextBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Command="ApplicationCommands.Undo" />
+                        <MenuItem Command="ApplicationCommands.Redo" />
+                        <Separator />
+                        <MenuItem Command="ApplicationCommands.Cut" />
+                        <MenuItem Command="ApplicationCommands.Copy" />
+                        <MenuItem Command="ApplicationCommands.Paste" />
+                        <MenuItem Command="ApplicationCommands.Delete" />
+                        <Separator />
+                        <MenuItem Command="ApplicationCommands.SelectAll" />
+                    </ContextMenu>
+                </TextBox.ContextMenu>
+            </TextBox>
             <Button
                 x:Name="FileBrowseButton"
                 Grid.Row="3"
