@@ -47,7 +47,7 @@ namespace VBASync.WPF {
         {
             CheckAndFixErrors();
 
-            var changes = ChangesGrid.DataContext as ChangesViewModel;
+            var changes = _vm.Changes;
             var committedChanges = changes?.Where(p => p.Commit).ToList();
             if (committedChanges == null || committedChanges.Count == 0)
             {
@@ -126,7 +126,7 @@ namespace VBASync.WPF {
 
         private void IncludeAllBox_Click(object sender, RoutedEventArgs e)
         {
-            var vm = ChangesGrid.DataContext as ChangesViewModel;
+            var vm = _vm.Changes;
             if (vm == null || IncludeAllBox.IsChecked == null) {
                 return;
             }
@@ -154,30 +154,40 @@ namespace VBASync.WPF {
             try {
                 RefreshButton_Click(null, null);
             } catch {
-                ChangesGrid.DataContext = null;
+                _vm.Changes = null;
+                ApplyButton.IsEnabled = false;
             }
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e) {
-            if (string.IsNullOrEmpty(Session.FolderPath) || string.IsNullOrEmpty(Session.FilePath)) {
-                return;
-            }
-            CheckAndFixErrors();
-            _vm.RefreshActiveSession();
+            try
+            {
+                if (string.IsNullOrEmpty(Session.FolderPath) || string.IsNullOrEmpty(Session.FilePath))
+                {
+                    return;
+                }
+                CheckAndFixErrors();
+                _vm.RefreshActiveSession();
 
-            var changes = new ChangesViewModel(_vm.ActiveSession.GetPatches());
-            ChangesGrid.DataContext = changes;
-            foreach (var p in changes) {
-                p.CommitChanged += (s2, e2) => UpdateIncludeAllBox();
+                var changes = new ChangesViewModel(_vm.ActiveSession.GetPatches());
+                _vm.Changes = changes;
+                foreach (var p in changes)
+                {
+                    p.CommitChanged += (s2, e2) => UpdateIncludeAllBox();
+                }
+                UpdateIncludeAllBox();
             }
-            UpdateIncludeAllBox();
+            finally
+            {
+                ApplyButton.IsEnabled = _vm.Changes?.Count > 0;
+            }
         }
 
         private void UpdateIncludeAllBox() {
             if (!_doUpdateIncludeAll) {
                 return;
             }
-            var vm = (ChangesViewModel)ChangesGrid.DataContext;
+            var vm = _vm.Changes;
             if (vm.All(p => p.Commit)) {
                 IncludeAllBox.IsChecked = true;
             } else if (vm.All(p => !p.Commit)) {

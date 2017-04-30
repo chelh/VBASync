@@ -69,7 +69,7 @@ namespace VBASync.Model
             }
             else
             {
-                return null; // never suggest deleting LicenseKeys.BIN
+                return Patch.MakeLicensesChange(File.ReadAllBytes(session.Action == ActionType.Extract ? folderLicensesPath : fileLicensesPath), new byte[0]);
             }
         }
 

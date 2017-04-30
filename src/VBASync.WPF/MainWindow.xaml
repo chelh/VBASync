@@ -137,10 +137,11 @@
                 CanUserAddRows="False"
                 CanUserDeleteRows="False"
                 CanUserResizeRows="False"
+                DataContext="{Binding Changes}"
                 GridLinesVisibility="None"
                 HorizontalScrollBarVisibility="Disabled"
                 IsSynchronizedWithCurrentItem="False"
-                ItemsSource="{Binding ''}"
+                ItemsSource="{Binding}"
                 KeyboardNavigation.TabNavigation="Once"
                 MouseDoubleClick="ChangesGrid_MouseDoubleClick"
                 SelectionMode="Single"
@@ -266,7 +267,8 @@
                         x:Name="ApplyButton"
                         MinWidth="75"
                         Click="ApplyButton_Click"
-                        Content="{x:Static l10n:VBASyncResources.ApplyAction}" />
+                        Content="{x:Static l10n:VBASyncResources.ApplyAction}"
+                        IsEnabled="False" />
                     <Button
                         x:Name="CancelButton"
                         MinWidth="75"

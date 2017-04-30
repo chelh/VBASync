@@ -15,6 +15,7 @@ namespace VBASync.WPF
         private readonly string _lastSessionPath;
 
         private Model.ActiveSession _activeSession;
+        private ChangesViewModel _changes;
         private SessionViewModel _session;
         private SettingsViewModel _settings;
 
@@ -53,6 +54,13 @@ namespace VBASync.WPF
 
         public Model.ActiveSession ActiveSession => _activeSession;
         public WpfCommand BrowseForSessionCommand { get; }
+
+        public ChangesViewModel Changes
+        {
+            get => _changes;
+            set => SetField(ref _changes, value, nameof(Changes));
+        }
+
         public WpfCommand LoadLastSessionCommand { get; }
         public WpfCommand OpenRecentCommand { get; }
         public BindingList<string> RecentFiles { get; }

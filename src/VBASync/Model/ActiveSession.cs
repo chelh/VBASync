@@ -37,6 +37,16 @@ namespace VBASync.Model
                         case ChangeType.ChangeFormControls:
                             File.Copy(Path.Combine(_vf.FolderPath, p.ModuleName + ".frx"), Path.Combine(_session.FolderPath, p.ModuleName + ".frx"), true);
                             break;
+                        case ChangeType.Licenses:
+                            if (!File.Exists(Path.Combine(_vf.FolderPath, fileName)))
+                            {
+                                File.Delete(Path.Combine(_session.FolderPath, fileName));
+                            }
+                            else
+                            {
+                                File.Copy(Path.Combine(_vf.FolderPath, fileName), Path.Combine(_session.FolderPath, fileName), true);
+                            }
+                            break;
                         default:
                             File.Copy(Path.Combine(_vf.FolderPath, fileName), Path.Combine(_session.FolderPath, fileName), true);
                             if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form)
@@ -63,6 +73,16 @@ namespace VBASync.Model
                             break;
                         case ChangeType.ChangeFormControls:
                             File.Copy(Path.Combine(_session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_vf.FolderPath, p.ModuleName + ".frx"), true);
+                            break;
+                        case ChangeType.Licenses:
+                            if (!File.Exists(Path.Combine(_session.FolderPath, fileName)))
+                            {
+                                File.Delete(Path.Combine(_vf.FolderPath, fileName));
+                            }
+                            else
+                            {
+                                File.Copy(Path.Combine(_session.FolderPath, fileName), Path.Combine(_vf.FolderPath, fileName), true);
+                            }
                             break;
                         default:
                             File.Copy(Path.Combine(_session.FolderPath, fileName), Path.Combine(_vf.FolderPath, fileName), true);
