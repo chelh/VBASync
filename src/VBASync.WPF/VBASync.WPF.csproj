@@ -71,6 +71,7 @@
     <Compile Include="WpfConverter.cs" />
     <Compile Include="WpfManager.cs" />
     <Compile Include="WpfStatic.cs" />
+    <Compile Include="WpfValidation.cs" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Icons\ClassIcon.png" />

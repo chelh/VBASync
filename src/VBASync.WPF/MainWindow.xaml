@@ -128,7 +128,10 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
-            <local:SessionView DataContext="{Binding Session}" FocusControlOnEnter="{Binding ElementName=OkButton}" />
+            <local:SessionView
+                x:Name="SessionCtl"
+                DataContext="{Binding Session}"
+                FocusControlOnEnter="{Binding ElementName=OkButton}" />
             <DataGrid
                 x:Name="ChangesGrid"
                 Grid.Row="1"

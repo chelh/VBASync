@@ -80,8 +80,17 @@
                 PreviewDragEnter="TextBoxFilePreviewDragEnter"
                 PreviewDragOver="TextBoxFilePreviewDragOver"
                 PreviewKeyDown="FolderBrowseBox_PreviewKeyDown"
-                Style="{StaticResource Level1Close}"
-                Text="{Binding FolderPath}">
+                Style="{StaticResource Level1Close}">
+                <TextBox.Text>
+                    <Binding
+                        NotifyOnValidationError="True"
+                        Path="FolderPath"
+                        ValidatesOnDataErrors="True">
+                        <Binding.ValidationRules>
+                            <local:FolderPathValidationRule ValidatesOnTargetUpdated="True" />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
                 <TextBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="ApplicationCommands.Undo" />
@@ -123,8 +132,17 @@
                 PreviewDragEnter="TextBoxFilePreviewDragEnter"
                 PreviewDragOver="TextBoxFilePreviewDragOver"
                 PreviewKeyDown="FileBrowseBox_PreviewKeyDown"
-                Style="{StaticResource Level1Close}"
-                Text="{Binding FilePath}">
+                Style="{StaticResource Level1Close}">
+                <TextBox.Text>
+                    <Binding
+                        NotifyOnValidationError="True"
+                        Path="FilePath"
+                        ValidatesOnDataErrors="True">
+                        <Binding.ValidationRules>
+                            <local:FilePathValidationRule ValidatesOnTargetUpdated="True" />
+                        </Binding.ValidationRules>
+                    </Binding>
+                </TextBox.Text>
                 <TextBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Command="ApplicationCommands.Undo" />

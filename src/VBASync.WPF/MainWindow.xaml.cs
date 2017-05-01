@@ -29,6 +29,13 @@ namespace VBASync.WPF {
             DataContextChanged += (s, e) => QuietRefreshIfInputsOk();
             _vm.Session.PropertyChanged += (s, e) => QuietRefreshIfInputsOk();
             QuietRefreshIfInputsOk();
+
+            // reach into SessionView because these events will not be translated into PropertyChanged
+            // if our data validation blocks them
+            SessionCtl.FileBrowseBox.LostFocus += (s, e) => CheckAndFixErrors();
+            SessionCtl.FolderBrowseBox.LostFocus += (s, e) => CheckAndFixErrors();
+            SessionCtl.FileBrowseBox.Drop += (s, e) => CheckAndFixErrors();
+            SessionCtl.FolderBrowseBox.Drop += (s, e) => CheckAndFixErrors();
         }
 
         private ISession Session => _vm.Session;
@@ -94,8 +101,10 @@ namespace VBASync.WPF {
 
         private void CheckAndFixErrors()
         {
-            var filePath = _vm.Session.FilePath;
-            var folderPath = _vm.Session.FolderPath;
+            // need to reach into the SessionView to get TextBox values that would otherwise
+            // be blocked by our data validation
+            var filePath = SessionCtl.FileBrowseBox.Text;
+            var folderPath = SessionCtl.FolderBrowseBox.Text;
             if (!string.IsNullOrEmpty(filePath) && filePath.Length > 2 && !FileOrFolderExists(filePath)
                 && filePath.StartsWith("\"") && filePath.EndsWith("\"")
                 && FileOrFolderExistsOrIsRooted(filePath.Substring(1, filePath.Length - 2)))
@@ -110,7 +119,9 @@ namespace VBASync.WPF {
                 folderPath = folderPath.Substring(1, folderPath.Length - 2);
                 _vm.Session.FolderPath = folderPath;
             }
-            if (!File.Exists(filePath) && !Directory.Exists(folderPath) && File.Exists(folderPath) && Directory.Exists(filePath))
+            if (!string.IsNullOrEmpty(filePath) && !string.IsNullOrEmpty(folderPath)
+                && !File.Exists(filePath) && !Directory.Exists(folderPath)
+                && File.Exists(folderPath) && Directory.Exists(filePath))
             {
                 _vm.Session.FolderPath = filePath;
                 _vm.Session.FilePath = folderPath;
@@ -162,11 +173,11 @@ namespace VBASync.WPF {
         private void RefreshButton_Click(object sender, RoutedEventArgs e) {
             try
             {
+                CheckAndFixErrors();
                 if (string.IsNullOrEmpty(Session.FolderPath) || string.IsNullOrEmpty(Session.FilePath))
                 {
                     return;
                 }
-                CheckAndFixErrors();
                 _vm.RefreshActiveSession();
 
                 var changes = new ChangesViewModel(_vm.ActiveSession.GetPatches());

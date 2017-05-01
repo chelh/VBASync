@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace VBASync.WPF
+﻿namespace VBASync.WPF
 {
     internal class SessionViewModel : ViewModelBase, Model.ISession
     {
