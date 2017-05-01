@@ -1,4 +1,5 @@
 ﻿using Ookii.Dialogs.Wpf;
+using System.IO;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
@@ -16,6 +17,10 @@ namespace VBASync.WPF
         {
             InitializeComponent();
         }
+
+        public bool DataValidationFaulted => !File.Exists(FaultedFilePath) || !Directory.Exists(FaultedFolderPath);
+        public string FaultedFilePath => FileBrowseBox.Text;
+        public string FaultedFolderPath => FolderBrowseBox.Text;
 
         public Control FocusControlOnEnter
         {

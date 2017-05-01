@@ -1,11 +1,8 @@
-﻿using Ookii.Dialogs.Wpf;
-using System;
+﻿using System;
 using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using VBASync.Localization;
@@ -21,6 +18,9 @@ namespace VBASync.WPF {
         private readonly MainViewModel _vm;
 
         private bool _doUpdateIncludeAll = true;
+        private ActionType? _lastQuietRefreshAction;
+        private string _lastQuietRefreshFilePath;
+        private string _lastQuietRefreshFolderPath;
 
         public MainWindow(Startup startup) {
             InitializeComponent();
@@ -32,10 +32,10 @@ namespace VBASync.WPF {
 
             // reach into SessionView because these events will not be translated into PropertyChanged
             // if our data validation blocks them
-            SessionCtl.FileBrowseBox.LostFocus += (s, e) => CheckAndFixErrors();
-            SessionCtl.FolderBrowseBox.LostFocus += (s, e) => CheckAndFixErrors();
-            SessionCtl.FileBrowseBox.Drop += (s, e) => CheckAndFixErrors();
-            SessionCtl.FolderBrowseBox.Drop += (s, e) => CheckAndFixErrors();
+            SessionCtl.FileBrowseBox.LostFocus += (s, e) => QuietRefreshIfInputsOk();
+            SessionCtl.FolderBrowseBox.LostFocus += (s, e) => QuietRefreshIfInputsOk();
+            SessionCtl.FileBrowseBox.Drop += (s, e) => QuietRefreshIfInputsOk();
+            SessionCtl.FolderBrowseBox.Drop += (s, e) => QuietRefreshIfInputsOk();
         }
 
         private ISession Session => _vm.Session;
@@ -101,10 +101,12 @@ namespace VBASync.WPF {
 
         private void CheckAndFixErrors()
         {
-            // need to reach into the SessionView to get TextBox values that would otherwise
-            // be blocked by our data validation
-            var filePath = SessionCtl.FileBrowseBox.Text;
-            var folderPath = SessionCtl.FolderBrowseBox.Text;
+            if (!SessionCtl.DataValidationFaulted)
+            {
+                return;
+            }
+            var filePath = SessionCtl.FaultedFilePath;
+            var folderPath = SessionCtl.FaultedFolderPath;
             if (!string.IsNullOrEmpty(filePath) && filePath.Length > 2 && !FileOrFolderExists(filePath)
                 && filePath.StartsWith("\"") && filePath.EndsWith("\"")
                 && FileOrFolderExistsOrIsRooted(filePath.Substring(1, filePath.Length - 2)))
@@ -159,11 +161,22 @@ namespace VBASync.WPF {
 
         private void QuietRefreshIfInputsOk() {
             CheckAndFixErrors();
-            if (!File.Exists(Session.FilePath) || !Directory.Exists(Session.FolderPath)) {
+            if (SessionCtl.DataValidationFaulted) {
+                _vm.Changes = null;
+                ApplyButton.IsEnabled = false;
+                return;
+            }
+            if (_vm.Session.Action == _lastQuietRefreshAction
+                && _vm.Session.FilePath == _lastQuietRefreshFilePath
+                && _vm.Session.FolderPath == _lastQuietRefreshFolderPath)
+            {
                 return;
             }
             try {
                 RefreshButton_Click(null, null);
+                _lastQuietRefreshAction = _vm.Session.Action;
+                _lastQuietRefreshFilePath = _vm.Session.FilePath;
+                _lastQuietRefreshFolderPath = _vm.Session.FolderPath;
             } catch {
                 _vm.Changes = null;
                 ApplyButton.IsEnabled = false;
@@ -174,8 +187,9 @@ namespace VBASync.WPF {
             try
             {
                 CheckAndFixErrors();
-                if (string.IsNullOrEmpty(Session.FolderPath) || string.IsNullOrEmpty(Session.FilePath))
+                if (SessionCtl.DataValidationFaulted)
                 {
+                    _vm.Changes = null;
                     return;
                 }
                 _vm.RefreshActiveSession();
@@ -191,6 +205,9 @@ namespace VBASync.WPF {
             finally
             {
                 ApplyButton.IsEnabled = _vm.Changes?.Count > 0;
+                _lastQuietRefreshAction = null;
+                _lastQuietRefreshFilePath = null;
+                _lastQuietRefreshFolderPath = null;
             }
         }
 
