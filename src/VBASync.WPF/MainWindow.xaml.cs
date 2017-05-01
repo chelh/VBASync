@@ -18,9 +18,6 @@ namespace VBASync.WPF {
         private readonly MainViewModel _vm;
 
         private bool _doUpdateIncludeAll = true;
-        private ActionType? _lastQuietRefreshAction;
-        private string _lastQuietRefreshFilePath;
-        private string _lastQuietRefreshFolderPath;
 
         public MainWindow(Startup startup) {
             InitializeComponent();
@@ -42,7 +39,7 @@ namespace VBASync.WPF {
 
         internal void SettingsMenu_Click(object sender, RoutedEventArgs e)
         {
-            new SettingsWindow(_vm.Settings, s => _vm.Settings = s).ShowDialog();
+            new SettingsWindow(_vm.Settings, s => { _vm.Settings = s; QuietRefreshIfInputsOk(); }).ShowDialog();
         }
 
         private void AboutMenu_Click(object sender, RoutedEventArgs e)
@@ -166,17 +163,8 @@ namespace VBASync.WPF {
                 ApplyButton.IsEnabled = false;
                 return;
             }
-            if (_vm.Session.Action == _lastQuietRefreshAction
-                && _vm.Session.FilePath == _lastQuietRefreshFilePath
-                && _vm.Session.FolderPath == _lastQuietRefreshFolderPath)
-            {
-                return;
-            }
             try {
                 RefreshButton_Click(null, null);
-                _lastQuietRefreshAction = _vm.Session.Action;
-                _lastQuietRefreshFilePath = _vm.Session.FilePath;
-                _lastQuietRefreshFolderPath = _vm.Session.FolderPath;
             } catch {
                 _vm.Changes = null;
                 ApplyButton.IsEnabled = false;
@@ -205,9 +193,6 @@ namespace VBASync.WPF {
             finally
             {
                 ApplyButton.IsEnabled = _vm.Changes?.Count > 0;
-                _lastQuietRefreshAction = null;
-                _lastQuietRefreshFilePath = null;
-                _lastQuietRefreshFolderPath = null;
             }
         }
 
@@ -242,7 +227,7 @@ namespace VBASync.WPF {
             }
             using (var st = new FileStream(lastSessionPath, FileMode.Create))
             {
-                _vm.SaveSession(st, true);
+                _vm.SaveSession(st, true, false);
             }
         }
 

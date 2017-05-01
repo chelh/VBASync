@@ -8,11 +8,13 @@ namespace VBASync.Model
     public sealed class ActiveSession : IDisposable
     {
         private readonly ISession _session;
+        private readonly ISessionSettings _sessionSettings;
         private readonly VbaFolder _vf;
 
-        public ActiveSession(ISession session)
+        public ActiveSession(ISession session, ISessionSettings sessionSettings)
         {
             _session = session;
+            _sessionSettings = sessionSettings;
             _vf = new VbaFolder();
         }
 
@@ -103,7 +105,7 @@ namespace VBASync.Model
         {
             var folderModules = Lib.GetFolderModules(_session.FolderPath);
             _vf.Read(_session.FilePath, folderModules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1));
-            foreach (var patch in Lib.GetModulePatches(_session, _vf.FolderPath, folderModules, _vf.ModuleTexts.ToList()))
+            foreach (var patch in Lib.GetModulePatches(_session, _sessionSettings, _vf.FolderPath, folderModules, _vf.ModuleTexts.ToList()))
             {
                 yield return patch;
             }

@@ -41,6 +41,7 @@ namespace VBASync
                 Model.ActionType? actionSwitch = null;
                 string filePathSwitch = null;
                 string folderPathSwitch = null;
+                var addNewDocumentsToFileSwitch = false;
                 for (var i = 1; i < args.Length; ++i)
                 {
                     switch (args[i].ToUpperInvariant())
@@ -65,6 +66,10 @@ namespace VBASync
                         case "/D":
                             folderPathSwitch = args[++i];
                             break;
+                        case "-A":
+                        case "/A":
+                            addNewDocumentsToFileSwitch = true;
+                            break;
                         default:
                             ini.AddFile(args[i]);
                             break;
@@ -74,6 +79,7 @@ namespace VBASync
                 var startup = new Model.Startup
                 {
                     Action = actionSwitch ?? ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract,
+                    AddNewDocumentsToFile = addNewDocumentsToFileSwitch || (ini.GetBool("General", "AddNewDocumentsToFile") ?? false),
                     AutoRun = autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false),
                     DiffTool = ini.GetString("DiffTool", "Path"),
                     DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
@@ -95,7 +101,7 @@ namespace VBASync
                 }
                 if (startup.AutoRun)
                 {
-                    using (var actor = new Model.ActiveSession(startup))
+                    using (var actor = new Model.ActiveSession(startup, startup))
                     {
                         actor.Apply(actor.GetPatches().ToList());
                     }

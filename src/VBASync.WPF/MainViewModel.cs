@@ -30,6 +30,7 @@ namespace VBASync.WPF
             };
             Settings = new SettingsViewModel
             {
+                AddNewDocumentsToFile = startup.AddNewDocumentsToFile,
                 DiffTool = startup.DiffTool,
                 DiffToolParameters = startup.DiffToolParameters,
                 Language = startup.Language,
@@ -107,21 +108,28 @@ namespace VBASync.WPF
             Session.Action = ini.GetActionType("General", "ActionType") ?? Session.Action;
             Session.FolderPath = ini.GetString("General", "FolderPath") ?? Session.FolderPath;
             Session.FilePath = ini.GetString("General", "FilePath") ?? Session.FilePath;
+            Settings.AddNewDocumentsToFile = ini.GetBool("General", "AddNewDocumentsToFile")
+                ?? Settings.AddNewDocumentsToFile;
         }
 
         public void RefreshActiveSession()
         {
             _activeSession?.Dispose();
-            _activeSession = new Model.ActiveSession(_session);
+            _activeSession = new Model.ActiveSession(_session, _settings);
         }
 
-        internal void SaveSession(Stream st, bool saveSettings)
+        internal void SaveSession(Stream st, bool saveGlobalSettings, bool saveSessionSettings)
         {
+            Func<bool, string> iniBool = b => b ? "true" : "false";
             var sb = new StringBuilder();
             sb.AppendLine("ActionType=" + (Session.Action == Model.ActionType.Extract ? "Extract" : "Publish"));
             sb.AppendLine($"FolderPath=\"{Session.FolderPath}\"");
             sb.AppendLine($"FilePath=\"{Session.FilePath}\"");
-            if (saveSettings)
+            if (saveSessionSettings)
+            {
+                sb.AppendLine($"AddNewDocumentsToFile={iniBool(Settings.AddNewDocumentsToFile)}");
+            }
+            if (saveGlobalSettings)
             {
                 sb.AppendLine($"Language=\"{Settings.Language}\"");
                 sb.AppendLine("");
@@ -235,7 +243,7 @@ namespace VBASync.WPF
                     }
                     using (var fs = new FileStream(path, FileMode.Create))
                     {
-                        SaveSession(fs, false);
+                        SaveSession(fs, false, true);
                     }
                     AddRecentFile(path);
                 }

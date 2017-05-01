@@ -73,8 +73,8 @@ namespace VBASync.Model
             }
         }
 
-        public static IEnumerable<Patch> GetModulePatches(ISession session, string vbaFolderPath,
-            IList<KeyValuePair<string, Tuple<string, ModuleType>>> folderModules,
+        public static IEnumerable<Patch> GetModulePatches(ISession session, ISessionSettings sessionSettings,
+            string vbaFolderPath, IList<KeyValuePair<string, Tuple<string, ModuleType>>> folderModules,
             IList<KeyValuePair<string, Tuple<string, ModuleType>>> fileModules)
         {
             IList<KeyValuePair<string, Tuple<string, ModuleType>>> oldModules;
@@ -99,7 +99,7 @@ namespace VBASync.Model
             // find modules which aren't in both lists and record them as new/deleted
             var patches = new List<Patch>();
             patches.AddRange(GetDeletedModuleChanges(oldModules, newModules));
-            patches.AddRange(GetNewModuleChanges(oldModules, newModules));
+            patches.AddRange(GetNewModuleChanges(oldModules, newModules, session.Action, sessionSettings.AddNewDocumentsToFile));
 
             // this also filters the new/deleted modules from the last step
             var sideBySide = (from o in oldModules
@@ -281,10 +281,17 @@ namespace VBASync.Model
 
         private static IEnumerable<Patch> GetNewModuleChanges(
                 IList<KeyValuePair<string, Tuple<string, ModuleType>>> oldModules,
-                IList<KeyValuePair<string, Tuple<string, ModuleType>>> newModules)
+                IList<KeyValuePair<string, Tuple<string, ModuleType>>> newModules,
+                ActionType action, bool addNewDocumentsToFile)
         {
             var inserted = newModules.Select(kvp => kvp.Key).Except(oldModules.Select(kvp => kvp.Key));
-            return newModules.Where(kvp => inserted.Contains(kvp.Key)).Select(m => Patch.MakeInsertion(m.Key, m.Value.Item2, m.Value.Item1));
+            if (action == ActionType.Extract || addNewDocumentsToFile)
+            {
+                return newModules.Where(kvp => inserted.Contains(kvp.Key))
+                    .Select(m => Patch.MakeInsertion(m.Key, m.Value.Item2, m.Value.Item1));
+            }
+            return newModules.Where(kvp => inserted.Contains(kvp.Key) && kvp.Value.Item2 != ModuleType.StaticClass)
+                .Select(m => Patch.MakeInsertion(m.Key, m.Value.Item2, m.Value.Item1));
         }
     }
 }

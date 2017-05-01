@@ -776,6 +776,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add new document modules when publishing (expert option).
+        /// </summary>
+        public static string SWAddNewDocumentsToFile {
+            get {
+                return ResourceManager.GetString("SWAddNewDocumentsToFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Diff tool (optional).
         /// </summary>
         public static string SWDiffTool {
@@ -803,6 +812,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to General.
+        /// </summary>
+        public static string SWGeneralTab {
+            get {
+                return ResourceManager.GetString("SWGeneralTab", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Language (requires restart).
         /// </summary>
         public static string SWLanguage {
@@ -817,6 +835,15 @@ namespace VBASync.Localization {
         public static string SWOpenApplications {
             get {
                 return ResourceManager.GetString("SWOpenApplications", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Session.
+        /// </summary>
+        public static string SWSessionTab {
+            get {
+                return ResourceManager.GetString("SWSessionTab", resourceCulture);
             }
         }
         

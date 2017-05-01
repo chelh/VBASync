@@ -13,4 +13,9 @@
         string FilePath { get; set; }
         string FolderPath { get; set; }
     }
+
+    public interface ISessionSettings
+    {
+        bool AddNewDocumentsToFile { get; set; }
+    }
 }

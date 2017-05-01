@@ -7,8 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="{x:Static l10n:VBASyncResources.SWTitle}"
     Width="400"
-    Height="250"
-    MinWidth="275"
+    Height="300"
     x:ClassModifier="internal"
     Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
     Icon="Icons/VBA Sync Simple.ico"
@@ -37,6 +36,7 @@
     </Window.Resources>
     <DockPanel Margin="4">
         <StackPanel
+            Margin="0,12,0,0"
             HorizontalAlignment="Right"
             DockPanel.Dock="Bottom"
             Orientation="Horizontal">
@@ -65,136 +65,154 @@
                 Content="{x:Static l10n:VBASyncResources.OKAction}"
                 IsDefault="True" />
         </StackPanel>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-                <RowDefinition Height="Auto" />
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
-            <Label
-                Grid.Row="0"
-                Grid.Column="0"
-                Padding="0"
-                Content="{x:Static l10n:VBASyncResources.SWLanguage}"
-                Style="{StaticResource Level1}"
-                Target="{Binding ElementName=LanguageComboBox}" />
-            <ComboBox
-                x:Name="LanguageComboBox"
-                Grid.Row="1"
-                Grid.Column="0"
-                Grid.ColumnSpan="2"
-                SelectionChanged="LanguageComboBox_SelectionChanged"
-                Style="{StaticResource Level1Close}">
-                <ComboBoxItem IsSelected="True" Tag="en">
-                    <ComboBoxItem.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Source="Icons/English.png" />
-                            <TextBlock
-                                Margin="4,0,0,0"
-                                Padding="0"
-                                Text="English" />
-                        </StackPanel>
-                    </ComboBoxItem.Content>
-                </ComboBoxItem>
-                <ComboBoxItem Tag="fr">
-                    <ComboBoxItem.Content>
-                        <StackPanel Orientation="Horizontal">
-                            <Image Margin="2,0,0,0" Source="Icons/French.png" />
-                            <TextBlock
-                                Margin="6,0,0,0"
-                                Padding="0"
-                                Text="Français" />
-                        </StackPanel>
-                    </ComboBoxItem.Content>
-                </ComboBoxItem>
-            </ComboBox>
-            <Label
-                Grid.Row="2"
-                Grid.Column="0"
-                Padding="0"
-                Content="{x:Static l10n:VBASyncResources.SWDiffTool}"
-                Style="{StaticResource Level1}"
-                Target="{Binding ElementName=DiffToolBrowseBox}" />
-            <TextBox
-                x:Name="DiffToolBrowseBox"
-                Grid.Row="3"
-                Grid.Column="0"
-                Height="23"
-                VerticalAlignment="Center"
-                Drop="TextBoxFileDrop"
-                PreviewDragEnter="TextBoxFilePreviewDragEnter"
-                PreviewDragOver="TextBoxFilePreviewDragOver"
-                Style="{StaticResource Level1Close}"
-                Text="{Binding DiffTool}">
-                <TextBox.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Command="ApplicationCommands.Undo" />
-                        <MenuItem Command="ApplicationCommands.Redo" />
-                        <Separator />
-                        <MenuItem Command="ApplicationCommands.Cut" />
-                        <MenuItem Command="ApplicationCommands.Copy" />
-                        <MenuItem Command="ApplicationCommands.Paste" />
-                        <MenuItem Command="ApplicationCommands.Delete" />
-                        <Separator />
-                        <MenuItem Command="ApplicationCommands.SelectAll" />
-                    </ContextMenu>
-                </TextBox.ContextMenu>
-            </TextBox>
-            <Button
-                x:Name="DiffToolBrowseButton"
-                Grid.Row="3"
-                Grid.Column="1"
-                Height="23"
-                MinWidth="75"
-                Margin="4,0,0,0"
-                VerticalAlignment="Bottom"
-                Click="DiffToolBrowseButton_Click"
-                Content="{x:Static l10n:VBASyncResources.BrowseAction}" />
-            <Label
-                Grid.Row="4"
-                Grid.Column="0"
-                Padding="0"
-                Content="{x:Static l10n:VBASyncResources.SWDiffToolParameters}"
-                Style="{StaticResource Level1}"
-                Target="{Binding ElementName=DiffToolParametersBox}" />
-            <TextBox
-                x:Name="DiffToolParametersBox"
-                Grid.Row="5"
-                Grid.Column="0"
-                Grid.ColumnSpan="2"
-                Height="23"
-                VerticalAlignment="Center"
-                Style="{StaticResource Level1Close}"
-                Text="{Binding DiffToolParameters}">
-                <TextBox.ContextMenu>
-                    <ContextMenu>
-                        <MenuItem Command="ApplicationCommands.Undo" />
-                        <MenuItem Command="ApplicationCommands.Redo" />
-                        <Separator />
-                        <MenuItem Command="ApplicationCommands.Cut" />
-                        <MenuItem Command="ApplicationCommands.Copy" />
-                        <MenuItem Command="ApplicationCommands.Paste" />
-                        <MenuItem Command="ApplicationCommands.Delete" />
-                        <Separator />
-                        <MenuItem Command="ApplicationCommands.SelectAll" />
-                    </ContextMenu>
-                </TextBox.ContextMenu>
-            </TextBox>
-            <Label
-                Grid.Row="6"
-                Grid.Column="0"
-                Grid.ColumnSpan="2"
-                Padding="0"
-                Content="{x:Static l10n:VBASyncResources.SWDiffToolParametersHelp}"
-                Style="{StaticResource Level1Close}" />
-        </Grid>
+        <TabControl>
+            <TabItem Header="{x:Static l10n:VBASyncResources.SWGeneralTab}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWLanguage}"
+                        Style="{StaticResource Level1}"
+                        Target="{Binding ElementName=LanguageComboBox}" />
+                    <ComboBox
+                        x:Name="LanguageComboBox"
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        SelectionChanged="LanguageComboBox_SelectionChanged"
+                        Style="{StaticResource Level1Close}">
+                        <ComboBoxItem IsSelected="True" Tag="en">
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="Icons/English.png" />
+                                    <TextBlock
+                                        Margin="4,0,0,0"
+                                        Padding="0"
+                                        Text="English" />
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                        <ComboBoxItem Tag="fr">
+                            <ComboBoxItem.Content>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Margin="2,0,0,0" Source="Icons/French.png" />
+                                    <TextBlock
+                                        Margin="6,0,0,0"
+                                        Padding="0"
+                                        Text="Français" />
+                                </StackPanel>
+                            </ComboBoxItem.Content>
+                        </ComboBoxItem>
+                    </ComboBox>
+                    <Label
+                        Grid.Row="2"
+                        Grid.Column="0"
+                        Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWDiffTool}"
+                        Style="{StaticResource Level1}"
+                        Target="{Binding ElementName=DiffToolBrowseBox}" />
+                    <TextBox
+                        x:Name="DiffToolBrowseBox"
+                        Grid.Row="3"
+                        Grid.Column="0"
+                        Height="23"
+                        VerticalAlignment="Center"
+                        Drop="TextBoxFileDrop"
+                        PreviewDragEnter="TextBoxFilePreviewDragEnter"
+                        PreviewDragOver="TextBoxFilePreviewDragOver"
+                        Style="{StaticResource Level1Close}"
+                        Text="{Binding DiffTool}">
+                        <TextBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Command="ApplicationCommands.Undo" />
+                                <MenuItem Command="ApplicationCommands.Redo" />
+                                <Separator />
+                                <MenuItem Command="ApplicationCommands.Cut" />
+                                <MenuItem Command="ApplicationCommands.Copy" />
+                                <MenuItem Command="ApplicationCommands.Paste" />
+                                <MenuItem Command="ApplicationCommands.Delete" />
+                                <Separator />
+                                <MenuItem Command="ApplicationCommands.SelectAll" />
+                            </ContextMenu>
+                        </TextBox.ContextMenu>
+                    </TextBox>
+                    <Button
+                        x:Name="DiffToolBrowseButton"
+                        Grid.Row="3"
+                        Grid.Column="1"
+                        Height="23"
+                        MinWidth="75"
+                        Margin="4,0,0,0"
+                        VerticalAlignment="Bottom"
+                        Click="DiffToolBrowseButton_Click"
+                        Content="{x:Static l10n:VBASyncResources.BrowseAction}" />
+                    <Label
+                        Grid.Row="4"
+                        Grid.Column="0"
+                        Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWDiffToolParameters}"
+                        Style="{StaticResource Level1}"
+                        Target="{Binding ElementName=DiffToolParametersBox}" />
+                    <TextBox
+                        x:Name="DiffToolParametersBox"
+                        Grid.Row="5"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Height="23"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource Level1Close}"
+                        Text="{Binding DiffToolParameters}">
+                        <TextBox.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Command="ApplicationCommands.Undo" />
+                                <MenuItem Command="ApplicationCommands.Redo" />
+                                <Separator />
+                                <MenuItem Command="ApplicationCommands.Cut" />
+                                <MenuItem Command="ApplicationCommands.Copy" />
+                                <MenuItem Command="ApplicationCommands.Paste" />
+                                <MenuItem Command="ApplicationCommands.Delete" />
+                                <Separator />
+                                <MenuItem Command="ApplicationCommands.SelectAll" />
+                            </ContextMenu>
+                        </TextBox.ContextMenu>
+                    </TextBox>
+                    <Label
+                        Grid.Row="6"
+                        Grid.Column="0"
+                        Grid.ColumnSpan="2"
+                        Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWDiffToolParametersHelp}"
+                        Style="{StaticResource Level1Close}" />
+                </Grid>
+            </TabItem>
+            <TabItem Header="{x:Static l10n:VBASyncResources.SWSessionTab}">
+                <StackPanel Margin="4">
+                    <CheckBox
+                        x:Name="AddNewDocumentsToFileBox"
+                        VerticalAlignment="Top"
+                        IsChecked="{Binding AddNewDocumentsToFile}">
+                        <TextBlock
+                            Margin="4,0,0,0"
+                            Tag="{Binding ElementName=AddNewDocumentsToFileBox}"
+                            Text="{x:Static l10n:VBASyncResources.SWAddNewDocumentsToFile}"
+                            TextWrapping="Wrap" />
+                    </CheckBox>
+                </StackPanel>
+            </TabItem>
+        </TabControl>
     </DockPanel>
 </Window>

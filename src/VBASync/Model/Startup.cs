@@ -2,9 +2,10 @@
 
 namespace VBASync.Model
 {
-    public class Startup : ISession
+    public class Startup : ISession, ISessionSettings
     {
         public ActionType Action { get; set; }
+        public bool AddNewDocumentsToFile { get; set; }
         public bool AutoRun { get; set; }
         public string DiffTool { get; set; }
         public string DiffToolParameters { get; set; }
