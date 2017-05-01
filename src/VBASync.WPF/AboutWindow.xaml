@@ -7,11 +7,12 @@
     xmlns:local="clr-namespace:VBASync.WPF"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="{x:Static l10n:VBASyncResources.AWTitle}"
+    Width="300"
     x:ClassModifier="internal"
     Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}"
     Icon="Icons/VBA Sync Simple.ico"
     ResizeMode="NoResize"
-    SizeToContent="WidthAndHeight"
+    SizeToContent="Height"
     mc:Ignorable="d">
     <StackPanel Margin="4">
         <StackPanel Orientation="Horizontal">
@@ -26,12 +27,21 @@
                 Source="Icons/VBA Sync Simple.ico" />-->
         </StackPanel>
         <Label x:Name="VersionLabel" Content="{x:Static l10n:VBASyncResources.AWVersion}" />
-        <Label Content="{x:Static l10n:VBASyncResources.AWWTFIsThis}" />
-        <Label
-            x:Name="CopyrightLabel"
+        <TextBlock
+            Padding="4"
+            Text="{x:Static l10n:VBASyncResources.AWWTFIsThis}"
+            TextWrapping="Wrap" />
+        <TextBlock
+            x:Name="CopyrightBlock"
             Margin="0,12,0,0"
-            Content="{x:Static l10n:VBASyncResources.AWCopyright}" />
-        <Label x:Name="WebsiteLabel" Content="{x:Static l10n:VBASyncResources.AWWebsite}" />
+            Padding="4"
+            Text="{x:Static l10n:VBASyncResources.AWCopyright}"
+            TextWrapping="Wrap" />
+        <TextBlock
+            x:Name="WebsiteBlock"
+            Padding="4"
+            Text="{x:Static l10n:VBASyncResources.AWWebsite}"
+            TextWrapping="Wrap" />
         <StackPanel
             Margin="0,12,0,0"
             HorizontalAlignment="Right"

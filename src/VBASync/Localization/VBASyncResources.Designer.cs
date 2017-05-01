@@ -79,8 +79,7 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Copyright © {0} Chelsea Hughes. See LICENSE.rtf
-        ///for more details..
+        ///   Looks up a localized string similar to Copyright © {0} Chelsea Hughes. See {1} for more details..
         /// </summary>
         public static string AWCopyright {
             get {
@@ -125,8 +124,7 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Synchronizes macros from an Office VBA-enabled file
-        ///with a version-controlled folder..
+        ///   Looks up a localized string similar to Synchronizes macros from an Office VBA-enabled file with a version-controlled folder..
         /// </summary>
         public static string AWWTFIsThis {
             get {

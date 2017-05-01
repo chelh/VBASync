@@ -354,16 +354,13 @@ Fichier 2 : {'{2}'}</value>
     <value>Version {0}</value>
   </data>
   <data name="AWCopyright" xml:space="preserve">
-    <value>Droits d'auteur © {0} Chelsea Hughes. Pour plus de détails,
-lisez le fichier LICENSE.rtf</value>
+    <value>Droits d'auteur © {0} Chelsea Hughes. Pour plus de détails, lisez le fichier {1}</value>
   </data>
   <data name="AWWebsite" xml:space="preserve">
     <value>Support du logiciel sur le site {0}</value>
   </data>
   <data name="AWWTFIsThis" xml:space="preserve">
-    <value>Synchronise les macros VBA d'un fichier Office avec un dossier,
-typiquement suivi par un système de gestion de configuration
-(Git, SVN, etc.).</value>
+    <value>Synchronise les macros VBA d'un fichier Office avec un dossier, typiquement suivi par un système de gestion de configuration (Git, SVN, etc.).</value>
   </data>
   <data name="MWAboutMenu" xml:space="preserve">
     <value>À propos de VBA Sync Tool (_A)</value>
