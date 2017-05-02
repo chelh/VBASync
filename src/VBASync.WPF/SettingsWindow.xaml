@@ -201,13 +201,18 @@
             </TabItem>
             <TabItem Header="{x:Static l10n:VBASyncResources.SWSessionTab}">
                 <StackPanel Margin="4">
+                    <CheckBox VerticalAlignment="Top" IsChecked="{Binding IgnoreEmpty}">
+                        <TextBlock
+                            Margin="4,0,0,0"
+                            Text="{x:Static l10n:VBASyncResources.SWIgnoreEmpty}"
+                            TextWrapping="Wrap" />
+                    </CheckBox>
                     <CheckBox
-                        x:Name="AddNewDocumentsToFileBox"
+                        Margin="0,4,0,0"
                         VerticalAlignment="Top"
                         IsChecked="{Binding AddNewDocumentsToFile}">
                         <TextBlock
                             Margin="4,0,0,0"
-                            Tag="{Binding ElementName=AddNewDocumentsToFileBox}"
                             Text="{x:Static l10n:VBASyncResources.SWAddNewDocumentsToFile}"
                             TextWrapping="Wrap" />
                     </CheckBox>

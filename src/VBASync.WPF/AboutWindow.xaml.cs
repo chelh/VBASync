@@ -22,7 +22,10 @@ namespace VBASync.WPF
                 .Replace("{0}", MainWindow.CopyrightYear.ToString());
             CopyrightBlock.Inlines.Clear();
             CopyrightBlock.Inlines.Add(TextBefore("{1}", copyrightText));
-            var licenseRtfHyperlink = new Hyperlink();
+            var licenseRtfHyperlink = new Hyperlink
+            {
+                NavigateUri = new Uri("file:///")
+            };
             licenseRtfHyperlink.Inlines.Add("LICENSE.rtf");
             licenseRtfHyperlink.RequestNavigate += (s, e)
                 => Process.Start(Path.Combine(exeDir, "LICENSE.rtf"));

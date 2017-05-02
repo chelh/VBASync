@@ -821,6 +821,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Ignore empty modules.
+        /// </summary>
+        public static string SWIgnoreEmpty {
+            get {
+                return ResourceManager.GetString("SWIgnoreEmpty", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Language (requires restart).
         /// </summary>
         public static string SWLanguage {

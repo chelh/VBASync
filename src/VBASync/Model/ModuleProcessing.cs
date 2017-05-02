@@ -93,10 +93,10 @@ namespace VBASync.Model
             return sb.ToString();
         }
 
-        internal static bool HasContent(string moduleText)
+        internal static bool HasCode(string moduleText)
         {
             _inBlock = false;
-            return moduleText?.Split(new[] { "\r\n" }, StringSplitOptions.None).Any(LineIsContent) ?? false;
+            return moduleText?.Split(new[] { "\r\n" }, StringSplitOptions.None).Any(LineIsCode) ?? false;
         }
 
         internal static ModuleType TypeFromText(string moduleText)
@@ -120,7 +120,7 @@ namespace VBASync.Model
             return ModuleType.Class;
         }
 
-        private static bool LineIsContent(string line)
+        private static bool LineIsCode(string line)
         {
             // must set _inBlock to false before using this
             var trimLine = line?.TrimStart();

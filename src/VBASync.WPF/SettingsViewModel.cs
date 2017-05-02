@@ -5,6 +5,7 @@
         private bool _addNewDocumentsToFile;
         private string _diffTool;
         private string _diffToolParameters;
+        private bool _ignoreEmpty;
         private string _language;
         private bool _portable;
 
@@ -26,6 +27,12 @@
             set => SetField(ref _diffToolParameters, value, nameof(DiffToolParameters));
         }
 
+        public bool IgnoreEmpty
+        {
+            get => _ignoreEmpty;
+            set => SetField(ref _ignoreEmpty, value, nameof(IgnoreEmpty));
+        }
+
         public string Language
         {
             get => _language;
@@ -43,6 +50,7 @@
             _addNewDocumentsToFile = _addNewDocumentsToFile,
             _diffTool = _diffTool,
             _diffToolParameters = _diffToolParameters,
+            _ignoreEmpty = _ignoreEmpty,
             _language = _language,
             _portable = _portable
         };

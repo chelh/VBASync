@@ -17,5 +17,6 @@
     public interface ISessionSettings
     {
         bool AddNewDocumentsToFile { get; set; }
+        bool IgnoreEmpty { get; set; }
     }
 }

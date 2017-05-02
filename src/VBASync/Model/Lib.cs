@@ -96,6 +96,12 @@ namespace VBASync.Model
                 newFolder = session.FolderPath;
             }
 
+            if (sessionSettings.IgnoreEmpty)
+            {
+                oldModules = oldModules.Where(kvp => ModuleProcessing.HasCode(kvp.Value.Item1)).ToList();
+                newModules = newModules.Where(kvp => ModuleProcessing.HasCode(kvp.Value.Item1)).ToList();
+            }
+
             // find modules which aren't in both lists and record them as new/deleted
             var patches = new List<Patch>();
             patches.AddRange(GetDeletedModuleChanges(oldModules, newModules));

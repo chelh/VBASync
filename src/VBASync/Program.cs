@@ -42,6 +42,7 @@ namespace VBASync
                 string filePathSwitch = null;
                 string folderPathSwitch = null;
                 var addNewDocumentsToFileSwitch = false;
+                var ignoreEmptySwitch = false;
                 for (var i = 1; i < args.Length; ++i)
                 {
                     switch (args[i].ToUpperInvariant())
@@ -70,6 +71,10 @@ namespace VBASync
                         case "/A":
                             addNewDocumentsToFileSwitch = true;
                             break;
+                        case "-I":
+                        case "/I":
+                            ignoreEmptySwitch = true;
+                            break;
                         default:
                             ini.AddFile(args[i]);
                             break;
@@ -83,6 +88,7 @@ namespace VBASync
                     AutoRun = autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false),
                     DiffTool = ini.GetString("DiffTool", "Path"),
                     DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
+                    IgnoreEmpty = ignoreEmptySwitch || (ini.GetBool("General", "IgnoreEmpty") ?? false),
                     FilePath = filePathSwitch ?? ini.GetString("General", "FilePath"),
                     FolderPath = folderPathSwitch ?? ini.GetString("General", "FolderPath"),
                     Language = ini.GetString("General", "Language"),

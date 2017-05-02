@@ -63,6 +63,8 @@ Switch | Meaning
 `-f <file>` | Specify Office file
 `-d <dir>` | Specify version-control directory
 `-r`   | Do the selected action, then immediately exit (**required** on Linux/Mac)
+`-a`   | Add new document modules when publishing (expert option)
+`-i`   | Ignore empty modules
 
 Any other parameter passed to VBA Sync Tool will be read and parsed as a session `.ini` file.
 

@@ -9,6 +9,7 @@ namespace VBASync.Model
         public bool AutoRun { get; set; }
         public string DiffTool { get; set; }
         public string DiffToolParameters { get; set; }
+        public bool IgnoreEmpty { get; set; }
         public string FilePath { get; set; }
         public string FolderPath { get; set; }
         public string Language { get; set; }

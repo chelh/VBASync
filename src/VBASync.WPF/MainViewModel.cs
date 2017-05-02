@@ -12,6 +12,7 @@ namespace VBASync.WPF
 {
     internal class MainViewModel : ViewModelBase
     {
+        private readonly Action _onLoadIni;
         private readonly string _lastSessionPath;
 
         private Model.ActiveSession _activeSession;
@@ -19,7 +20,7 @@ namespace VBASync.WPF
         private SessionViewModel _session;
         private SettingsViewModel _settings;
 
-        internal MainViewModel(Model.Startup startup)
+        internal MainViewModel(Model.Startup startup, Action onLoadIni)
         {
             Session = new SessionViewModel
             {
@@ -33,6 +34,7 @@ namespace VBASync.WPF
                 AddNewDocumentsToFile = startup.AddNewDocumentsToFile,
                 DiffTool = startup.DiffTool,
                 DiffToolParameters = startup.DiffToolParameters,
+                IgnoreEmpty = startup.IgnoreEmpty,
                 Language = startup.Language,
                 Portable = startup.Portable
             };
@@ -41,6 +43,8 @@ namespace VBASync.WPF
             {
                 RecentFiles.Add(recentFile);
             }
+
+            _onLoadIni = onLoadIni;
             _lastSessionPath = startup.LastSessionPath;
 
             BrowseForSessionCommand = new WpfCommand(v => BrowseForSession());
@@ -110,6 +114,7 @@ namespace VBASync.WPF
             Session.FilePath = ini.GetString("General", "FilePath") ?? Session.FilePath;
             Settings.AddNewDocumentsToFile = ini.GetBool("General", "AddNewDocumentsToFile")
                 ?? Settings.AddNewDocumentsToFile;
+            _onLoadIni();
         }
 
         public void RefreshActiveSession()
@@ -128,6 +133,7 @@ namespace VBASync.WPF
             if (saveSessionSettings)
             {
                 sb.AppendLine($"AddNewDocumentsToFile={iniBool(Settings.AddNewDocumentsToFile)}");
+                sb.AppendLine($"IgnoreEmpty={iniBool(Settings.IgnoreEmpty)}");
             }
             if (saveGlobalSettings)
             {

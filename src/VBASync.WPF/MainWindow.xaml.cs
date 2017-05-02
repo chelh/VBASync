@@ -22,7 +22,7 @@ namespace VBASync.WPF {
         public MainWindow(Startup startup) {
             InitializeComponent();
 
-            DataContext = _vm = new MainViewModel(startup);
+            DataContext = _vm = new MainViewModel(startup, QuietRefreshIfInputsOk);
             DataContextChanged += (s, e) => QuietRefreshIfInputsOk();
             _vm.Session.PropertyChanged += (s, e) => QuietRefreshIfInputsOk();
             QuietRefreshIfInputsOk();
@@ -49,8 +49,6 @@ namespace VBASync.WPF {
 
         private void ApplyButton_Click(object sender, RoutedEventArgs e)
         {
-            CheckAndFixErrors();
-
             var changes = _vm.Changes;
             var committedChanges = changes?.Where(p => p.Commit).ToList();
             if (committedChanges == null || committedChanges.Count == 0)
