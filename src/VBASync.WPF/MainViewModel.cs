@@ -109,11 +109,11 @@ namespace VBASync.WPF
 
         public void LoadIni(Model.AppIniFile ini)
         {
-            Session.Action = ini.GetActionType("General", "ActionType") ?? Session.Action;
-            Session.FolderPath = ini.GetString("General", "FolderPath") ?? Session.FolderPath;
-            Session.FilePath = ini.GetString("General", "FilePath") ?? Session.FilePath;
-            Settings.AddNewDocumentsToFile = ini.GetBool("General", "AddNewDocumentsToFile")
-                ?? Settings.AddNewDocumentsToFile;
+            Session.Action = ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract;
+            Session.FolderPath = ini.GetString("General", "FolderPath") ?? "";
+            Session.FilePath = ini.GetString("General", "FilePath") ?? "";
+            Settings.AddNewDocumentsToFile = ini.GetBool("General", "AddNewDocumentsToFile") ?? false;
+            Settings.IgnoreEmpty = ini.GetBool("General", "IgnoreEmpty") ?? false;
             _onLoadIni();
         }
 

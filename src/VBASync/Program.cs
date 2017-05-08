@@ -31,6 +31,8 @@ namespace VBASync
                 ini.Delete("General", "FolderPath");
                 ini.Delete("General", "FilePath");
                 ini.Delete("General", "AutoRun");
+                ini.Delete("General", "AddNewDocumentsToFile");
+                ini.Delete("General", "IgnoreEmpty");
 
                 if (exeDir != Environment.CurrentDirectory)
                 {
