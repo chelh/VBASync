@@ -414,9 +414,9 @@ namespace VBASync.Localization {
         /// <summary>
         ///   Looks up a localized string similar to Different stream lists in storage &apos;{0}&apos;.
         ///
-        ///File 1: {&apos;{1}&apos;}
+        ///File 1: {{&apos;{1}&apos;}}
         ///
-        ///File 2: {&apos;{2}&apos;}.
+        ///File 2: {{&apos;{2}&apos;}}.
         /// </summary>
         public static string ExplainFrxDifferentFileLists {
             get {

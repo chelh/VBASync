@@ -168,7 +168,9 @@ namespace VBASync.Model
             s2Names.Sort();
             if (!s1Names.SequenceEqual(s2Names))
             {
-                explain = string.Format(VBASyncResources.ExplainFrxDifferentFileLists, s1.Name, string.Join("', '", s1Names), string.Join("', '", s2Names));
+                explain = string.Format(VBASyncResources.ExplainFrxDifferentFileLists, s1.Name,
+                    string.Join("', '", s1Names.Select(t => t.Item1)),
+                    string.Join("', '", s2Names.Select(t => t.Item1)));
                 return true;
             }
             FormControl fc1 = null;
