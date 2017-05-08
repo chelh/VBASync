@@ -324,9 +324,9 @@
   <data name="ExplainFrxDifferentFileLists" xml:space="preserve">
     <value>Listes de flux différentes dans le stockage '{0}'.
 
-Fichier 1 : {'{1}'}
+Fichier 1 : {{'{1}'}}
 
-Fichier 2 : {'{2}'}</value>
+Fichier 2 : {{'{2}'}}</value>
     <comment>{0}: Name of storage in .frx data
 {1}: List of streams in file 1, separated by ', '
 {2}: List of streams in file 2, separated by ', '</comment>
