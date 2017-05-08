@@ -13,7 +13,7 @@ namespace VBASync.WPF {
         internal const int CopyrightYear = 2017;
         internal const string SupportUrl = "https://github.com/chelh/VBASync";
 
-        internal static readonly Version Version = new Version(2, 1, 2);
+        internal static readonly Version Version = new Version(2, 2, 0);
 
         private readonly MainViewModel _vm;
 
