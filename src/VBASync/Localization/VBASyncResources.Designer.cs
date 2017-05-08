@@ -785,6 +785,42 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to After-extract hook.
+        /// </summary>
+        public static string SWAfterExtractHook {
+            get {
+                return ResourceManager.GetString("SWAfterExtractHook", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Macros: {TargetDir}.
+        /// </summary>
+        public static string SWAfterExtractHookHelp {
+            get {
+                return ResourceManager.GetString("SWAfterExtractHookHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Before-publish hook.
+        /// </summary>
+        public static string SWBeforePublishHook {
+            get {
+                return ResourceManager.GetString("SWBeforePublishHook", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Macros: {TargetDir}.
+        /// </summary>
+        public static string SWBeforePublishHookHelp {
+            get {
+                return ResourceManager.GetString("SWBeforePublishHookHelp", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Diff tool (optional).
         /// </summary>
         public static string SWDiffTool {

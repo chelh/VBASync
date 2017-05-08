@@ -33,6 +33,8 @@ namespace VBASync
                 ini.Delete("General", "AutoRun");
                 ini.Delete("General", "AddNewDocumentsToFile");
                 ini.Delete("General", "IgnoreEmpty");
+                ini.Delete("Hooks", "BeforePublish");
+                ini.Delete("Hooks", "AfterExtract");
 
                 if (exeDir != Environment.CurrentDirectory)
                 {
@@ -45,6 +47,8 @@ namespace VBASync
                 string folderPathSwitch = null;
                 var addNewDocumentsToFileSwitch = false;
                 var ignoreEmptySwitch = false;
+                string beforePublishHookSwitch = null;
+                string afterExtractHookSwitch = null;
                 for (var i = 1; i < args.Length; ++i)
                 {
                     switch (args[i].ToUpperInvariant())
@@ -77,6 +81,17 @@ namespace VBASync
                         case "/I":
                             ignoreEmptySwitch = true;
                             break;
+                        case "-H":
+                        case "/H":
+                            if (actionSwitch == Model.ActionType.Publish)
+                            {
+                                beforePublishHookSwitch = args[++i];
+                            }
+                            else
+                            {
+                                afterExtractHookSwitch = args[++i];
+                            }
+                            break;
                         default:
                             ini.AddFile(args[i]);
                             break;
@@ -87,7 +102,9 @@ namespace VBASync
                 {
                     Action = actionSwitch ?? ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract,
                     AddNewDocumentsToFile = addNewDocumentsToFileSwitch || (ini.GetBool("General", "AddNewDocumentsToFile") ?? false),
+                    AfterExtractHook = new Model.Hook(afterExtractHookSwitch ?? ini.GetString("Hooks", "AfterExtract")),
                     AutoRun = autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false),
+                    BeforePublishHook = new Model.Hook(beforePublishHookSwitch ?? ini.GetString("Hooks", "BeforePublish")),
                     DiffTool = ini.GetString("DiffTool", "Path"),
                     DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
                     IgnoreEmpty = ignoreEmptySwitch || (ini.GetBool("General", "IgnoreEmpty") ?? false),

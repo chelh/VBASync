@@ -8,15 +8,17 @@
 
     public interface ISession
     {
-        ActionType Action { get; set; }
-        bool AutoRun { get; set; }
-        string FilePath { get; set; }
-        string FolderPath { get; set; }
+        ActionType Action { get; }
+        bool AutoRun { get; }
+        string FilePath { get; }
+        string FolderPath { get; }
     }
 
     public interface ISessionSettings
     {
-        bool AddNewDocumentsToFile { get; set; }
-        bool IgnoreEmpty { get; set; }
+        bool AddNewDocumentsToFile { get; }
+        Hook AfterExtractHook { get; }
+        Hook BeforePublishHook { get; }
+        bool IgnoreEmpty { get; }
     }
 }

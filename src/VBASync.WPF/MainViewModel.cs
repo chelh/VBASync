@@ -32,6 +32,8 @@ namespace VBASync.WPF
             Settings = new SettingsViewModel
             {
                 AddNewDocumentsToFile = startup.AddNewDocumentsToFile,
+                AfterExtractHookContent = startup.AfterExtractHook.Content,
+                BeforePublishHookContent = startup.BeforePublishHook.Content,
                 DiffTool = startup.DiffTool,
                 DiffToolParameters = startup.DiffToolParameters,
                 IgnoreEmpty = startup.IgnoreEmpty,
@@ -110,10 +112,12 @@ namespace VBASync.WPF
         public void LoadIni(Model.AppIniFile ini)
         {
             Session.Action = ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract;
-            Session.FolderPath = ini.GetString("General", "FolderPath") ?? "";
-            Session.FilePath = ini.GetString("General", "FilePath") ?? "";
+            Session.FolderPath = ini.GetString("General", "FolderPath");
+            Session.FilePath = ini.GetString("General", "FilePath");
             Settings.AddNewDocumentsToFile = ini.GetBool("General", "AddNewDocumentsToFile") ?? false;
             Settings.IgnoreEmpty = ini.GetBool("General", "IgnoreEmpty") ?? false;
+            Settings.AfterExtractHookContent = ini.GetString("Hooks", "AfterExtract");
+            Settings.BeforePublishHookContent = ini.GetString("Hooks", "BeforePublish");
             _onLoadIni();
         }
 
@@ -142,11 +146,26 @@ namespace VBASync.WPF
                 sb.AppendLine("[DiffTool]");
                 sb.AppendLine($"Path =\"{Settings.DiffTool}\"");
                 sb.AppendLine($"Parameters=\"{Settings.DiffToolParameters}\"");
-                if (RecentFiles.Count > 0)
+            }
+            if (saveGlobalSettings
+                && (!string.IsNullOrEmpty(Settings.AfterExtractHookContent)
+                || !string.IsNullOrEmpty(Settings.BeforePublishHookContent)))
+            {
+                sb.AppendLine("");
+                sb.AppendLine("[Hooks]");
+                if (!string.IsNullOrEmpty(Settings.AfterExtractHookContent))
                 {
-                    sb.AppendLine("");
-                    sb.AppendLine("[RecentFiles]");
+                    sb.AppendLine($"AfterExtract=\"{Settings.AfterExtractHookContent}\"");
                 }
+                if (!string.IsNullOrEmpty(Settings.BeforePublishHookContent))
+                {
+                    sb.AppendLine($"BeforePublish=\"{Settings.BeforePublishHookContent}\"");
+                }
+            }
+            if (saveGlobalSettings && RecentFiles.Count > 0)
+            {
+                sb.AppendLine("");
+                sb.AppendLine("[RecentFiles]");
                 var i = 0;
                 while (RecentFiles.Count > i)
                 {

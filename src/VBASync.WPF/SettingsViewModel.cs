@@ -3,6 +3,8 @@
     internal class SettingsViewModel : ViewModelBase, Model.ISessionSettings
     {
         private bool _addNewDocumentsToFile;
+        private string _afterExtractHookContent;
+        private string _beforePublishHookContent;
         private string _diffTool;
         private string _diffToolParameters;
         private bool _ignoreEmpty;
@@ -13,6 +15,22 @@
         {
             get => _addNewDocumentsToFile;
             set => SetField(ref _addNewDocumentsToFile, value, nameof(AddNewDocumentsToFile));
+        }
+
+        public Model.Hook AfterExtractHook => new Model.Hook(AfterExtractHookContent);
+
+        public string AfterExtractHookContent
+        {
+            get => _afterExtractHookContent;
+            set => SetField(ref _afterExtractHookContent, value, nameof(AfterExtractHookContent));
+        }
+
+        public Model.Hook BeforePublishHook => new Model.Hook(BeforePublishHookContent);
+
+        public string BeforePublishHookContent
+        {
+            get => _beforePublishHookContent;
+            set => SetField(ref _beforePublishHookContent, value, nameof(BeforePublishHook));
         }
 
         public string DiffTool
@@ -48,6 +66,8 @@
         public SettingsViewModel Clone() => new SettingsViewModel
         {
             _addNewDocumentsToFile = _addNewDocumentsToFile,
+            _afterExtractHookContent = _afterExtractHookContent,
+            _beforePublishHookContent = _beforePublishHookContent,
             _diffTool = _diffTool,
             _diffToolParameters = _diffToolParameters,
             _ignoreEmpty = _ignoreEmpty,

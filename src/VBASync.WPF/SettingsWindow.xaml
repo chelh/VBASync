@@ -200,22 +200,43 @@
                 </Grid>
             </TabItem>
             <TabItem Header="{x:Static l10n:VBASyncResources.SWSessionTab}">
-                <StackPanel Margin="4">
-                    <CheckBox VerticalAlignment="Top" IsChecked="{Binding IgnoreEmpty}">
+                <StackPanel>
+                    <CheckBox
+                        VerticalAlignment="Top"
+                        IsChecked="{Binding IgnoreEmpty}"
+                        Style="{StaticResource Level1}">
                         <TextBlock
                             Margin="4,0,0,0"
                             Text="{x:Static l10n:VBASyncResources.SWIgnoreEmpty}"
                             TextWrapping="Wrap" />
                     </CheckBox>
                     <CheckBox
-                        Margin="0,4,0,0"
                         VerticalAlignment="Top"
-                        IsChecked="{Binding AddNewDocumentsToFile}">
+                        IsChecked="{Binding AddNewDocumentsToFile}"
+                        Style="{StaticResource Level1}">
                         <TextBlock
                             Margin="4,0,0,0"
                             Text="{x:Static l10n:VBASyncResources.SWAddNewDocumentsToFile}"
                             TextWrapping="Wrap" />
                     </CheckBox>
+                    <Label
+                        Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWBeforePublishHook}"
+                        Style="{StaticResource Level1}" />
+                    <TextBox Style="{StaticResource Level1Close}" Text="{Binding BeforePublishHookContent}" />
+                    <Label
+                        Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWBeforePublishHookHelp}"
+                        Style="{StaticResource Level1Close}" />
+                    <Label
+                        Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWAfterExtractHook}"
+                        Style="{StaticResource Level1}" />
+                    <TextBox Style="{StaticResource Level1Close}" Text="{Binding AfterExtractHookContent}" />
+                    <Label
+                        Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWAfterExtractHookHelp}"
+                        Style="{StaticResource Level1Close}" />
                 </StackPanel>
             </TabItem>
         </TabControl>

@@ -58,6 +58,7 @@ namespace VBASync.Model
                             break;
                     }
                 }
+                _sessionSettings.AfterExtractHook.Execute(_session.FolderPath);
             }
             else
             {
@@ -95,6 +96,7 @@ namespace VBASync.Model
                             break;
                     }
                 }
+                _sessionSettings.BeforePublishHook.Execute(_vf.FolderPath);
                 _vf.Write(_session.FilePath);
             }
         }

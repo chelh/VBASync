@@ -28,7 +28,7 @@ namespace VBASync.WPF
             set => SetValue(FocusControlOnEnterProperty, value);
         }
 
-        private Model.ISession Session => (Model.ISession)DataContext;
+        private SessionViewModel Session => (SessionViewModel)DataContext;
 
         private void FileBrowseBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {

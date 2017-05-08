@@ -6,7 +6,9 @@ namespace VBASync.Model
     {
         public ActionType Action { get; set; }
         public bool AddNewDocumentsToFile { get; set; }
+        public Hook AfterExtractHook { get; set; }
         public bool AutoRun { get; set; }
+        public Hook BeforePublishHook { get; set; }
         public string DiffTool { get; set; }
         public string DiffToolParameters { get; set; }
         public bool IgnoreEmpty { get; set; }
