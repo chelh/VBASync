@@ -25,14 +25,18 @@ namespace VBASync.Model
 
         private Process ExecWindows(string targetDir)
         {
-            var cmd = Content.Replace("{Target}", targetDir);
-            return Process.Start("cmd.exe", $"/c {cmd}");
+            return Process.Start(new ProcessStartInfo("cmd.exe", $"/c {Content}")
+            {
+                WorkingDirectory = targetDir
+            });
         }
 
         private Process ExecUnix(string targetDir)
         {
-            var cmd = Content.Replace("{Target}", targetDir);
-            return Process.Start("sh", $"-c \"{cmd.Replace("\"", "\\\"")}\"");
+            return Process.Start(new ProcessStartInfo("sh", $"-c \"{Content.Replace("\"", "\\\"")}\"")
+            {
+                WorkingDirectory = targetDir
+            });
         }
 
         private bool IsWindows() => Environment.OSVersion.Platform == PlatformID.Win32NT;

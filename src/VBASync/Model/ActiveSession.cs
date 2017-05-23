@@ -58,7 +58,6 @@ namespace VBASync.Model
                             break;
                     }
                 }
-                _sessionSettings.AfterExtractHook.Execute(_session.FolderPath);
             }
             else
             {
@@ -106,8 +105,11 @@ namespace VBASync.Model
         public IEnumerable<Patch> GetPatches()
         {
             var folderModules = Lib.GetFolderModules(_session.FolderPath);
-            _vf.Read(_session.FilePath, folderModules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1));
-            foreach (var patch in Lib.GetModulePatches(_session, _sessionSettings, _vf.FolderPath, folderModules, _vf.ModuleTexts.ToList()))
+            _vf.Read(_session.FilePath);
+            _sessionSettings.AfterExtractHook.Execute(_session.FolderPath);
+            _vf.FixCase(folderModules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1));
+            var vbaFileModules = Lib.GetFolderModules(_vf.FolderPath);
+            foreach (var patch in Lib.GetModulePatches(_session, _sessionSettings, _vf.FolderPath, folderModules, vbaFileModules))
             {
                 yield return patch;
             }

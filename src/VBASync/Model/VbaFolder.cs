@@ -15,6 +15,7 @@ namespace VBASync.Model
     public class VbaFolder : IDisposable
     {
         private bool _disposed;
+        private List<Module> _modules;
 
         public VbaFolder()
         {
@@ -29,16 +30,26 @@ namespace VBASync.Model
 
         public string FolderPath { get; }
 
-        public Dictionary<string, Tuple<string, ModuleType>> ModuleTexts { get; }
-            = new Dictionary<string, Tuple<string, ModuleType>>(StringComparer.InvariantCultureIgnoreCase);
-
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
 
-        public void Read(string path, IDictionary<string, string> compareModules)
+        public void FixCase(IDictionary<string, string> compareModules)
+        {
+            foreach (var m in _modules)
+            {
+                if (compareModules.ContainsKey(m.Name))
+                {
+                    var path = Path.Combine(FolderPath, m.FileName);
+                   File.WriteAllText(path, ModuleProcessing.FixCase(compareModules[m.Name],
+                       File.ReadAllText(path)));
+                }
+            }
+        }
+
+        public void Read(string path)
         {
             if (string.IsNullOrEmpty(path))
             {
@@ -112,7 +123,7 @@ namespace VBASync.Model
                 string currentRefName = null;
                 var references = new List<Reference>();
                 var originalLibIds = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-                var modules = new List<Module>();
+                _modules = new List<Module>();
                 Module currentModule = null;
                 var projStrings = new List<string>();
                 using (var br = new BinaryReader(new MemoryStream(DecompressStream(vbaProject.GetStorage("VBA").GetStream("dir")))))
@@ -237,7 +248,7 @@ namespace VBASync.Model
                             break;
                         case 0x0047:
                             // MODULENAMEUNICODE
-                            modules.Add(currentModule = new Module {
+                            _modules.Add(currentModule = new Module {
                                 Name = Encoding.Unicode.GetString(br.ReadBytes(br.ReadInt32()))
                             });
                             break;
@@ -307,21 +318,21 @@ namespace VBASync.Model
                         switch (split[0]?.ToUpperInvariant())
                         {
                         case "MODULE":
-                            modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
+                            _modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
                                 .Type = ModuleType.Standard;
                             break;
                         case "DOCUMENT":
                             var split2 = split[1].Split('/');
-                            var mod = modules.First(m => string.Equals(m.Name, split2[0], StringComparison.InvariantCultureIgnoreCase));
+                            var mod = _modules.First(m => string.Equals(m.Name, split2[0], StringComparison.InvariantCultureIgnoreCase));
                             mod.Type = ModuleType.StaticClass;
                             mod.Version = uint.Parse(split2[1].Substring(2), NumberStyles.HexNumber);
                             break;
                         case "CLASS":
-                            modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
+                            _modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
                                 .Type = ModuleType.Class;
                             break;
                         case "BASECLASS":
-                            modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
+                            _modules.First(m => string.Equals(m.Name, split[1], StringComparison.InvariantCultureIgnoreCase))
                                 .Type = ModuleType.Form;
                             break;
                         default:
@@ -348,11 +359,11 @@ namespace VBASync.Model
                 projStrings.Add("");
                 projStrings.Add("[Constants]");
                 projStrings.AddRange(projConstants.Select(s => string.Join("=", s.Split('=').Select(t => t.Trim()))));
-                if (modules.Any(m => m.Version > 0))
+                if (_modules.Any(m => m.Version > 0))
                 {
                     projStrings.Add("");
                     projStrings.Add("[DocTLibVersions]");
-                    projStrings.AddRange(modules.Where(m => m.Version > 0).Select(m => $"{m.Name}={m.Version}"));
+                    projStrings.AddRange(_modules.Where(m => m.Version > 0).Select(m => $"{m.Name}={m.Version}"));
                 }
                 foreach (var refer in references)
                 {
@@ -365,20 +376,14 @@ namespace VBASync.Model
                 // don't use WriteAllLines because we need \r\n line endings specifically
                 File.WriteAllText(Path.Combine(FolderPath, "Project.ini"), string.Join("\r\n", projStrings), projEncoding);
 
-                ModuleTexts.Clear();
-                foreach (var m in modules)
+                foreach (var m in _modules)
                 {
                     var moduleText = projEncoding.GetString(DecompressStream(vbaProject.GetStorage("VBA").GetStream(m.StreamName), m.Offset));
-                    if (compareModules.ContainsKey(m.Name))
-                    {
-                        moduleText = ModuleProcessing.FixCase(compareModules[m.Name], moduleText);
-                    }
                     moduleText = (GetPrepend(m, vbaProject, projEncoding) + moduleText).TrimEnd('\r', '\n') + "\r\n";
-                    ModuleTexts.Add(m.Name, Tuple.Create(moduleText, m.Type));
                     File.WriteAllText(Path.Combine(FolderPath, m.Name + ModuleProcessing.ExtensionFromType(m.Type)), moduleText, projEncoding);
                 }
 
-                foreach (var m in modules.Where(mod => mod.Type == ModuleType.Form))
+                foreach (var m in _modules.Where(mod => mod.Type == ModuleType.Form))
                 {
                     var cf = new CompoundFile();
                     CopyCfStreamsExcept(vbaProject.GetStorage(m.StreamName), cf.RootStorage, "\x0003VBFrame");
@@ -776,7 +781,8 @@ namespace VBASync.Model
                 return "VERSION 1.0 CLASS\r\nBEGIN\r\n  MultiUse = -1  'True\r\nEND\r\n";
             case ModuleType.Form:
                 var vbFrameLines = enc.GetString(vbaProject.GetStorage(mod.StreamName).GetStream("\x0003VBFrame").GetData())
-                    .Split(new[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                    .Split('\n').Select(s => s.TrimEnd('\r')).ToList();
+                    DeleteBlankLinesFromEnd(vbFrameLines);
                 vbFrameLines.Insert(2, $"   OleObjectBlob   =   \"{mod.Name}.frx\":0000");
                 return string.Join("\r\n", vbFrameLines) + "\r\n";
             case ModuleType.Standard:
@@ -850,6 +856,7 @@ namespace VBASync.Model
         private class Module
         {
             public string DocString { get; set; }
+            public string FileName => Name + GetExtension();
             public uint? HelpContext { get; set; }
             public string Name { get; set; }
             public uint Offset { get; set; }
@@ -908,6 +915,26 @@ namespace VBASync.Model
             }
 
             public override string ToString() => Name;
+
+            private string GetExtension()
+            {
+                switch (Type)
+                {
+                    case ModuleType.Standard:
+                        return ".bas";
+                    case ModuleType.StaticClass:
+                    case ModuleType.Class:
+                        return ".cls";
+                    case ModuleType.Form:
+                        return ".frm";
+                    case ModuleType.Ini:
+                        return ".ini";
+                    case ModuleType.Licenses:
+                        return ".bin";
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(Type));
+                }
+            }
         }
 
         private abstract class Reference
