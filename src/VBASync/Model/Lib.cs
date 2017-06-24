@@ -174,6 +174,7 @@ namespace VBASync.Model
                 return true;
             }
             FormControl fc1 = null;
+            FormControl fc2 = null;
             foreach (var t in s1Names)
             {
                 if (t.Item2)
@@ -186,63 +187,27 @@ namespace VBASync.Model
                 else if (t.Item1 == "f")
                 {
                     fc1 = new FormControl(s1.GetStream("f").GetData());
-                    var fc2 = new FormControl(s2.GetStream("f").GetData());
+                    fc2 = new FormControl(s2.GetStream("f").GetData());
                     if (!fc1.Equals(fc2))
                     {
                         explain = string.Format(VBASyncResources.ExplainFrxGeneralStreamDifference, "f", s1.Name);
                         return true;
                     }
                 }
-                else if (t.Item1 == "o" && fc1 != null)
+                else if (t.Item1 == "o" && fc1 != null && fc2 != null)
                 {
-                    var o1 = s1.GetStream("o").GetData();
-                    var o2 = s2.GetStream("o").GetData();
-                    uint idx = 0;
-                    foreach (var site in fc1.Sites)
+                    var fc2SitesList = fc2.Sites.ToList();
+                    var o1Controls = DecomposeOStream(fc1.Sites, s1.GetStream("o").GetData());
+                    var o2Controls = DecomposeOStream(fc2.Sites, s2.GetStream("o").GetData());
+                    for (var siteIdx1 = 0; siteIdx1 < fc1.Sites.Length; ++siteIdx1)
                     {
-                        explain = string.Format(VBASyncResources.ExplainFrxOStreamDifference, site.Name, s1.Name);
-                        var o1Range = o1.Range(idx, site.ObjectStreamSize);
-                        var o2Range = o2.Range(idx, site.ObjectStreamSize);
-                        switch (site.ClsidCacheIndex)
+                        var siteIdx2 = fc2SitesList.FindIndex(s => s.Id == fc1.Sites[siteIdx1].Id);
+                        if (!Equals(o1Controls[siteIdx1], o2Controls[siteIdx2]))
                         {
-                        case 15: // MorphData
-                        case 26: // CheckBox
-                        case 25: // ComboBox
-                        case 24: // ListBox
-                        case 27: // OptionButton
-                        case 23: // TextBox
-                        case 28: // ToggleButton
-                            if (!new MorphDataControl(o1Range).Equals(new MorphDataControl(o2Range)))
-                            {
-                                return true;
-                            }
-                            break;
-                        case 17: // CommandButton
-                            if (!new CommandButtonControl(o1Range).Equals(new CommandButtonControl(o2Range)))
-                            {
-                                return true;
-                            }
-                            break;
-                        case 18: // TabStrip
-                            if (!new TabStripControl(o1Range).Equals(new TabStripControl(o2Range)))
-                            {
-                                return true;
-                            }
-                            break;
-                        case 21: // Label
-                            if (!new LabelControl(o1Range).Equals(new LabelControl(o2Range)))
-                            {
-                                return true;
-                            }
-                            break;
-                        default:
-                            if (!o1Range.SequenceEqual(o2Range))
-                            {
-                                return true;
-                            }
-                            break;
+                            explain = string.Format(VBASyncResources.ExplainFrxOStreamDifference,
+                                fc1.Sites[siteIdx1].Name, s1.Name);
+                            return true;
                         }
-                        idx += site.ObjectStreamSize;
                     }
                 }
                 else if (!s1.GetStream(t.Item1).GetData().SequenceEqual(s2.GetStream(t.Item1).GetData()))
@@ -253,6 +218,42 @@ namespace VBASync.Model
             }
             explain = "No differences found.";
             return false;
+        }
+
+        private static object[] DecomposeOStream(OleSiteConcreteControl[] sites, byte[] content)
+        {
+            var ret = new object[sites.Length];
+            uint contentIdx = 0;
+            for (var siteIdx = 0; siteIdx < ret.Length; ++siteIdx)
+            {
+                var range = content.Range(contentIdx, sites[siteIdx].ObjectStreamSize);
+                switch (sites[siteIdx].ClsidCacheIndex)
+                {
+                    case 15: // MorphData
+                    case 26: // CheckBox
+                    case 25: // ComboBox
+                    case 24: // ListBox
+                    case 27: // OptionButton
+                    case 23: // TextBox
+                    case 28: // ToggleButton
+                        ret[siteIdx] = new MorphDataControl(range);
+                        break;
+                    case 17: // CommandButton
+                        ret[siteIdx] = new CommandButtonControl(range);
+                        break;
+                    case 18: // TabStrip
+                        ret[siteIdx] = new TabStripControl(range);
+                        break;
+                    case 21: // Label
+                        ret[siteIdx] = new LabelControl(range);
+                        break;
+                    default: // some other control – treat it as a raw byte sequence
+                        ret[siteIdx] = new RawControl(range);
+                        break;
+                }
+                contentIdx += sites[siteIdx].ObjectStreamSize;
+            }
+            return ret;
         }
 
         private static IEnumerable<Patch> GetDeletedModuleChanges(

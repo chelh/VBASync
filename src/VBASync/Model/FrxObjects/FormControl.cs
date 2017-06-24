@@ -200,7 +200,7 @@ namespace VBASync.Model.FrxObjects
                   && Equals(DisplayedSize, other.DisplayedSize) && Equals(LogicalSize, other.LogicalSize) && Equals(ScrollPosition, other.ScrollPosition)
                   && string.Equals(Caption, other.Caption) && MouseIcon.SequenceEqual(other.MouseIcon) && FontIsStdFont == other.FontIsStdFont
                   && Picture.SequenceEqual(other.Picture) && Equals(FontTextProps, other.FontTextProps) && Equals(FontStdFont, other.FontStdFont)
-                  && Sites.SequenceEqual(other.Sites) && Remainder.SequenceEqual(other.Remainder)))
+                  && Sites.OrderBy(s => s.Id).SequenceEqual(other.Sites.OrderBy(s => s.Id)) && Remainder.SequenceEqual(other.Remainder)))
             {
                 return false;
             }
