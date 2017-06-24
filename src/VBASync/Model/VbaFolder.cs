@@ -29,6 +29,7 @@ namespace VBASync.Model
         }
 
         public string FolderPath { get; }
+        public Encoding ProjectEncoding { get; private set; }
 
         public void Dispose()
         {
@@ -44,7 +45,7 @@ namespace VBASync.Model
                 {
                     var path = Path.Combine(FolderPath, m.FileName);
                    File.WriteAllText(path, ModuleProcessing.FixCase(compareModules[m.Name],
-                       File.ReadAllText(path)));
+                       File.ReadAllText(path, ProjectEncoding)), ProjectEncoding);
                 }
             }
         }
@@ -308,6 +309,7 @@ namespace VBASync.Model
                         }
                     }
                 }
+                ProjectEncoding = projEncoding;
                 using (var sr = new StreamReader(new MemoryStream(vbaProject.GetStream("PROJECT").GetData()), projEncoding))
                 {
                     string line;
