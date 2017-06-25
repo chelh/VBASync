@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.IO.IsolatedStorage;
 using System.Linq;
 using System.Text;
 
@@ -13,32 +12,10 @@ namespace VBASync.Model
 
         private readonly Encoding _encoding;
 
-        public IniFile(IsolatedStorageFile store, string fileName, Encoding encoding = null)
-        {
-            _encoding = encoding ?? Encoding.Default;
-            AddFile(store, fileName);
-        }
-
         public IniFile(string filePath, Encoding encoding = null)
         {
             _encoding = encoding ?? Encoding.Default;
             AddFile(filePath);
-        }
-
-        public void AddFile(IsolatedStorageFile store, string fileName)
-        {
-            if (!store.FileExists(fileName))
-            {
-                return;
-            }
-            string s;
-            using (var strm = new IsolatedStorageFileStream(fileName, FileMode.Open, FileAccess.Read, store))
-            {
-                var buf = new byte[strm.Length];
-                strm.Read(buf, 0, (int)strm.Length);
-                s = _encoding.GetString(buf);
-            }
-            ProcessString(s);
         }
 
         public void AddFile(string filePath)

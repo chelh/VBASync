@@ -1,15 +1,9 @@
-﻿using System.IO.IsolatedStorage;
-using System.Text;
+﻿using System.Text;
 
 namespace VBASync.Model
 {
     public class AppIniFile : IniFile
     {
-        public AppIniFile(IsolatedStorageFile store, string fileName, Encoding encoding = null)
-            : base(store, fileName, encoding)
-        {
-        }
-
         public AppIniFile(string filePath, Encoding encoding = null) : base(filePath, encoding)
         {
         }
