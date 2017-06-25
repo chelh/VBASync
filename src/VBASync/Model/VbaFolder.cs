@@ -491,10 +491,11 @@ namespace VBASync.Model
             vbaProject.AddStream("PROJECT");
             vbaProject.GetStream("PROJECT").SetData(projEncoding.GetBytes(projIni.GetProjectText()));
 
-            vbaProject.AddStream("PROJECTlk");
-            vbaProject.GetStream("PROJECTlk").SetData(File.Exists(Path.Combine(FolderPath, "LicenseKeys.bin"))
-                ? File.ReadAllBytes(Path.Combine(FolderPath, "LicenseKeys.bin"))
-                : new byte[] { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 });
+            if (File.Exists(Path.Combine(FolderPath, "LicenseKeys.bin")))
+            {
+                vbaProject.AddStream("PROJECTlk");
+                vbaProject.GetStream("PROJECTlk").SetData(File.ReadAllBytes(Path.Combine(FolderPath, "LicenseKeys.bin")));
+            }
 
             var projectWm = new List<byte>();
             foreach (var modName in mods.Select(m => m.Name))
