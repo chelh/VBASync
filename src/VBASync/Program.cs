@@ -49,7 +49,7 @@ namespace VBASync
                 var ignoreEmptySwitch = false;
                 string beforePublishHookSwitch = null;
                 string afterExtractHookSwitch = null;
-                for (var i = 1; i < args.Length; ++i)
+                for (var i = 0; i < args.Length; ++i)
                 {
                     switch (args[i].ToUpperInvariant())
                     {
