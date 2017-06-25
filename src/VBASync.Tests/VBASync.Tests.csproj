@@ -48,6 +48,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IntegrationTests\FixCaseTests.cs" />
+    <Compile Include="UnitTests\AppIniFileTests.cs" />
+    <Compile Include="UnitTests\IniFileTests.cs" />
+    <Compile Include="UnitTests\StartupTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\VBASync.WPF\VBASync.WPF.csproj">

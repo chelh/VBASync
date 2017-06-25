@@ -8,6 +8,10 @@ namespace VBASync.Model
         {
         }
 
+        internal AppIniFile()
+        {
+        }
+
         public ActionType? GetActionType(string subject, string key)
         {
             if (Dict.TryGetValue($"{subject}\0{key}", out var s))

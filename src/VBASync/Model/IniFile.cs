@@ -18,6 +18,11 @@ namespace VBASync.Model
             AddFile(filePath);
         }
 
+        internal IniFile()
+        {
+            _encoding = Encoding.Default;
+        }
+
         public void AddFile(string filePath)
         {
             if (!File.Exists(filePath))
@@ -95,7 +100,7 @@ namespace VBASync.Model
             return null;
         }
 
-        private void ProcessString(string s)
+        internal void ProcessString(string s)
         {
             var sr = new StringReader(s);
             var subject = "General";
@@ -124,6 +129,11 @@ namespace VBASync.Model
                     }
                 }
             }
+        }
+
+        internal void PumpValue(string subject, string key, string value)
+        {
+            Dict[$"{subject}\0{key}"] = value;
         }
     }
 }

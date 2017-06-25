@@ -5,9 +5,16 @@ namespace VBASync.Model
 {
     public class Hook
     {
-        public Hook(string content)
+        private readonly bool _isWindows;
+
+        public Hook(string content) : this(content, Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+        }
+
+        internal Hook(string content, bool isWindows)
         {
             Content = content;
+            _isWindows = isWindows;
         }
 
         public string Content { get; }
@@ -19,26 +26,30 @@ namespace VBASync.Model
                 return;
             }
 
-            var proc = IsWindows() ? ExecWindows(targetDir) : ExecUnix(targetDir);
-            proc.WaitForExit();
+            Process.Start(GetProcessStartInfo(targetDir)).WaitForExit();
         }
 
-        private Process ExecWindows(string targetDir)
+        internal ProcessStartInfo GetProcessStartInfo(string targetDir)
         {
-            return Process.Start(new ProcessStartInfo("cmd.exe", $"/c {Content}")
+            if (string.IsNullOrEmpty(Content))
             {
-                WorkingDirectory = targetDir
-            });
-        }
+                return null;
+            }
 
-        private Process ExecUnix(string targetDir)
-        {
-            return Process.Start(new ProcessStartInfo("sh", $"-c \"{Content.Replace("\"", "\\\"")}\"")
+            if (_isWindows)
             {
-                WorkingDirectory = targetDir
-            });
+                return new ProcessStartInfo("cmd.exe", $"/c {Content}")
+                {
+                    WorkingDirectory = targetDir
+                };
+            }
+            else
+            {
+                return new ProcessStartInfo("sh", $"-c \"{Content.Replace("\"", "\\\"")}\"")
+                {
+                    WorkingDirectory = targetDir
+                };
+            }
         }
-
-        private bool IsWindows() => Environment.OSVersion.Platform == PlatformID.Win32NT;
     }
 }

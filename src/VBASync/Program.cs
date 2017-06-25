@@ -18,112 +18,36 @@ namespace VBASync
             {
                 var exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
                 var exeBaseName = Path.GetFileNameWithoutExtension(Assembly.GetExecutingAssembly().Location);
-                var ini = new Model.AppIniFile(Path.Combine(exeDir, "VBASync.ini"));
-                ini.AddFile(Path.Combine(exeDir, exeBaseName + ".ini"));
+
+                var generalIni = new Model.AppIniFile(Path.Combine(exeDir, "VBASync.ini"));
+                if (!string.Equals(exeBaseName, "VBASync", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    generalIni.AddFile(Path.Combine(exeDir, exeBaseName + ".ini"));
+                }
+
                 var appDataDir = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-                var lastSessionPath = ini.GetBool("General", "Portable") ?? false
+                var lastSessionPath = generalIni.GetBool("General", "Portable") ?? false
                     ? Path.Combine(exeDir, "LastSession.ini")
                     : Path.Combine(appDataDir, "VBA Sync Tool", "LastSession.ini");
-                ini.AddFile(lastSessionPath);
+                generalIni.AddFile(lastSessionPath);
 
-                // don't persist these settings
-                ini.Delete("General", "ActionType");
-                ini.Delete("General", "FolderPath");
-                ini.Delete("General", "FilePath");
-                ini.Delete("General", "AutoRun");
-                ini.Delete("General", "AddNewDocumentsToFile");
-                ini.Delete("General", "IgnoreEmpty");
-                ini.Delete("Hooks", "BeforePublish");
-                ini.Delete("Hooks", "AfterExtract");
+                var startup = new Model.Startup { LastSessionPath = lastSessionPath };
+                startup.ProcessIni(generalIni, false); // don't allow loading session settings from these .ini files
 
-                if (exeDir != Environment.CurrentDirectory)
+                var sessionIni = new Model.AppIniFile(Path.Combine(Environment.CurrentDirectory, "VBASync.ini"));
+                if (!string.Equals(exeBaseName, "VBASync", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    ini.AddFile(Path.Combine(Environment.CurrentDirectory, "VBASync.ini"));
-                    ini.AddFile(Path.Combine(Environment.CurrentDirectory, exeBaseName + ".ini"));
+                    sessionIni.AddFile(Path.Combine(Environment.CurrentDirectory, exeBaseName + ".ini"));
                 }
-                var autoRunSwitch = false;
-                Model.ActionType? actionSwitch = null;
-                string filePathSwitch = null;
-                string folderPathSwitch = null;
-                var addNewDocumentsToFileSwitch = false;
-                var ignoreEmptySwitch = false;
-                string beforePublishHookSwitch = null;
-                string afterExtractHookSwitch = null;
-                for (var i = 0; i < args.Length; ++i)
-                {
-                    switch (args[i].ToUpperInvariant())
-                    {
-                        case "-R":
-                        case "/R":
-                            autoRunSwitch = true;
-                            break;
-                        case "-X":
-                        case "/X":
-                            actionSwitch = Model.ActionType.Extract;
-                            break;
-                        case "-P":
-                        case "/P":
-                            actionSwitch = Model.ActionType.Publish;
-                            break;
-                        case "-F":
-                        case "/F":
-                            filePathSwitch = args[++i];
-                            break;
-                        case "-D":
-                        case "/D":
-                            folderPathSwitch = args[++i];
-                            break;
-                        case "-A":
-                        case "/A":
-                            addNewDocumentsToFileSwitch = true;
-                            break;
-                        case "-I":
-                        case "/I":
-                            ignoreEmptySwitch = true;
-                            break;
-                        case "-H":
-                        case "/H":
-                            if (actionSwitch == Model.ActionType.Publish)
-                            {
-                                beforePublishHookSwitch = args[++i];
-                            }
-                            else
-                            {
-                                afterExtractHookSwitch = args[++i];
-                            }
-                            break;
-                        default:
-                            ini.AddFile(args[i]);
-                            break;
-                    }
-                }
+                startup.ProcessIni(sessionIni, true);
 
-                var startup = new Model.Startup
-                {
-                    Action = actionSwitch ?? ini.GetActionType("General", "ActionType") ?? Model.ActionType.Extract,
-                    AddNewDocumentsToFile = addNewDocumentsToFileSwitch || (ini.GetBool("General", "AddNewDocumentsToFile") ?? false),
-                    AfterExtractHook = new Model.Hook(afterExtractHookSwitch ?? ini.GetString("Hooks", "AfterExtract")),
-                    AutoRun = autoRunSwitch || (ini.GetBool("General", "AutoRun") ?? false),
-                    BeforePublishHook = new Model.Hook(beforePublishHookSwitch ?? ini.GetString("Hooks", "BeforePublish")),
-                    DiffTool = ini.GetString("DiffTool", "Path"),
-                    DiffToolParameters = ini.GetString("DiffTool", "Parameters") ?? "\"{OldFile}\" \"{NewFile}\"",
-                    IgnoreEmpty = ignoreEmptySwitch || (ini.GetBool("General", "IgnoreEmpty") ?? false),
-                    FilePath = filePathSwitch ?? ini.GetString("General", "FilePath"),
-                    FolderPath = folderPathSwitch ?? ini.GetString("General", "FolderPath"),
-                    Language = ini.GetString("General", "Language"),
-                    LastSessionPath = lastSessionPath,
-                    Portable = ini.GetBool("General", "Portable") ?? false
-                };
-                var j = 1;
-                while (j <= 5 && !string.IsNullOrEmpty(ini.GetString("RecentFiles", j.ToString(CultureInfo.InvariantCulture))))
-                {
-                    startup.RecentFiles.Add(ini.GetString("RecentFiles", j.ToString(CultureInfo.InvariantCulture)));
-                    ++j;
-                }
+                startup.ProcessArgs(args);
+
                 if (!string.IsNullOrEmpty(startup.Language))
                 {
                     Thread.CurrentThread.CurrentUICulture = new CultureInfo(startup.Language);
                 }
+
                 if (startup.AutoRun)
                 {
                     using (var actor = new Model.ActiveSession(startup, startup))
