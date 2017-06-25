@@ -1,12 +1,12 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using NUnit.Framework;
 using VBASync.Model;
 
 namespace VBASync.Tests.UnitTests
 {
-    [TestClass]
+    [TestFixture]
     public class FixCaseTests
     {
-        [TestMethod]
+        [Test]
         public void FixCaseBasic()
         {
             const string oldFile = @"VERSION 1.0 CLASS
@@ -94,10 +94,10 @@ Sub tes3()
     MsgBox ""Hello, world!""
 End Sub
 ";
-            Assert.AreEqual(newFileFix, ModuleProcessing.FixCase(oldFile, newFileRaw));
+            Assert.That(newFileFix, Is.EqualTo(ModuleProcessing.FixCase(oldFile, newFileRaw)));
         }
 
-        [TestMethod]
+        [Test]
         public void FixCaseWasDuplicatingLines()
         {
             const string oldFile = @"Attribute VB_Name = ""Module1""
@@ -126,7 +126,7 @@ Sub tes2()
 End Sub
 ";
 
-            Assert.AreEqual(newFile, ModuleProcessing.FixCase(oldFile, newFile));
+            Assert.That(newFile, Is.EqualTo(ModuleProcessing.FixCase(oldFile, newFile)));
         }
     }
 }
