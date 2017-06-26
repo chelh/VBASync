@@ -32,8 +32,8 @@ namespace VBASync.WPF
             Settings = new SettingsViewModel
             {
                 AddNewDocumentsToFile = startup.AddNewDocumentsToFile,
-                AfterExtractHookContent = startup.AfterExtractHook.Content,
-                BeforePublishHookContent = startup.BeforePublishHook.Content,
+                AfterExtractHookContent = startup.AfterExtractHook?.Content,
+                BeforePublishHookContent = startup.BeforePublishHook?.Content,
                 DiffTool = startup.DiffTool,
                 DiffToolParameters = startup.DiffToolParameters,
                 IgnoreEmpty = startup.IgnoreEmpty,
@@ -92,7 +92,7 @@ namespace VBASync.WPF
         public void AddRecentFile(string path)
         {
             var exeDir = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-            var exeDirWithTrailing = exeDir + Path.DirectorySeparatorChar;
+            var exeDirWithTrailing = exeDir + Path.DirectorySeparatorChar.ToString();
             var displayPath = Path.GetFullPath(path);
             if (displayPath.StartsWith(exeDirWithTrailing))
             {
@@ -131,21 +131,21 @@ namespace VBASync.WPF
         {
             Func<bool, string> iniBool = b => b ? "true" : "false";
             var sb = new StringBuilder();
-            sb.AppendLine("ActionType=" + (Session.Action == Model.ActionType.Extract ? "Extract" : "Publish"));
-            sb.AppendLine($"FolderPath=\"{Session.FolderPath}\"");
-            sb.AppendLine($"FilePath=\"{Session.FilePath}\"");
+            sb.Append("ActionType=").AppendLine(Session.Action == Model.ActionType.Extract ? "Extract" : "Publish");
+            sb.Append("FolderPath=\"").Append(Session.FolderPath).AppendLine("\"");
+            sb.Append("FilePath=\"").Append(Session.FilePath).AppendLine("\"");
             if (saveSessionSettings)
             {
-                sb.AppendLine($"AddNewDocumentsToFile={iniBool(Settings.AddNewDocumentsToFile)}");
-                sb.AppendLine($"IgnoreEmpty={iniBool(Settings.IgnoreEmpty)}");
+                sb.Append("AddNewDocumentsToFile=").AppendLine(Settings.AddNewDocumentsToFile ? "true" : "false");
+                sb.Append("IgnoreEmpty=").AppendLine(Settings.IgnoreEmpty ? "true" : "false");
             }
             if (saveGlobalSettings)
             {
-                sb.AppendLine($"Language=\"{Settings.Language}\"");
+                sb.Append("Language=\"").Append(Settings.Language).AppendLine("\"");
                 sb.AppendLine("");
                 sb.AppendLine("[DiffTool]");
-                sb.AppendLine($"Path =\"{Settings.DiffTool}\"");
-                sb.AppendLine($"Parameters=\"{Settings.DiffToolParameters}\"");
+                sb.Append("Path =\"").Append(Settings.DiffTool).AppendLine("\"");
+                sb.Append("Parameters=\"").Append(Settings.DiffToolParameters).AppendLine("\"");
             }
             if (saveGlobalSettings
                 && (!string.IsNullOrEmpty(Settings.AfterExtractHookContent)
@@ -155,11 +155,11 @@ namespace VBASync.WPF
                 sb.AppendLine("[Hooks]");
                 if (!string.IsNullOrEmpty(Settings.AfterExtractHookContent))
                 {
-                    sb.AppendLine($"AfterExtract=\"{Settings.AfterExtractHookContent}\"");
+                    sb.Append("AfterExtract=\"").Append(Settings.AfterExtractHookContent).AppendLine("\"");
                 }
                 if (!string.IsNullOrEmpty(Settings.BeforePublishHookContent))
                 {
-                    sb.AppendLine($"BeforePublish=\"{Settings.BeforePublishHookContent}\"");
+                    sb.Append("BeforePublish=\"").Append(Settings.BeforePublishHookContent).AppendLine("\"");
                 }
             }
             if (saveGlobalSettings && RecentFiles.Count > 0)
@@ -169,7 +169,8 @@ namespace VBASync.WPF
                 var i = 0;
                 while (RecentFiles.Count > i)
                 {
-                    sb.AppendLine($"{(i + 1).ToString(CultureInfo.InvariantCulture)}=\"{RecentFiles[i]}\"");
+                    sb.Append((i + 1).ToString(CultureInfo.InvariantCulture))
+                        .Append("=\"").Append(RecentFiles[i]).AppendLine("\"");
                     ++i;
                 }
             }

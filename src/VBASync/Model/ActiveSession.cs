@@ -95,7 +95,7 @@ namespace VBASync.Model
                             break;
                     }
                 }
-                _sessionSettings.BeforePublishHook.Execute(_vf.FolderPath);
+                _sessionSettings.BeforePublishHook?.Execute(_vf.FolderPath);
                 _vf.Write(_session.FilePath);
             }
         }
@@ -106,7 +106,7 @@ namespace VBASync.Model
         {
             var folderModules = Lib.GetFolderModules(_session.FolderPath);
             _vf.Read(_session.FilePath);
-            _sessionSettings.AfterExtractHook.Execute(_session.FolderPath);
+            _sessionSettings.AfterExtractHook?.Execute(_vf.FolderPath);
             _vf.FixCase(folderModules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1));
             var vbaFileModules = Lib.GetFolderModules(_vf.FolderPath);
             foreach (var patch in Lib.GetModulePatches(_session, _sessionSettings, _vf.FolderPath, folderModules, vbaFileModules))

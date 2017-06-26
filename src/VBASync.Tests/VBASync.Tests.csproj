@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="IntegrationTests\FixCaseTests.cs" />
     <Compile Include="UnitTests\AppIniFileTests.cs" />
+    <Compile Include="UnitTests\HookTests.cs" />
     <Compile Include="UnitTests\IniFileTests.cs" />
     <Compile Include="UnitTests\StartupTests.cs" />
   </ItemGroup>

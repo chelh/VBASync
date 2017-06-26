@@ -226,9 +226,17 @@
                     <TextBox Style="{StaticResource Level1Close}" Text="{Binding BeforePublishHookContent}" />
                     <Label
                         Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWBeforePublishHookHelp}"
+                        Style="{StaticResource Level1Close}" />
+                    <Label
+                        Padding="0"
                         Content="{x:Static l10n:VBASyncResources.SWAfterExtractHook}"
                         Style="{StaticResource Level1}" />
                     <TextBox Style="{StaticResource Level1Close}" Text="{Binding AfterExtractHookContent}" />
+                    <Label
+                        Padding="0"
+                        Content="{x:Static l10n:VBASyncResources.SWAfterExtractHookHelp}"
+                        Style="{StaticResource Level1Close}" />
                 </StackPanel>
             </TabItem>
         </TabControl>

@@ -12,11 +12,11 @@ namespace VBASync.Tests.UnitTests
         {
             var startup = new Startup(MakeWindowsHook, s => ThrowUnexpectedIniRequest());
             startup.ProcessArgs(new[] { "-x", "-f", @"C:\Path\To\File", "-d", @"C:\Path\To\Folder",
-                "-r", "-a", "-i", "-h", "MyAwesomeHook.bat" });
+                "-r", "-a", "-i", "-h", @"MyAwesomeHook.bat ""{TargetDir}""" });
 
             Assert.That(startup.Action, Is.EqualTo(ActionType.Extract));
             Assert.That(startup.AddNewDocumentsToFile, Is.EqualTo(true));
-            Assert.That(startup.AfterExtractHook.Content, Is.EqualTo("MyAwesomeHook.bat"));
+            Assert.That(startup.AfterExtractHook.Content, Is.EqualTo(@"MyAwesomeHook.bat ""{TargetDir}"""));
             Assert.That(startup.AutoRun, Is.EqualTo(true));
             Assert.That(startup.FilePath, Is.EqualTo(@"C:\Path\To\File"));
             Assert.That(startup.FolderPath, Is.EqualTo(@"C:\Path\To\Folder"));
@@ -28,11 +28,11 @@ namespace VBASync.Tests.UnitTests
         {
             var startup = new Startup(MakeWindowsHook, s => ThrowUnexpectedIniRequest());
             startup.ProcessArgs(new[] { "-p", "-f", @"C:\Path\To\File", "-d", @"C:\Path\To\Folder",
-                "-r", "-a", "-i", "-h", "MyAwesomeHook.bat" });
+                "-r", "-a", "-i", "-h", @"MyAwesomeHook.bat ""{TargetDir}""" });
 
             Assert.That(startup.Action, Is.EqualTo(ActionType.Publish));
             Assert.That(startup.AddNewDocumentsToFile, Is.EqualTo(true));
-            Assert.That(startup.BeforePublishHook.Content, Is.EqualTo("MyAwesomeHook.bat"));
+            Assert.That(startup.BeforePublishHook.Content, Is.EqualTo(@"MyAwesomeHook.bat ""{TargetDir}"""));
             Assert.That(startup.AutoRun, Is.EqualTo(true));
             Assert.That(startup.FilePath, Is.EqualTo(@"C:\Path\To\File"));
             Assert.That(startup.FolderPath, Is.EqualTo(@"C:\Path\To\Folder"));

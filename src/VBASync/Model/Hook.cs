@@ -38,17 +38,11 @@ namespace VBASync.Model
 
             if (_isWindows)
             {
-                return new ProcessStartInfo("cmd.exe", $"/c {Content}")
-                {
-                    WorkingDirectory = targetDir
-                };
+                return new ProcessStartInfo("cmd.exe", $"/c {Content.Replace("{TargetDir}", targetDir)}");
             }
             else
             {
-                return new ProcessStartInfo("sh", $"-c \"{Content.Replace("\"", "\\\"")}\"")
-                {
-                    WorkingDirectory = targetDir
-                };
+                return new ProcessStartInfo("sh", $"-c \"{Content.Replace("\"", "\\\"").Replace("{TargetDir}", targetDir)}\"");
             }
         }
     }
