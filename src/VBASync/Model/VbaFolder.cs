@@ -420,18 +420,18 @@ namespace VBASync.Model
             var cf = new CompoundFile();
             var vbaProject = cf.RootStorage;
 
-            var projIni = new ProjectIni(Path.Combine(FolderPath, "Project.INI"));
-            if (File.Exists(Path.Combine(FolderPath, "Project.INI.local")))
+            var projIni = new ProjectIni(Path.Combine(FolderPath, "Project.ini"));
+            if (File.Exists(Path.Combine(FolderPath, "Project.ini.local")))
             {
-                projIni.AddFile(Path.Combine(FolderPath, "Project.INI.local"));
+                projIni.AddFile(Path.Combine(FolderPath, "Project.ini.local"));
             }
             var projEncoding = Encoding.GetEncoding(projIni.GetInt("General", "CodePage") ?? Encoding.Default.CodePage);
             if (!projEncoding.Equals(Encoding.Default))
             {
-                projIni = new ProjectIni(Path.Combine(FolderPath, "Project.INI"), projEncoding);
-                if (File.Exists(Path.Combine(FolderPath, "Project.INI.local")))
+                projIni = new ProjectIni(Path.Combine(FolderPath, "Project.ini"), projEncoding);
+                if (File.Exists(Path.Combine(FolderPath, "Project.ini.local")))
                 {
-                    projIni.AddFile(Path.Combine(FolderPath, "Project.INI.local"));
+                    projIni.AddFile(Path.Combine(FolderPath, "Project.ini.local"));
                 }
             }
             var projSysKind = (uint)(projIni.GetInt("General", "SysKind") ?? 1);

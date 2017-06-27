@@ -35,9 +35,11 @@ namespace VBASync
                 startup.ProcessIni(generalIni, false); // don't allow loading session settings from these .ini files
 
                 var sessionIni = new Model.AppIniFile(Path.Combine(Environment.CurrentDirectory, "VBASync.ini"));
+                sessionIni.AddFile(Path.Combine(Environment.CurrentDirectory, "VBASync.ini.local"));
                 if (!string.Equals(exeBaseName, "VBASync", StringComparison.InvariantCultureIgnoreCase))
                 {
                     sessionIni.AddFile(Path.Combine(Environment.CurrentDirectory, exeBaseName + ".ini"));
+                    sessionIni.AddFile(Path.Combine(Environment.CurrentDirectory, exeBaseName + ".ini.local"));
                 }
                 startup.ProcessIni(sessionIni, true);
 

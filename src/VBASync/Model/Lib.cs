@@ -28,10 +28,10 @@ namespace VBASync.Model
         {
             var modulesText = new Dictionary<string, Tuple<string, ModuleType>>();
             var extensions = new[] { ".bas", ".cls", ".frm" };
-            var projIni = new ProjectIni(Path.Combine(folderPath, "Project.INI"));
-            if (File.Exists(Path.Combine(folderPath, "Project.INI.local")))
+            var projIni = new ProjectIni(Path.Combine(folderPath, "Project.ini"));
+            if (File.Exists(Path.Combine(folderPath, "Project.ini.local")))
             {
-                projIni.AddFile(Path.Combine(folderPath, "Project.INI.local"));
+                projIni.AddFile(Path.Combine(folderPath, "Project.ini.local"));
             }
             var projEncoding = Encoding.GetEncoding(projIni.GetInt("General", "CodePage") ?? Encoding.Default.CodePage);
             foreach (var filePath in Directory.GetFiles(folderPath, "*.*").Where(s => extensions.Any(s.EndsWith)).Select(s => Path.Combine(folderPath, Path.GetFileName(s))))
