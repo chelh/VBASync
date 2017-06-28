@@ -389,6 +389,7 @@ namespace VBASync.Model
                 {
                     var cf = new CompoundFile();
                     CopyCfStreamsExcept(vbaProject.GetStorage(m.StreamName), cf.RootStorage, "\x0003VBFrame");
+                    cf.RootStorage.CLSID = new Guid("c62a69f0-16dc-11ce-9e98-00aa00574a4f");
                     var frxPath = Path.Combine(FolderPath, m.Name + ".frx");
                     cf.Save(frxPath);
                     var bytes = File.ReadAllBytes(frxPath);
