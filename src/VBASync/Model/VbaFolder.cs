@@ -375,7 +375,7 @@ namespace VBASync.Model
                 }
                 projStrings.Add("");
 
-                File.WriteAllLines(Path.Combine(FolderPath, "Project.ini"), projStrings, projEncoding);
+                File.WriteAllLines(Path.Combine(FolderPath, "Project.ini"), projStrings, projEncoding); // write using system line ending
 
                 foreach (var m in _modules)
                 {
@@ -421,18 +421,12 @@ namespace VBASync.Model
             var vbaProject = cf.RootStorage;
 
             var projIni = new ProjectIni(Path.Combine(FolderPath, "Project.ini"));
-            if (File.Exists(Path.Combine(FolderPath, "Project.ini.local")))
-            {
-                projIni.AddFile(Path.Combine(FolderPath, "Project.ini.local"));
-            }
+            projIni.AddFile(Path.Combine(FolderPath, "Project.ini.local"));
             var projEncoding = Encoding.GetEncoding(projIni.GetInt("General", "CodePage") ?? Encoding.Default.CodePage);
             if (!projEncoding.Equals(Encoding.Default))
             {
                 projIni = new ProjectIni(Path.Combine(FolderPath, "Project.ini"), projEncoding);
-                if (File.Exists(Path.Combine(FolderPath, "Project.ini.local")))
-                {
-                    projIni.AddFile(Path.Combine(FolderPath, "Project.ini.local"));
-                }
+                projIni.AddFile(Path.Combine(FolderPath, "Project.ini.local"));
             }
             var projSysKind = (uint)(projIni.GetInt("General", "SysKind") ?? 1);
             var projVersion = projIni.GetVersion("General", "Version") ?? new Version(1, 1);
