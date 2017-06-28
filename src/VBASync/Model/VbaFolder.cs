@@ -375,8 +375,7 @@ namespace VBASync.Model
                 }
                 projStrings.Add("");
 
-                // don't use WriteAllLines because we need \r\n line endings specifically
-                File.WriteAllText(Path.Combine(FolderPath, "Project.ini"), string.Join("\r\n", projStrings), projEncoding);
+                File.WriteAllLines(Path.Combine(FolderPath, "Project.ini"), projStrings, projEncoding);
 
                 foreach (var m in _modules)
                 {
