@@ -87,7 +87,14 @@ namespace VBASync.Model
                             }
                             break;
                         default:
-                            File.Copy(Path.Combine(_session.FolderPath, fileName), Path.Combine(_vf.FolderPath, fileName), true);
+                            if (File.Exists(Path.Combine(_session.FolderPath, fileName)))
+                            {
+                                File.Copy(Path.Combine(_session.FolderPath, fileName), Path.Combine(_vf.FolderPath, fileName), true);
+                            }
+                            else
+                            {
+                                File.WriteAllText(Path.Combine(_vf.FolderPath, fileName), p.SideBySideNewText, _vf.ProjectEncoding);
+                            }
                             if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form)
                             {
                                 File.Copy(Path.Combine(_session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_vf.FolderPath, p.ModuleName + ".frx"), true);

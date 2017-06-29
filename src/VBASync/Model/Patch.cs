@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using VBASync.Localization;
 
@@ -60,7 +59,8 @@ namespace VBASync.Model
         private bool _commit;
 
         private Patch(ModuleType moduleType, string moduleName, ChangeType changeType,
-                      string description = "", bool commit = true, IEnumerable<Chunk> chunks = null)
+                      string description = "", bool commit = true, IEnumerable<Chunk> chunks = null,
+                      string sideBySideNewText = "")
         {
             ModuleType = moduleType;
             ModuleName = moduleName;
@@ -68,6 +68,7 @@ namespace VBASync.Model
             Description = description;
             Commit = commit;
             _chunks = chunks?.ToList() ?? new List<Chunk>();
+            SideBySideNewText = sideBySideNewText;
         }
 
         public event EventHandler<PropertyChangedEventArgs> CommitChanged;
@@ -87,6 +88,8 @@ namespace VBASync.Model
         public string ModuleName { get; }
         public ModuleType ModuleType { get; }
 
+        internal string SideBySideNewText { get; }
+
         internal static IEnumerable<Patch> CompareSideBySide(SideBySideArgs args)
         {
             var lineDiff = CountStringLines(args.NewText) - CountStringLines(args.OldText);
@@ -95,13 +98,15 @@ namespace VBASync.Model
             {
                 patches.Add(new Patch(args.NewType, args.Name, ChangeType.WholeFile,
                         string.Format(VBASyncResources.CDWholeFile, lineDiff.ToString("+#;-#;—")),
-                        chunks: new[] { new Chunk { OldStartLine = 1, NewStartLine = 1, OldText = args.OldText, NewText = args.NewText } }));
+                        chunks: new[] { new Chunk { OldStartLine = 1, NewStartLine = 1, OldText = args.OldText, NewText = args.NewText } },
+                        sideBySideNewText: args.NewText));
             }
             else
             {
                 patches.Add(new Patch(args.NewType, args.Name, ChangeType.ChangeFileType,
                         string.Format(VBASyncResources.CDChangeFileType, GetModuleTypeName(args.OldType), GetModuleTypeName(args.NewType), lineDiff.ToString("+#;-#;—")),
-                        chunks: new[] { new Chunk { OldStartLine = 1, NewStartLine = 1, OldText = args.OldText, NewText = args.NewText } }));
+                        chunks: new[] { new Chunk { OldStartLine = 1, NewStartLine = 1, OldText = args.OldText, NewText = args.NewText } },
+                        sideBySideNewText: args.NewText));
             }
             return patches;
         }
