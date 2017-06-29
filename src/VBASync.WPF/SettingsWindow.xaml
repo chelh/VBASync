@@ -219,6 +219,15 @@
                             Text="{x:Static l10n:VBASyncResources.SWAddNewDocumentsToFile}"
                             TextWrapping="Wrap" />
                     </CheckBox>
+                    <CheckBox
+                        VerticalAlignment="Top"
+                        IsChecked="{Binding DeleteDocumentsFromFile}"
+                        Style="{StaticResource Level1}">
+                        <TextBlock
+                            Margin="4,0,0,0"
+                            Text="{x:Static l10n:VBASyncResources.SWDeleteDocumentsFromFile}"
+                            TextWrapping="Wrap" />
+                    </CheckBox>
                     <Label
                         Padding="0"
                         Content="{x:Static l10n:VBASyncResources.SWBeforePublishHook}"

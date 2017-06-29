@@ -5,6 +5,7 @@
         private bool _addNewDocumentsToFile;
         private string _afterExtractHookContent;
         private string _beforePublishHookContent;
+        private bool _deleteDocumentsFromFile;
         private string _diffTool;
         private string _diffToolParameters;
         private bool _ignoreEmpty;
@@ -31,6 +32,12 @@
         {
             get => _beforePublishHookContent;
             set => SetField(ref _beforePublishHookContent, value, nameof(BeforePublishHook));
+        }
+
+        public bool DeleteDocumentsFromFile
+        {
+            get => _deleteDocumentsFromFile;
+            set => SetField(ref _deleteDocumentsFromFile, value, nameof(DeleteDocumentsFromFile));
         }
 
         public string DiffTool
@@ -68,6 +75,7 @@
             _addNewDocumentsToFile = _addNewDocumentsToFile,
             _afterExtractHookContent = _afterExtractHookContent,
             _beforePublishHookContent = _beforePublishHookContent,
+            _deleteDocumentsFromFile = _deleteDocumentsFromFile,
             _diffTool = _diffTool,
             _diffToolParameters = _diffToolParameters,
             _ignoreEmpty = _ignoreEmpty,

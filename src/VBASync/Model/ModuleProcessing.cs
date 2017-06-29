@@ -99,6 +99,22 @@ namespace VBASync.Model
             return moduleText?.Split(new[] { "\r\n" }, StringSplitOptions.None).Any(LineIsCode) ?? false;
         }
 
+        internal static string StubOut(string moduleText)
+        {
+            _inBlock = false;
+            var lines = moduleText?.Split(new[] { "\r\n" }, StringSplitOptions.None) ?? new string[0];
+            var sb = new StringBuilder();
+            for (var i = 0; i < lines.Length; ++i)
+            {
+                if (LineIsCode(lines[i]))
+                {
+                    return sb.ToString();
+                }
+                sb.Append(lines[i]).Append("\r\n"); // don't use AppendLine() because we need \r\n line endings specifically
+            }
+            return sb.ToString();
+        }
+
         internal static ModuleType TypeFromText(string moduleText)
         {
             if (Regex.IsMatch(moduleText, @"^\s*(\s_\r\n\s*)*Version\s*(\s_\r\n\s*)*5.00\s*(\s_\r\n\s*)*$",

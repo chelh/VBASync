@@ -104,7 +104,7 @@ namespace VBASync.Model
 
             // find modules which aren't in both lists and record them as new/deleted
             var patches = new List<Patch>();
-            patches.AddRange(GetDeletedModuleChanges(oldModules, newModules));
+            patches.AddRange(GetDeletedModuleChanges(oldModules, newModules, session.Action, sessionSettings.DeleteDocumentsFromFile));
             patches.AddRange(GetNewModuleChanges(oldModules, newModules, session.Action, sessionSettings.AddNewDocumentsToFile));
 
             // this also filters the new/deleted modules from the last step
@@ -258,10 +258,36 @@ namespace VBASync.Model
 
         private static IEnumerable<Patch> GetDeletedModuleChanges(
                 IList<KeyValuePair<string, Tuple<string, ModuleType>>> oldModules,
-                IList<KeyValuePair<string, Tuple<string, ModuleType>>> newModules)
+                IList<KeyValuePair<string, Tuple<string, ModuleType>>> newModules,
+                ActionType action, bool deleteDocumentsFromFile)
         {
-            var deleted = oldModules.Select(kvp => kvp.Key).Except(newModules.Select(kvp => kvp.Key));
-            return oldModules.Where(kvp => deleted.Contains(kvp.Key)).Select(m => Patch.MakeDeletion(m.Key, m.Value.Item2, m.Value.Item1));
+            var deleted = new HashSet<string>(oldModules.Select(kvp => kvp.Key).Except(newModules.Select(kvp => kvp.Key)));
+            var deletedModulesKvp = oldModules.Where(kvp => deleted.Contains(kvp.Key)).ToList();
+            if (action == ActionType.Extract || deleteDocumentsFromFile)
+            {
+                return deletedModulesKvp.Select(kvp => Patch.MakeDeletion(kvp.Key, kvp.Value.Item2, kvp.Value.Item1));
+            }
+            return deletedModulesKvp.Where(kvp => kvp.Value.Item2 != ModuleType.StaticClass)
+                .Select(kvp => Patch.MakeDeletion(kvp.Key, kvp.Value.Item2, kvp.Value.Item1))
+                .Concat(deletedModulesKvp.Where(kvp => kvp.Value.Item2 == ModuleType.StaticClass).SelectMany(GetStubModulePatches));
+
+            IEnumerable<Patch> GetStubModulePatches(KeyValuePair<string, Tuple<string, ModuleType>> kvp)
+            {
+                var oldText = kvp.Value.Item1;
+                var newText = ModuleProcessing.StubOut(oldText);
+                if (oldText?.TrimEnd('\r', '\n') == newText?.TrimEnd('\r', '\n'))
+                {
+                    return new Patch[0];
+                }
+                return Patch.CompareSideBySide(new SideBySideArgs
+                {
+                    Name = kvp.Key,
+                    NewText = newText,
+                    NewType = kvp.Value.Item2,
+                    OldText = oldText,
+                    OldType = kvp.Value.Item2
+                });
+            }
         }
 
         private static IEnumerable<Patch> GetFrxChanges(string oldFolder, string newFolder, IEnumerable<string> frmModules)

@@ -821,6 +821,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Delete document modules when publishing (expert option).
+        /// </summary>
+        public static string SWDeleteDocumentsFromFile {
+            get {
+                return ResourceManager.GetString("SWDeleteDocumentsFromFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to _Diff tool (optional).
         /// </summary>
         public static string SWDiffTool {

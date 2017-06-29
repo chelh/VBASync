@@ -51,6 +51,7 @@
     <Compile Include="UnitTests\AppIniFileTests.cs" />
     <Compile Include="UnitTests\HookTests.cs" />
     <Compile Include="UnitTests\IniFileTests.cs" />
+    <Compile Include="UnitTests\ModuleProcessingTests.cs" />
     <Compile Include="UnitTests\StartupTests.cs" />
   </ItemGroup>
   <ItemGroup>

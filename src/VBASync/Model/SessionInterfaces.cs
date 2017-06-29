@@ -19,6 +19,7 @@
         bool AddNewDocumentsToFile { get; }
         Hook AfterExtractHook { get; }
         Hook BeforePublishHook { get; }
+        bool DeleteDocumentsFromFile { get; }
         bool IgnoreEmpty { get; }
     }
 }

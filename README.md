@@ -63,8 +63,9 @@ Switch | Meaning
 `-f <file>` | Specify Office file
 `-d <dir>` | Specify version-control directory
 `-r`   | Do the selected action, then immediately exit (**required** on Linux/Mac)
-`-a`   | Add new document modules when publishing (expert option)
 `-i`   | Ignore empty modules
+`-a`   | Allow adding new document modules when publishing (expert option)
+`-e`   | Allow deleting document modules when publishing (expert option)
 `-h <hook>` | If `-p` was specified earlier, set the before-publish hook. Else set the after-extract hook.
 
 Any other parameter passed to VBA Sync Tool will be read and parsed as a session `.ini` file.

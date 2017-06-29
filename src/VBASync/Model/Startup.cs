@@ -24,6 +24,7 @@ namespace VBASync.Model
         public Hook AfterExtractHook { get; set; }
         public bool AutoRun { get; set; }
         public Hook BeforePublishHook { get; set; }
+        public bool DeleteDocumentsFromFile { get; set; }
         public string DiffTool { get; set; }
         public string DiffToolParameters { get; set; } = "\"{OldFile}\" \"{NewFile}\"";
         public string FilePath { get; set; }
@@ -79,6 +80,10 @@ namespace VBASync.Model
                             AfterExtractHook = _hookFactory(args[++i]);
                         }
                         break;
+                    case "-E":
+                    case "/E":
+                        DeleteDocumentsFromFile = true;
+                        break;
                     default:
                         ProcessIni(_appIniFileFactory(args[i]), true);
                         break;
@@ -93,6 +98,7 @@ namespace VBASync.Model
             var iniAfterExtractHook = ini.GetString("Hooks", "AfterExtract");
             var iniAutoRun = ini.GetBool("General", "AutoRun");
             var iniBeforePublishHook = ini.GetString("Hooks", "BeforePublish");
+            var iniDeleteDocumentsFromFile = ini.GetBool("General", "DeleteDocumentsFromFile");
             var iniDiffTool = ini.GetString("DiffTool", "Path");
             var iniDiffToolParameters = ini.GetString("DiffTool", "Parameters");
             var iniIgnoreEmpty = ini.GetBool("General", "IgnoreEmpty");
@@ -124,6 +130,11 @@ namespace VBASync.Model
             if (iniBeforePublishHook != null && allowSessionSettings)
             {
                 BeforePublishHook = _hookFactory(iniBeforePublishHook);
+            }
+
+            if (iniDeleteDocumentsFromFile.HasValue && allowSessionSettings)
+            {
+                DeleteDocumentsFromFile = iniDeleteDocumentsFromFile.Value;
             }
 
             if (iniDiffTool != null)
