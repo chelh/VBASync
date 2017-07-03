@@ -12,9 +12,26 @@ namespace VBASync.Model
     public static class Lib
     {
         public static bool FrxFilesAreDifferent(string frxPath1, string frxPath2, out string explain)
+            => FrxFilesAreDifferent(new RealSystemOperations(), frxPath1, frxPath2, out explain);
+
+        public static IList<KeyValuePair<string, Tuple<string, ModuleType>>> GetFolderModules(string folderPath)
+            => GetFolderModules(new RealSystemOperations(), folderPath);
+
+        public static Patch GetLicensesPatch(ISession session, string evfPath)
+            => GetLicensesPatch(new RealSystemOperations(), session, evfPath);
+
+        public static IEnumerable<Patch> GetModulePatches(ISession session, ISessionSettings sessionSettings,
+            string vbaFolderPath, IList<KeyValuePair<string, Tuple<string, ModuleType>>> folderModules,
+            IList<KeyValuePair<string, Tuple<string, ModuleType>>> fileModules)
+            => GetModulePatches(new RealSystemOperations(), session, sessionSettings, vbaFolderPath, folderModules, fileModules);
+
+        public static Patch GetProjectPatch(ISession session, string evfPath)
+            => GetProjectPatch(new RealSystemOperations(), session, evfPath);
+
+        internal static bool FrxFilesAreDifferent(ISystemOperations so, string frxPath1, string frxPath2, out string explain)
         {
-            var frxBytes1 = File.ReadAllBytes(frxPath1);
-            var frxBytes2 = File.ReadAllBytes(frxPath2);
+            var frxBytes1 = so.FileReadAllBytes(frxPath1);
+            var frxBytes2 = so.FileReadAllBytes(frxPath2);
             using (var frxCfStream1 = new MemoryStream(frxBytes1, 24, frxBytes1.Length - 24, false))
             using (var frxCfStream2 = new MemoryStream(frxBytes2, 24, frxBytes2.Length - 24, false))
             using (var cf1 = new CompoundFile(frxCfStream1))
@@ -24,39 +41,39 @@ namespace VBASync.Model
             }
         }
 
-        public static IList<KeyValuePair<string, Tuple<string, ModuleType>>> GetFolderModules(string folderPath)
+        internal static IList<KeyValuePair<string, Tuple<string, ModuleType>>> GetFolderModules(ISystemOperations so, string folderPath)
         {
             var modulesText = new Dictionary<string, Tuple<string, ModuleType>>();
             var extensions = new[] { ".bas", ".cls", ".frm" };
-            var projIni = new ProjectIni(Path.Combine(folderPath, "Project.ini"));
-            if (File.Exists(Path.Combine(folderPath, "Project.ini.local")))
+            var projIni = new ProjectIni(so.PathCombine(folderPath, "Project.ini"));
+            if (so.FileExists(so.PathCombine(folderPath, "Project.ini.local")))
             {
-                projIni.AddFile(Path.Combine(folderPath, "Project.ini.local"));
+                projIni.AddFile(so.PathCombine(folderPath, "Project.ini.local"));
             }
             var projEncoding = Encoding.GetEncoding(projIni.GetInt("General", "CodePage") ?? Encoding.Default.CodePage);
-            foreach (var filePath in Directory.GetFiles(folderPath, "*.*").Where(s => extensions.Any(s.EndsWith)).Select(s => Path.Combine(folderPath, Path.GetFileName(s))))
+            foreach (var filePath in so.DirectoryGetFiles(folderPath, "*.*").Where(s => extensions.Any(s.EndsWith)).Select(s => so.PathCombine(folderPath, so.PathGetFileName(s))))
             {
-                var moduleText = File.ReadAllText(filePath, projEncoding).TrimEnd('\r', '\n') + "\r\n";
-                modulesText[Path.GetFileNameWithoutExtension(filePath)] = Tuple.Create(moduleText, ModuleProcessing.TypeFromText(moduleText));
+                var moduleText = so.FileReadAllText(filePath, projEncoding).TrimEnd('\r', '\n') + "\r\n";
+                modulesText[so.PathGetFileNameWithoutExtension(filePath)] = Tuple.Create(moduleText, ModuleProcessing.TypeFromText(moduleText));
             }
             return modulesText.ToList();
         }
 
-        public static Patch GetLicensesPatch(ISession session, string evfPath)
+        internal static Patch GetLicensesPatch(ISystemOperations so, ISession session, string evfPath)
         {
-            var folderLicensesPath = Path.Combine(session.FolderPath, "LicenseKeys.bin");
-            var fileLicensesPath = Path.Combine(evfPath, "LicenseKeys.bin");
-            var folderHasLicenses = File.Exists(folderLicensesPath);
-            var fileHasLicenses = File.Exists(fileLicensesPath);
+            var folderLicensesPath = so.PathCombine(session.FolderPath, "LicenseKeys.bin");
+            var fileLicensesPath = so.PathCombine(evfPath, "LicenseKeys.bin");
+            var folderHasLicenses = so.FileExists(folderLicensesPath);
+            var fileHasLicenses = so.FileExists(fileLicensesPath);
             if (folderHasLicenses && fileHasLicenses)
             {
                 if (session.Action == ActionType.Extract)
                 {
-                    return Patch.MakeLicensesChange(File.ReadAllBytes(folderLicensesPath), File.ReadAllBytes(fileLicensesPath));
+                    return Patch.MakeLicensesChange(so.FileReadAllBytes(folderLicensesPath), so.FileReadAllBytes(fileLicensesPath));
                 }
                 else
                 {
-                    return Patch.MakeLicensesChange(File.ReadAllBytes(fileLicensesPath), File.ReadAllBytes(folderLicensesPath));
+                    return Patch.MakeLicensesChange(so.FileReadAllBytes(fileLicensesPath), so.FileReadAllBytes(folderLicensesPath));
                 }
             }
             else if (!folderHasLicenses && !fileHasLicenses)
@@ -65,15 +82,15 @@ namespace VBASync.Model
             }
             else if (session.Action == ActionType.Extract ? !folderHasLicenses : !fileHasLicenses)
             {
-                return Patch.MakeLicensesChange(new byte[0], File.ReadAllBytes(session.Action == ActionType.Extract ? fileLicensesPath : folderLicensesPath));
+                return Patch.MakeLicensesChange(new byte[0], so.FileReadAllBytes(session.Action == ActionType.Extract ? fileLicensesPath : folderLicensesPath));
             }
             else
             {
-                return Patch.MakeLicensesChange(File.ReadAllBytes(session.Action == ActionType.Extract ? folderLicensesPath : fileLicensesPath), new byte[0]);
+                return Patch.MakeLicensesChange(so.FileReadAllBytes(session.Action == ActionType.Extract ? folderLicensesPath : fileLicensesPath), new byte[0]);
             }
         }
 
-        public static IEnumerable<Patch> GetModulePatches(ISession session, ISessionSettings sessionSettings,
+        internal static IEnumerable<Patch> GetModulePatches(ISystemOperations so, ISession session, ISessionSettings sessionSettings,
             string vbaFolderPath, IList<KeyValuePair<string, Tuple<string, ModuleType>>> folderModules,
             IList<KeyValuePair<string, Tuple<string, ModuleType>>> fileModules)
         {
@@ -117,7 +134,7 @@ namespace VBASync.Model
                                   OldText = o.Value.Item1,
                                   NewText = n.Value.Item1
                               }).ToArray();
-            patches.AddRange(GetFrxChanges(oldFolder, newFolder, sideBySide.Where(x => x.NewType == ModuleType.Form).Select(x => x.Name)));
+            patches.AddRange(GetFrxChanges(so, oldFolder, newFolder, sideBySide.Where(x => x.NewType == ModuleType.Form).Select(x => x.Name)));
             sideBySide = sideBySide.Where(sxs => sxs.OldText != sxs.NewText).ToArray();
             foreach (var sxs in sideBySide)
             {
@@ -127,21 +144,21 @@ namespace VBASync.Model
             return patches;
         }
 
-        public static Patch GetProjectPatch(ISession session, string evfPath)
+        internal static Patch GetProjectPatch(ISystemOperations so, ISession session, string evfPath)
         {
-            var folderIniPath = Path.Combine(session.FolderPath, "Project.ini");
-            var fileIniPath = Path.Combine(evfPath, "Project.ini");
-            var folderHasIni = File.Exists(folderIniPath);
-            var fileHasIni = File.Exists(fileIniPath);
+            var folderIniPath = so.PathCombine(session.FolderPath, "Project.ini");
+            var fileIniPath = so.PathCombine(evfPath, "Project.ini");
+            var folderHasIni = so.FileExists(folderIniPath);
+            var fileHasIni = so.FileExists(fileIniPath);
             if (folderHasIni && fileHasIni)
             {
                 if (session.Action == ActionType.Extract)
                 {
-                    return Patch.MakeProjectChange(File.ReadAllText(folderIniPath), File.ReadAllText(fileIniPath));
+                    return Patch.MakeProjectChange(so.FileReadAllText(folderIniPath, Encoding.UTF8), so.FileReadAllText(fileIniPath, Encoding.UTF8));
                 }
                 else
                 {
-                    return Patch.MakeProjectChange(File.ReadAllText(fileIniPath), File.ReadAllText(folderIniPath));
+                    return Patch.MakeProjectChange(so.FileReadAllText(fileIniPath, Encoding.UTF8), so.FileReadAllText(folderIniPath, Encoding.UTF8));
                 }
             }
             else if (!folderHasIni && !fileHasIni)
@@ -150,7 +167,7 @@ namespace VBASync.Model
             }
             else if (session.Action == ActionType.Extract ? !folderHasIni : !fileHasIni)
             {
-                return Patch.MakeInsertion("Project", ModuleType.Ini, File.ReadAllText(session.Action == ActionType.Extract ? fileIniPath : folderIniPath));
+                return Patch.MakeInsertion("Project", ModuleType.Ini, so.FileReadAllText(session.Action == ActionType.Extract ? fileIniPath : folderIniPath, Encoding.UTF8));
             }
             else
             {
@@ -290,24 +307,24 @@ namespace VBASync.Model
             }
         }
 
-        private static IEnumerable<Patch> GetFrxChanges(string oldFolder, string newFolder, IEnumerable<string> frmModules)
+        private static IEnumerable<Patch> GetFrxChanges(ISystemOperations fo, string oldFolder, string newFolder, IEnumerable<string> frmModules)
         {
             foreach (var modName in frmModules)
             {
-                var oldFrxPath = Path.Combine(oldFolder, modName + ".frx");
-                var newFrxPath = Path.Combine(newFolder, modName + ".frx");
-                if (!File.Exists(oldFrxPath) && !File.Exists(newFrxPath))
+                var oldFrxPath = fo.PathCombine(oldFolder, modName + ".frx");
+                var newFrxPath = fo.PathCombine(newFolder, modName + ".frx");
+                if (!fo.FileExists(oldFrxPath) && !fo.FileExists(newFrxPath))
                 {
                 }
-                else if (File.Exists(oldFrxPath) && !File.Exists(newFrxPath))
+                else if (fo.FileExists(oldFrxPath) && !fo.FileExists(newFrxPath))
                 {
                     yield return Patch.MakeFrxDeletion(modName);
                 }
-                else if (!File.Exists(oldFrxPath) && File.Exists(newFrxPath))
+                else if (!fo.FileExists(oldFrxPath) && fo.FileExists(newFrxPath))
                 {
                     yield return Patch.MakeFrxChange(modName);
                 }
-                else if (FrxFilesAreDifferent(oldFrxPath, newFrxPath, out var explain))
+                else if (FrxFilesAreDifferent(fo, oldFrxPath, newFrxPath, out var explain))
                 {
                     yield return Patch.MakeFrxChange(modName);
                 }

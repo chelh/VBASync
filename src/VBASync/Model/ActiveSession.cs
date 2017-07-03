@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 
 namespace VBASync.Model
 {
     public sealed class ActiveSession : IDisposable
     {
+        private readonly ISystemOperations _so;
         private readonly ISession _session;
         private readonly ISessionSettings _sessionSettings;
         private readonly VbaFolder _vf;
 
-        public ActiveSession(ISession session, ISessionSettings sessionSettings)
+        public ActiveSession(ISession session, ISessionSettings sessionSettings) : this(new RealSystemOperations(), session, sessionSettings)
         {
+        }
+
+        internal ActiveSession(ISystemOperations so, ISession session, ISessionSettings sessionSettings)
+        {
+            _so = so;
             _session = session;
             _sessionSettings = sessionSettings;
-            _vf = new VbaFolder();
+            _vf = new VbaFolder(so);
         }
 
         public string FolderPath => _vf.FolderPath;
@@ -30,30 +35,30 @@ namespace VBASync.Model
                     switch (p.ChangeType)
                     {
                         case ChangeType.DeleteFile:
-                            File.Delete(Path.Combine(_session.FolderPath, fileName));
+                            _so.FileDelete(_so.PathCombine(_session.FolderPath, fileName));
                             if (p.ModuleType == ModuleType.Form)
                             {
-                                File.Delete(Path.Combine(_session.FolderPath, p.ModuleName + ".frx"));
+                                _so.FileDelete(_so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"));
                             }
                             break;
                         case ChangeType.ChangeFormControls:
-                            File.Copy(Path.Combine(_vf.FolderPath, p.ModuleName + ".frx"), Path.Combine(_session.FolderPath, p.ModuleName + ".frx"), true);
+                            _so.FileCopy(_so.PathCombine(_vf.FolderPath, p.ModuleName + ".frx"), _so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"), true);
                             break;
                         case ChangeType.Licenses:
-                            if (!File.Exists(Path.Combine(_vf.FolderPath, fileName)))
+                            if (!_so.FileExists(_so.PathCombine(_vf.FolderPath, fileName)))
                             {
-                                File.Delete(Path.Combine(_session.FolderPath, fileName));
+                                _so.FileDelete(_so.PathCombine(_session.FolderPath, fileName));
                             }
                             else
                             {
-                                File.Copy(Path.Combine(_vf.FolderPath, fileName), Path.Combine(_session.FolderPath, fileName), true);
+                                _so.FileCopy(_so.PathCombine(_vf.FolderPath, fileName), _so.PathCombine(_session.FolderPath, fileName), true);
                             }
                             break;
                         default:
-                            File.Copy(Path.Combine(_vf.FolderPath, fileName), Path.Combine(_session.FolderPath, fileName), true);
+                            _so.FileCopy(_so.PathCombine(_vf.FolderPath, fileName), _so.PathCombine(_session.FolderPath, fileName), true);
                             if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form)
                             {
-                                File.Copy(Path.Combine(_vf.FolderPath, p.ModuleName + ".frx"), Path.Combine(_session.FolderPath, p.ModuleName + ".frx"), true);
+                                _so.FileCopy(_so.PathCombine(_vf.FolderPath, p.ModuleName + ".frx"), _so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"), true);
                             }
                             break;
                     }
@@ -67,37 +72,37 @@ namespace VBASync.Model
                     switch (p.ChangeType)
                     {
                         case ChangeType.DeleteFile:
-                            File.Delete(Path.Combine(_vf.FolderPath, fileName));
+                            _so.FileDelete(_so.PathCombine(_vf.FolderPath, fileName));
                             if (p.ModuleType == ModuleType.Form)
                             {
-                                File.Delete(Path.Combine(_vf.FolderPath, p.ModuleName + ".frx"));
+                                _so.FileDelete(_so.PathCombine(_vf.FolderPath, p.ModuleName + ".frx"));
                             }
                             break;
                         case ChangeType.ChangeFormControls:
-                            File.Copy(Path.Combine(_session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_vf.FolderPath, p.ModuleName + ".frx"), true);
+                            _so.FileCopy(_so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"), _so.PathCombine(_vf.FolderPath, p.ModuleName + ".frx"), true);
                             break;
                         case ChangeType.Licenses:
-                            if (!File.Exists(Path.Combine(_session.FolderPath, fileName)))
+                            if (!_so.FileExists(_so.PathCombine(_session.FolderPath, fileName)))
                             {
-                                File.Delete(Path.Combine(_vf.FolderPath, fileName));
+                                _so.FileDelete(_so.PathCombine(_vf.FolderPath, fileName));
                             }
                             else
                             {
-                                File.Copy(Path.Combine(_session.FolderPath, fileName), Path.Combine(_vf.FolderPath, fileName), true);
+                                _so.FileCopy(_so.PathCombine(_session.FolderPath, fileName), _so.PathCombine(_vf.FolderPath, fileName), true);
                             }
                             break;
                         default:
-                            if (File.Exists(Path.Combine(_session.FolderPath, fileName)))
+                            if (_so.FileExists(_so.PathCombine(_session.FolderPath, fileName)))
                             {
-                                File.Copy(Path.Combine(_session.FolderPath, fileName), Path.Combine(_vf.FolderPath, fileName), true);
+                                _so.FileCopy(_so.PathCombine(_session.FolderPath, fileName), _so.PathCombine(_vf.FolderPath, fileName), true);
                             }
                             else
                             {
-                                File.WriteAllText(Path.Combine(_vf.FolderPath, fileName), p.SideBySideNewText, _vf.ProjectEncoding);
+                                _so.FileWriteAllText(_so.PathCombine(_vf.FolderPath, fileName), p.SideBySideNewText, _vf.ProjectEncoding);
                             }
                             if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form)
                             {
-                                File.Copy(Path.Combine(_session.FolderPath, p.ModuleName + ".frx"), Path.Combine(_vf.FolderPath, p.ModuleName + ".frx"), true);
+                                _so.FileCopy(_so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"), _so.PathCombine(_vf.FolderPath, p.ModuleName + ".frx"), true);
                             }
                             break;
                     }
@@ -111,21 +116,21 @@ namespace VBASync.Model
 
         public IEnumerable<Patch> GetPatches()
         {
-            var folderModules = Lib.GetFolderModules(_session.FolderPath);
+            var folderModules = Lib.GetFolderModules(_so, _session.FolderPath);
             _vf.Read(_session.FilePath);
             _sessionSettings.AfterExtractHook?.Execute(_vf.FolderPath);
             _vf.FixCase(folderModules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1));
-            var vbaFileModules = Lib.GetFolderModules(_vf.FolderPath);
-            foreach (var patch in Lib.GetModulePatches(_session, _sessionSettings, _vf.FolderPath, folderModules, vbaFileModules))
+            var vbaFileModules = Lib.GetFolderModules(_so, _vf.FolderPath);
+            foreach (var patch in Lib.GetModulePatches(_so, _session, _sessionSettings, _vf.FolderPath, folderModules, vbaFileModules))
             {
                 yield return patch;
             }
-            var projPatch = Lib.GetProjectPatch(_session, _vf.FolderPath);
+            var projPatch = Lib.GetProjectPatch(_so, _session, _vf.FolderPath);
             if (projPatch != null)
             {
                 yield return projPatch;
             }
-            var licensesPatch = Lib.GetLicensesPatch(_session, _vf.FolderPath);
+            var licensesPatch = Lib.GetLicensesPatch(_so, _session, _vf.FolderPath);
             if (licensesPatch != null)
             {
                 yield return licensesPatch;

@@ -67,6 +67,8 @@
     <Compile Include="Model\ActiveSession.cs" />
     <Compile Include="Model\FrxObjects\RawControl.cs" />
     <Compile Include="Model\Hook.cs" />
+    <Compile Include="Model\ISystemOperations.cs" />
+    <Compile Include="Model\RealSystemOperations.cs" />
     <Compile Include="Model\Startup.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Localization\VBASyncResources.Designer.cs">

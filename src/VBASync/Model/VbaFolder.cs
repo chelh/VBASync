@@ -4,8 +4,8 @@ using OfficeOpenXml.Utils;
 using OpenMcdf;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using VBASync.Localization;
@@ -14,13 +14,20 @@ namespace VBASync.Model
 {
     public class VbaFolder : IDisposable
     {
+        private readonly ISystemOperations _so;
+
         private bool _disposed;
         private List<Module> _modules;
 
-        public VbaFolder()
+        public VbaFolder() : this(new RealSystemOperations())
         {
-            FolderPath = $"{Path.GetTempPath()}VBASync-{Guid.NewGuid()}";
-            Directory.CreateDirectory(FolderPath);
+        }
+
+        internal VbaFolder(ISystemOperations so)
+        {
+            _so = so;
+            FolderPath = $"{so.PathGetTempPath()}VBASync-{Guid.NewGuid()}";
+            so.DirectoryCreateDirectory(FolderPath);
         }
 
         ~VbaFolder()
@@ -43,9 +50,9 @@ namespace VBASync.Model
             {
                 if (compareModules.ContainsKey(m.Name))
                 {
-                    var path = Path.Combine(FolderPath, m.FileName);
-                   File.WriteAllText(path, ModuleProcessing.FixCase(compareModules[m.Name],
-                       File.ReadAllText(path, ProjectEncoding)), ProjectEncoding);
+                    var path = _so.PathCombine(FolderPath, m.FileName);
+                    _so.FileWriteAllText(path, ModuleProcessing.FixCase(compareModules[m.Name],
+                       _so.FileReadAllText(path, ProjectEncoding)), ProjectEncoding);
                 }
             }
         }
@@ -57,24 +64,24 @@ namespace VBASync.Model
                 throw new ArgumentException("Path to file cannot be null or empty.", nameof(path));
             }
 
-            FileStream fs = null;
+            Stream fs = null;
             try
             {
                 try
                 {
-                    fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    fs = _so.OpenFileForRead(path);
                 }
                 catch (IOException)
                 {
                     // most often we get this because Office has the file locked. move the file to another location and retry.
-                    var dest = Path.Combine(FolderPath, "FileToExtract" + Path.GetExtension(path));
-                    File.Copy(path, dest);
+                    var dest = _so.PathCombine(FolderPath, "FileToExtract" + _so.PathGetExtension(path));
+                    _so.FileCopy(path, dest);
                     path = dest;
-                    fs = new FileStream(path, FileMode.Open, FileAccess.Read);
+                    fs = _so.OpenFileForRead(path);
                 }
 
                 CFStorage vbaProject;
-                if (Path.GetFileName(path).Equals("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase))
+                if (_so.PathGetFileName(path).Equals("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase))
                 {
                     vbaProject = new CompoundFile(fs).RootStorage;
                 }
@@ -90,12 +97,12 @@ namespace VBASync.Model
                         {
                             throw new ApplicationException("Cannot find 'vbaProject.bin' in ZIP archive.");
                         }
-                        using (var sw = File.Create(Path.Combine(FolderPath, "vbaProject.bin")))
+                        using (var sw = _so.CreateNewFile(_so.PathCombine(FolderPath, "vbaProject.bin")))
                         {
                             StreamUtils.Copy(zipFile.GetInputStream(zipEntry), sw, new byte[4096]);
                         }
                         fs.Dispose();
-                        fs = new FileStream(Path.Combine(FolderPath, "vbaProject.bin"), FileMode.Open, FileAccess.Read);
+                        fs = _so.OpenFileForRead(_so.PathCombine(FolderPath, "vbaProject.bin"));
                         vbaProject = new CompoundFile(fs).RootStorage;
                     }
                     else
@@ -114,7 +121,7 @@ namespace VBASync.Model
                 var projectLk = vbaProject.TryGetStream("PROJECTlk");
                 if (projectLk != null)
                 {
-                    File.WriteAllBytes(Path.Combine(FolderPath, "LicenseKeys.bin"), projectLk.GetData());
+                    _so.FileWriteAllBytes(_so.PathCombine(FolderPath, "LicenseKeys.bin"), projectLk.GetData());
                 }
 
                 var projEncoding = Encoding.Default;
@@ -375,13 +382,13 @@ namespace VBASync.Model
                 }
                 projStrings.Add("");
 
-                File.WriteAllLines(Path.Combine(FolderPath, "Project.ini"), projStrings, projEncoding); // write using system line ending
+                _so.FileWriteAllLines(_so.PathCombine(FolderPath, "Project.ini"), projStrings, Encoding.UTF8); // write using system line ending
 
                 foreach (var m in _modules)
                 {
                     var moduleText = projEncoding.GetString(DecompressStream(vbaProject.GetStorage("VBA").GetStream(m.StreamName), m.Offset));
                     moduleText = (GetPrepend(m, vbaProject, projEncoding) + moduleText).TrimEnd('\r', '\n') + "\r\n";
-                    File.WriteAllText(Path.Combine(FolderPath, m.Name + ModuleProcessing.ExtensionFromType(m.Type)), moduleText, projEncoding);
+                    _so.FileWriteAllText(_so.PathCombine(FolderPath, m.Name + ModuleProcessing.ExtensionFromType(m.Type)), moduleText, projEncoding);
                 }
 
                 foreach (var m in _modules.Where(mod => mod.Type == ModuleType.Form))
@@ -389,11 +396,11 @@ namespace VBASync.Model
                     var cf = new CompoundFile();
                     CopyCfStreamsExcept(vbaProject.GetStorage(m.StreamName), cf.RootStorage, "\x0003VBFrame");
                     cf.RootStorage.CLSID = new Guid("c62a69f0-16dc-11ce-9e98-00aa00574a4f");
-                    var frxPath = Path.Combine(FolderPath, m.Name + ".frx");
+                    var frxPath = _so.PathCombine(FolderPath, m.Name + ".frx");
                     cf.Save(frxPath);
-                    var bytes = File.ReadAllBytes(frxPath);
-                    var size = new FileInfo(frxPath).Length;
-                    using (var bw = new BinaryWriter(new FileStream(frxPath, FileMode.Open)))
+                    var bytes = _so.FileReadAllBytes(frxPath);
+                    var size = bytes.Length;
+                    using (var bw = new BinaryWriter(_so.OpenFileForWrite(frxPath)))
                     {
                         bw.Write((short)0x424c);
                         bw.Write(new byte[3]);
@@ -416,17 +423,17 @@ namespace VBASync.Model
                 throw new ArgumentException(VBASyncResources.ErrorPathCannotbeNullOrEmpty, nameof(filePath));
             }
 
-            File.Delete(Path.Combine(FolderPath, "vbaProject.bin"));
+            _so.FileDelete(_so.PathCombine(FolderPath, "vbaProject.bin"));
             var cf = new CompoundFile();
             var vbaProject = cf.RootStorage;
 
-            var projIni = new ProjectIni(Path.Combine(FolderPath, "Project.ini"));
-            projIni.AddFile(Path.Combine(FolderPath, "Project.ini.local"));
+            var projIni = new ProjectIni(_so.PathCombine(FolderPath, "Project.ini"));
+            projIni.AddFile(_so.PathCombine(FolderPath, "Project.ini.local"));
             var projEncoding = Encoding.GetEncoding(projIni.GetInt("General", "CodePage") ?? Encoding.Default.CodePage);
             if (!projEncoding.Equals(Encoding.Default))
             {
-                projIni = new ProjectIni(Path.Combine(FolderPath, "Project.ini"), projEncoding);
-                projIni.AddFile(Path.Combine(FolderPath, "Project.ini.local"));
+                projIni = new ProjectIni(_so.PathCombine(FolderPath, "Project.ini"), projEncoding);
+                projIni.AddFile(_so.PathCombine(FolderPath, "Project.ini.local"));
             }
             var projSysKind = (uint)(projIni.GetInt("General", "SysKind") ?? 1);
             var projVersion = projIni.GetVersion("General", "Version") ?? new Version(1, 1);
@@ -467,10 +474,10 @@ namespace VBASync.Model
 
             var mods = new List<Module>();
             var modExts = new[] { ".bas", ".cls", ".frm" };
-            foreach (var modPath in Directory.GetFiles(FolderPath).Where(s => modExts.Contains(Path.GetExtension(s) ?? "", StringComparer.InvariantCultureIgnoreCase)))
+            foreach (var modPath in _so.DirectoryGetFiles(FolderPath).Where(s => modExts.Contains(_so.PathGetExtension(s) ?? "", StringComparer.InvariantCultureIgnoreCase)))
             {
-                var modName = Path.GetFileNameWithoutExtension(modPath);
-                var modText = EnsureCrLfEndings(File.ReadAllText(modPath, projEncoding));
+                var modName = _so.PathGetFileNameWithoutExtension(modPath);
+                var modText = EnsureCrLfEndings(_so.FileReadAllText(modPath, projEncoding));
                 var modType = ModuleProcessing.TypeFromText(modText);
                 projIni.RegisterModule(modName, modType, (uint)(projIni.GetInt("DocTLibVersions", modName) ?? 0));
                 mods.Add(new Module {
@@ -485,10 +492,10 @@ namespace VBASync.Model
             vbaProject.AddStream("PROJECT");
             vbaProject.GetStream("PROJECT").SetData(projEncoding.GetBytes(projIni.GetProjectText()));
 
-            if (File.Exists(Path.Combine(FolderPath, "LicenseKeys.bin")))
+            if (_so.FileExists(_so.PathCombine(FolderPath, "LicenseKeys.bin")))
             {
                 vbaProject.AddStream("PROJECTlk");
-                vbaProject.GetStream("PROJECTlk").SetData(File.ReadAllBytes(Path.Combine(FolderPath, "LicenseKeys.bin")));
+                vbaProject.GetStream("PROJECTlk").SetData(_so.FileReadAllBytes(_so.PathCombine(FolderPath, "LicenseKeys.bin")));
             }
 
             var projectWm = new List<byte>();
@@ -586,19 +593,19 @@ namespace VBASync.Model
                 case ModuleType.Class:
                 case ModuleType.StaticClass:
                     vbaProjectVba.AddStream(mod.StreamName);
-                    var fileText = File.ReadAllText(Path.Combine(FolderPath, mod.Name + ModuleProcessing.ExtensionFromType(mod.Type)), projEncoding);
+                    var fileText = _so.FileReadAllText(_so.PathCombine(FolderPath, mod.Name + ModuleProcessing.ExtensionFromType(mod.Type)), projEncoding);
                     vbaProjectVba.GetStream(mod.StreamName).SetData(CompoundDocumentCompression.CompressPart(projEncoding.GetBytes(SeparateClassCode(fileText))));
                     break;
                 case ModuleType.Form:
                     string vbFrame;
                     vbaProjectVba.AddStream(mod.StreamName);
                     vbaProjectVba.GetStream(mod.StreamName).SetData(CompoundDocumentCompression.CompressPart(
-                        projEncoding.GetBytes(SeparateVbFrame(File.ReadAllText(Path.Combine(FolderPath, mod.Name + ".frm"), projEncoding), out vbFrame))));
+                        projEncoding.GetBytes(SeparateVbFrame(_so.FileReadAllText(_so.PathCombine(FolderPath, mod.Name + ".frm"), projEncoding), out vbFrame))));
                     vbaProject.AddStorage(mod.StreamName);
                     var frmStorage = vbaProject.GetStorage(mod.StreamName);
                     frmStorage.AddStream("\x03VBFrame");
                     frmStorage.GetStream("\x03VBFrame").SetData(projEncoding.GetBytes(vbFrame));
-                    var b = File.ReadAllBytes(Path.Combine(FolderPath, mod.Name + ".frx"));
+                    var b = _so.FileReadAllBytes(_so.PathCombine(FolderPath, mod.Name + ".frx"));
                     using (var ms = new MemoryStream(b, 24, b.Length - 24))
                     {
                         var frx = new CompoundFile(ms);
@@ -608,24 +615,28 @@ namespace VBASync.Model
                 default:
                     vbaProjectVba.AddStream(mod.StreamName);
                     vbaProjectVba.GetStream(mod.StreamName).SetData(CompoundDocumentCompression.CompressPart(
-                        File.ReadAllBytes(Path.Combine(FolderPath, mod.Name + ModuleProcessing.ExtensionFromType(mod.Type)))));
+                        _so.FileReadAllBytes(_so.PathCombine(FolderPath, mod.Name + ModuleProcessing.ExtensionFromType(mod.Type)))));
                     break;
                 }
             }
 
-            cf.Save(Path.Combine(FolderPath, "vbaProject.bin"));
-
-            if (Path.GetFileName(filePath).Equals("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase))
+            using (var projSm = _so.CreateNewFile(_so.PathCombine(FolderPath, "vbaProject.bin")))
             {
-                File.Copy(Path.Combine(FolderPath, "vbaProject.bin"), filePath, true);
+                cf.Save(projSm);
+            }
+
+            if (_so.PathGetFileName(filePath).Equals("vbaProject.bin", StringComparison.InvariantCultureIgnoreCase))
+            {
+                _so.FileCopy(_so.PathCombine(FolderPath, "vbaProject.bin"), filePath, true);
             }
             else
             {
-                FileStream fs = null;
+                Stream fs = null;
                 try
                 {
-                    fs = new FileStream(filePath, FileMode.Open, FileAccess.ReadWrite);
+                    fs = _so.OpenFileForWrite(filePath);
                     var sig = new byte[4];
+                    fs.Seek(0, SeekOrigin.Begin);
                     fs.Read(sig, 0, 4);
                     fs.Seek(0, SeekOrigin.Begin);
                     if (sig.SequenceEqual(new byte[] { 0x50, 0x4b, 0x03, 0x04 }))
@@ -637,8 +648,11 @@ namespace VBASync.Model
                             throw new ApplicationException(VBASyncResources.ErrorCannotFindVbaProject);
                         }
                         zipFile.BeginUpdate();
-                        zipFile.Add(Path.Combine(FolderPath, "vbaProject.bin"), zipEntry.Name);
-                        zipFile.CommitUpdate();
+                        using (var st = _so.OpenFileForRead(_so.PathCombine(FolderPath, "vbaProject.bin")))
+                        {
+                            zipFile.Add(new StreamStaticDataSource(st), zipEntry.Name);
+                            zipFile.CommitUpdate();
+                        }
                         zipFile.Close();
                     }
                     else
@@ -845,7 +859,7 @@ namespace VBASync.Model
                 //_fs?.Dispose();
             }
 
-            Directory.Delete(FolderPath, true);
+            _so.DirectoryDelete(FolderPath, true);
 
             _disposed = true;
         }
@@ -1086,6 +1100,18 @@ namespace VBASync.Model
                     $"LibId={LibId}"
                 };
             }
+        }
+
+        internal class StreamStaticDataSource : IStaticDataSource
+        {
+            private readonly Stream _source;
+
+            internal StreamStaticDataSource(Stream source)
+            {
+                _source = source;
+            }
+
+            public Stream GetSource() => _source;
         }
     }
 }

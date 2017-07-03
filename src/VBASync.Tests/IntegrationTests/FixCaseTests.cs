@@ -1,7 +1,7 @@
 ﻿using NUnit.Framework;
 using VBASync.Model;
 
-namespace VBASync.Tests.UnitTests
+namespace VBASync.Tests.IntegrationTests
 {
     [TestFixture]
     public class FixCaseTests

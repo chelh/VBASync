@@ -1,20 +1,19 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 namespace VBASync.Model
 {
     public class Hook
     {
-        private readonly bool _isWindows;
+        private readonly ISystemOperations _so;
 
-        public Hook(string content) : this(content, Environment.OSVersion.Platform == PlatformID.Win32NT)
+        public Hook(string content) : this(new RealSystemOperations(), content)
         {
         }
 
-        internal Hook(string content, bool isWindows)
+        internal Hook(ISystemOperations so, string content)
         {
+            _so = so;
             Content = content;
-            _isWindows = isWindows;
         }
 
         public string Content { get; }
@@ -26,7 +25,7 @@ namespace VBASync.Model
                 return;
             }
 
-            Process.Start(GetProcessStartInfo(targetDir)).WaitForExit();
+            _so.ProcessStartAndWaitForExit(GetProcessStartInfo(targetDir));
         }
 
         internal ProcessStartInfo GetProcessStartInfo(string targetDir)
@@ -36,7 +35,7 @@ namespace VBASync.Model
                 return null;
             }
 
-            if (_isWindows)
+            if (_so.IsWindows)
             {
                 return new ProcessStartInfo("cmd.exe", $"/c {Content.Replace("{TargetDir}", targetDir)}");
             }

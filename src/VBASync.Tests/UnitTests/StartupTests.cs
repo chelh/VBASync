@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using VBASync.Model;
+using VBASync.Tests.Mocks;
 
 namespace VBASync.Tests.UnitTests
 {
@@ -177,7 +178,7 @@ namespace VBASync.Tests.UnitTests
             return ThrowUnexpectedIniRequest();
         }
 
-        private Hook MakeWindowsHook(string content) => new Hook(content, true);
+        private Hook MakeWindowsHook(string content) => new Hook(new WindowsFakeSystemOperations(), content);
 
         private AppIniFile ThrowUnexpectedIniRequest()
         {

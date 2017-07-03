@@ -5,7 +5,6 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{15432F02-5D62-47F7-96A7-372CBDA98D66}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>VBASync.Tests</RootNamespace>
     <AssemblyName>VBASync.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
@@ -47,7 +46,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IntegrationTests\Files\PublishToXlsmIsRepeatableFiles.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>PublishToXlsmIsRepeatableFiles.resx</DependentUpon>
+    </Compile>
     <Compile Include="IntegrationTests\FixCaseTests.cs" />
+    <Compile Include="IntegrationTests\PublishTests.cs" />
+    <Compile Include="Mocks\FakeSystemOperations.cs" />
+    <Compile Include="Mocks\QuickSession.cs" />
+    <Compile Include="Mocks\QuickSessionSettings.cs" />
     <Compile Include="UnitTests\AppIniFileTests.cs" />
     <Compile Include="UnitTests\HookTests.cs" />
     <Compile Include="UnitTests\IniFileTests.cs" />
@@ -65,10 +73,26 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Properties\" />
+    <EmbeddedResource Include="IntegrationTests\Files\PublishToXlsmIsRepeatableFiles.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>PublishToXlsmIsRepeatableFiles.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <None Include="IntegrationTests\Files\PublishToXlsmIsRepeatableFiles\Book1.xlsm" />
+    <None Include="IntegrationTests\Files\PublishToXlsmIsRepeatableFiles\Project.ini" />
+    <None Include="Packages.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <None Include="IntegrationTests\Files\PublishToXlsmIsRepeatableFiles\Module1.bas" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Packages.config" />
+    <None Include="IntegrationTests\Files\PublishToXlsmIsRepeatableFiles\Sheet1.cls" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IntegrationTests\Files\PublishToXlsmIsRepeatableFiles\Sheet2.cls" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="IntegrationTests\Files\PublishToXlsmIsRepeatableFiles\ThisWorkbook.cls" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
