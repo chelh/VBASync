@@ -9,7 +9,7 @@ using VBASync.Localization;
 using VBASync.Model;
 
 namespace VBASync.WPF {
-    internal partial class MainWindow {
+    internal sealed partial class MainWindow : IDisposable {
         internal const int CopyrightYear = 2017;
         internal const string SupportUrl = "https://github.com/chelh/VBASync";
 
@@ -36,6 +36,11 @@ namespace VBASync.WPF {
         }
 
         private ISession Session => _vm.Session;
+
+        public void Dispose()
+        {
+            _vm.Dispose();
+        }
 
         internal void SettingsMenu_Click(object sender, RoutedEventArgs e)
         {

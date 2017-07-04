@@ -13,13 +13,15 @@ namespace VBASync.WPF
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 e.Handled = true;
             };
-            var mw = new MainWindow(startup);
-            mw.Show();
-            if (showSettingsWindow)
+            using (var mw = new MainWindow(startup))
             {
-                mw.SettingsMenu_Click(null, null);
+                mw.Show();
+                if (showSettingsWindow)
+                {
+                    mw.SettingsMenu_Click(null, null);
+                }
+                app.Run();
             }
-            app.Run();
         }
     }
 }

@@ -9,28 +9,6 @@ using VBASync.Model;
 
 namespace VBASync.Tests.Mocks
 {
-    internal class MemoryStreamWithFlushCallback : MemoryStream
-    {
-        private readonly Action<MemoryStream> _flushCallback;
-
-        internal MemoryStreamWithFlushCallback(Action<MemoryStream> flushCallback)
-        {
-            _flushCallback = flushCallback;
-        }
-
-        internal MemoryStreamWithFlushCallback(byte[] buffer, Action<MemoryStream> flushCallback) : this(flushCallback)
-        {
-            Write(buffer, 0, buffer.Length);
-            base.Flush();
-        }
-
-        public override void Flush()
-        {
-            base.Flush();
-            _flushCallback(this);
-        }
-    }
-
     internal class FakeSystemOperations : ISystemOperations
     {
         private readonly ConcurrentDictionary<string, byte[]> _files
@@ -177,6 +155,28 @@ namespace VBASync.Tests.Mocks
 
         public virtual void ProcessStartAndWaitForExit(ProcessStartInfo psi)
         {
+        }
+
+        private class MemoryStreamWithFlushCallback : MemoryStream
+        {
+            private readonly Action<MemoryStream> _flushCallback;
+
+            internal MemoryStreamWithFlushCallback(Action<MemoryStream> flushCallback)
+            {
+                _flushCallback = flushCallback;
+            }
+
+            internal MemoryStreamWithFlushCallback(byte[] buffer, Action<MemoryStream> flushCallback) : this(flushCallback)
+            {
+                Write(buffer, 0, buffer.Length);
+                base.Flush();
+            }
+
+            public override void Flush()
+            {
+                base.Flush();
+                _flushCallback(this);
+            }
         }
     }
 

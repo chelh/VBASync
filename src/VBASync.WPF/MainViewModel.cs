@@ -10,7 +10,7 @@ using VBASync.Localization;
 
 namespace VBASync.WPF
 {
-    internal class MainViewModel : ViewModelBase
+    internal sealed class MainViewModel : ViewModelBase, IDisposable
     {
         private readonly Action _onLoadIni;
         private readonly string _lastSessionPath;
@@ -107,6 +107,11 @@ namespace VBASync.WPF
             {
                 RecentFiles.RemoveAt(5);
             }
+        }
+
+        public void Dispose()
+        {
+            _activeSession?.Dispose();
         }
 
         public void LoadIni(Model.AppIniFile ini)
