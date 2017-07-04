@@ -11,22 +11,9 @@ namespace VBASync.Model
 {
     public static class Lib
     {
+        // This is used from this UI layer
         public static bool FrxFilesAreDifferent(string frxPath1, string frxPath2, out string explain)
             => FrxFilesAreDifferent(new RealSystemOperations(), frxPath1, frxPath2, out explain);
-
-        public static IList<KeyValuePair<string, Tuple<string, ModuleType>>> GetFolderModules(string folderPath)
-            => GetFolderModules(new RealSystemOperations(), folderPath);
-
-        public static Patch GetLicensesPatch(ISession session, string evfPath)
-            => GetLicensesPatch(new RealSystemOperations(), session, evfPath);
-
-        public static IEnumerable<Patch> GetModulePatches(ISession session, ISessionSettings sessionSettings,
-            string vbaFolderPath, IList<KeyValuePair<string, Tuple<string, ModuleType>>> folderModules,
-            IList<KeyValuePair<string, Tuple<string, ModuleType>>> fileModules)
-            => GetModulePatches(new RealSystemOperations(), session, sessionSettings, vbaFolderPath, folderModules, fileModules);
-
-        public static Patch GetProjectPatch(ISession session, string evfPath)
-            => GetProjectPatch(new RealSystemOperations(), session, evfPath);
 
         internal static bool FrxFilesAreDifferent(ISystemOperations so, string frxPath1, string frxPath2, out string explain)
         {
