@@ -405,7 +405,7 @@ namespace VBASync.Model
                         bw.Write((short)0x424c);
                         bw.Write(new byte[3]);
                         bw.Write(size >> 8);
-                        bw.Write(new byte[11]);
+                        bw.Write(new byte[15]);
                         bw.Write(bytes);
                     }
                 }
