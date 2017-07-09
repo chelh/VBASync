@@ -212,7 +212,7 @@ namespace VBASync.WPF
         {
             try
             {
-                LoadIni(new Model.AppIniFile(_lastSessionPath));
+                LoadIni(new Model.AppIniFile(_lastSessionPath, Encoding.UTF8));
             }
             catch (Exception ex)
             {
