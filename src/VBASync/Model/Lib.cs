@@ -17,14 +17,22 @@ namespace VBASync.Model
 
         internal static bool FrxFilesAreDifferent(ISystemOperations so, string frxPath1, string frxPath2, out string explain)
         {
-            var frxBytes1 = so.FileReadAllBytes(frxPath1);
-            var frxBytes2 = so.FileReadAllBytes(frxPath2);
-            using (var frxCfStream1 = new MemoryStream(frxBytes1, 24, frxBytes1.Length - 24, false))
-            using (var frxCfStream2 = new MemoryStream(frxBytes2, 24, frxBytes2.Length - 24, false))
-            using (var cf1 = new CompoundFile(frxCfStream1))
-            using (var cf2 = new CompoundFile(frxCfStream2))
+            try
             {
-                return CfStoragesAreDifferent(cf1.RootStorage, cf2.RootStorage, out explain);
+                var frxBytes1 = so.FileReadAllBytes(frxPath1);
+                var frxBytes2 = so.FileReadAllBytes(frxPath2);
+                using (var frxCfStream1 = new MemoryStream(frxBytes1, 24, frxBytes1.Length - 24, false))
+                using (var frxCfStream2 = new MemoryStream(frxBytes2, 24, frxBytes2.Length - 24, false))
+                using (var cf1 = new CompoundFile(frxCfStream1))
+                using (var cf2 = new CompoundFile(frxCfStream2))
+                {
+                    return CfStoragesAreDifferent(cf1.RootStorage, cf2.RootStorage, out explain);
+                }
+            }
+            catch (Exception ex)
+            {
+                explain = ex.Message;
+                return true;
             }
         }
 
