@@ -33,7 +33,13 @@ namespace VBASync.Tests.Mocks
         {
         }
 
+        public virtual IEnumerable<string> DirectoryGetFiles(string folderPath)
+            => DirectoryGetFiles(folderPath, "*", false);
+
         public virtual IEnumerable<string> DirectoryGetFiles(string folderPath, string mask)
+            => DirectoryGetFiles(folderPath, mask, false);
+
+        public virtual IEnumerable<string> DirectoryGetFiles(string folderPath, string mask, bool recurse)
         {
             if (!folderPath.EndsWith("/"))
             {
@@ -41,8 +47,7 @@ namespace VBASync.Tests.Mocks
             }
             foreach (var s in _files.Keys)
             {
-                if (s.StartsWith(folderPath, StringComparison.OrdinalIgnoreCase)
-                    && FitsMask(s.Substring(folderPath.Length), mask))
+                if (InRightDirectory(s) && FitsMask(PathGetFileName(s), mask))
                 {
                     yield return s;
                 }
@@ -50,23 +55,25 @@ namespace VBASync.Tests.Mocks
 
             bool FitsMask(string fileName, string fileMask)
             {
-                return new Regex("^" + fileMask.Replace(".", "[.]").Replace("*", ".*").Replace("?", ".") +
-                    "$", RegexOptions.IgnoreCase).IsMatch(fileName);
-            }
-        }
-
-        public virtual IEnumerable<string> DirectoryGetFiles(string folderPath)
-        {
-            if (!folderPath.EndsWith("/"))
-            {
-                folderPath += "/";
-            }
-            foreach (var s in _files.Keys)
-            {
-                if (s.StartsWith(folderPath, StringComparison.OrdinalIgnoreCase))
+                if (fileMask == "*")
                 {
-                    yield return s;
+                    return true;
                 }
+                return new Regex("^" + fileMask.Replace(".", "[.]").Replace("*", ".*").Replace("?", ".")
+                    + "$", RegexOptions.IgnoreCase).IsMatch(fileName);
+            }
+
+            bool InRightDirectory(string filePath)
+            {
+                if (!filePath.StartsWith(folderPath))
+                {
+                    return false;
+                }
+                if (recurse)
+                {
+                    return true;
+                }
+                return filePath.LastIndexOf('/') < folderPath.Length;
             }
         }
 

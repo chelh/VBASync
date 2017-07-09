@@ -67,6 +67,8 @@
     <Compile Include="Model\ISystemOperations.cs" />
     <Compile Include="Model\RealSystemOperations.cs" />
     <Compile Include="Model\Startup.cs" />
+    <Compile Include="Model\VbaFolder.cs" />
+    <Compile Include="Model\VbaRepositoryFolder.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Localization\VBASyncResources.Designer.cs">
       <DependentUpon>VBASyncResources.resx</DependentUpon>
@@ -94,7 +96,7 @@
     <Compile Include="Model\Patch.cs" />
     <Compile Include="Model\ProjectIni.cs" />
     <Compile Include="Model\SessionInterfaces.cs" />
-    <Compile Include="Model\VbaFolder.cs" />
+    <Compile Include="Model\VbaTemporaryFolder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

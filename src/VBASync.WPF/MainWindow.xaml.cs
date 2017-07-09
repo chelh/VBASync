@@ -77,9 +77,9 @@ namespace VBASync.WPF {
             string newPath;
             if (Session.Action == ActionType.Extract) {
                 oldPath = Path.Combine(Session.FolderPath, fileName);
-                newPath = Path.Combine(_vm.ActiveSession.FolderPath, fileName);
+                newPath = Path.Combine(_vm.ActiveSession.TemporaryFolderPath, fileName);
             } else {
-                oldPath = Path.Combine(_vm.ActiveSession.FolderPath, fileName);
+                oldPath = Path.Combine(_vm.ActiveSession.TemporaryFolderPath, fileName);
                 newPath = Path.Combine(Session.FolderPath, fileName);
             }
             if (sel.ChangeType == ChangeType.ChangeFormControls) {

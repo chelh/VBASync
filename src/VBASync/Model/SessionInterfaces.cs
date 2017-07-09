@@ -21,5 +21,6 @@
         Hook BeforePublishHook { get; }
         bool DeleteDocumentsFromFile { get; }
         bool IgnoreEmpty { get; }
+        bool SearchRepositorySubdirectories { get; }
     }
 }

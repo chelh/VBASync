@@ -11,6 +11,7 @@
         private bool _ignoreEmpty;
         private string _language;
         private bool _portable;
+        private bool _searchRepositorySubdirectories;
 
         public bool AddNewDocumentsToFile
         {
@@ -70,6 +71,12 @@
             set => SetField(ref _portable, value, nameof(Portable));
         }
 
+        public bool SearchRepositorySubdirectories
+        {
+            get => _searchRepositorySubdirectories;
+            set => SetField(ref _searchRepositorySubdirectories, value, nameof(SearchRepositorySubdirectories));
+        }
+
         public SettingsViewModel Clone() => new SettingsViewModel
         {
             _addNewDocumentsToFile = _addNewDocumentsToFile,
@@ -80,7 +87,8 @@
             _diffToolParameters = _diffToolParameters,
             _ignoreEmpty = _ignoreEmpty,
             _language = _language,
-            _portable = _portable
+            _portable = _portable,
+            _searchRepositorySubdirectories = _searchRepositorySubdirectories
         };
     }
 }

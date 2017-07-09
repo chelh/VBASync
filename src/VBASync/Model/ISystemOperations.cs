@@ -12,8 +12,9 @@ namespace VBASync.Model
         Stream CreateNewFile(string path);
         void DirectoryCreateDirectory(string path);
         void DirectoryDelete(string path, bool recursive);
-        IEnumerable<string> DirectoryGetFiles(string folderPath, string mask);
         IEnumerable<string> DirectoryGetFiles(string folderPath);
+        IEnumerable<string> DirectoryGetFiles(string folderPath, string mask);
+        IEnumerable<string> DirectoryGetFiles(string folderPath, string mask, bool recurse);
         void FileCopy(string src, string dest);
         void FileCopy(string src, string dest, bool overwrite);
         void FileDelete(string path);

@@ -34,6 +34,7 @@ namespace VBASync.Model
         public string LastSessionPath { get; set; }
         public bool Portable { get; set; }
         public List<string> RecentFiles { get; } = new List<string>();
+        public bool SearchRepositorySubdirectories { get; set; }
 
         public void ProcessArgs(string[] args)
         {

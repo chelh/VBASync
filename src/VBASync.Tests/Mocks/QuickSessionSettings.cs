@@ -9,5 +9,6 @@ namespace VBASync.Tests.Mocks
         public Hook BeforePublishHook { get; set; }
         public bool DeleteDocumentsFromFile { get; set; }
         public bool IgnoreEmpty { get; set; }
+        public bool SearchRepositorySubdirectories { get; set; }
     }
 }
