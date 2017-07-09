@@ -46,7 +46,7 @@ namespace VBASync.Model.FrxObjects
 
             while (Unaligned.BaseStream.Position < endPos)
             {
-                ret.Add(ReadStringFromCcb(ReadCcb()));
+                ret.Add(ReadStringFromCcb(ReadCcbWithDoubleSizeIfUncompressed()));
             }
 
             if (Unaligned.BaseStream.Position != endPos)
@@ -66,6 +66,13 @@ namespace VBASync.Model.FrxObjects
             AlignTo(4);
             var i = Unaligned.ReadInt32();
             return i < 0 ? Tuple.Create(unchecked((int)(i ^ 0x80000000)), true) : Tuple.Create(i, false);
+        }
+
+        public Tuple<int, bool> ReadCcbWithDoubleSizeIfUncompressed()
+        {
+            AlignTo(4);
+            var i = Unaligned.ReadInt32();
+            return i < 0 ? Tuple.Create(unchecked((int)(i ^ 0x80000000)), true) : Tuple.Create(i * 2, false);
         }
 
         public Tuple<int, int> ReadCoords()
