@@ -196,7 +196,7 @@ namespace VBASync.WPF
                 };
                 if (dlg.ShowDialog() == true)
                 {
-                    LoadIni(new Model.AppIniFile(dlg.FileName, Encoding.UTF8));
+                    LoadIni(new Model.AppIniFile(dlg.FileName));
                     AddRecentFile(dlg.FileName);
                 }
             }
@@ -212,7 +212,7 @@ namespace VBASync.WPF
         {
             try
             {
-                LoadIni(new Model.AppIniFile(_lastSessionPath, Encoding.UTF8));
+                LoadIni(new Model.AppIniFile(_lastSessionPath));
             }
             catch (Exception ex)
             {
@@ -237,7 +237,7 @@ namespace VBASync.WPF
                     {
                         throw new FileNotFoundException();
                     }
-                    LoadIni(new Model.AppIniFile(path, Encoding.UTF8));
+                    LoadIni(new Model.AppIniFile(path));
                     AddRecentFile(path);
                 }
                 catch

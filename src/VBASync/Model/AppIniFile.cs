@@ -4,7 +4,7 @@ namespace VBASync.Model
 {
     public class AppIniFile : IniFile
     {
-        public AppIniFile(string filePath, Encoding encoding = null) : base(filePath, encoding)
+        public AppIniFile(string filePath) : base(filePath, Encoding.UTF8)
         {
         }
 
