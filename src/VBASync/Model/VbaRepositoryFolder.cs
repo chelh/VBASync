@@ -5,12 +5,12 @@ using System.Text;
 
 namespace VBASync.Model
 {
-    public class VbaRepositoryFolder : VbaFolder
+    internal class VbaRepositoryFolder : VbaFolder
     {
         private readonly ISessionSettings _settings;
         private readonly ISystemOperations _so;
 
-        public VbaRepositoryFolder(ISession session, ISessionSettings settings) : this(new RealSystemOperations(), session, settings)
+        internal VbaRepositoryFolder(ISession session, ISessionSettings settings) : this(new RealSystemOperations(), session, settings)
         {
         }
 

@@ -5,15 +5,11 @@ using System.Text;
 
 namespace VBASync.Model
 {
-    public class VbaFolder
+    internal abstract class VbaFolder
     {
         private readonly ISystemOperations _so;
 
-        public VbaFolder(string folderPath) : this(new RealSystemOperations(), folderPath)
-        {
-        }
-
-        internal VbaFolder(ISystemOperations so, string folderPath)
+        protected internal VbaFolder(ISystemOperations so, string folderPath)
         {
             _so = so;
             FolderPath = folderPath;

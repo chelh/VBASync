@@ -12,14 +12,14 @@ using VBASync.Localization;
 
 namespace VBASync.Model
 {
-    public class VbaTemporaryFolder : VbaFolder, IDisposable
+    internal class VbaTemporaryFolder : VbaFolder, IDisposable
     {
         private readonly ISystemOperations _so;
 
         private bool _disposed;
         private List<Module> _modules;
 
-        public VbaTemporaryFolder() : this(new RealSystemOperations())
+        internal VbaTemporaryFolder() : this(new RealSystemOperations())
         {
         }
 
