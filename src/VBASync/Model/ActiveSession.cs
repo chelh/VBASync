@@ -25,7 +25,8 @@ namespace VBASync.Model
             _repositoryFolder = new VbaRepositoryFolder(so, session, sessionSettings);
         }
 
-        public string TemporaryFolderPath => _tempFolder.FolderPath;
+        public ILocateModules RepositoryFolderModuleLocator => _repositoryFolder.GetModuleLocator();
+        public ILocateModules TemporaryFolderModuleLocator => _tempFolder.GetModuleLocator();
 
         public void Apply(IEnumerable<Patch> patches)
         {

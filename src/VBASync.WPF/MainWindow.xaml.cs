@@ -72,15 +72,26 @@ namespace VBASync.WPF {
 
         private void ChangesGrid_MouseDoubleClick(object sender, MouseButtonEventArgs e) {
             var sel = (Patch)ChangesGrid.SelectedItem;
-            var fileName = sel.ModuleName + (sel.ChangeType != ChangeType.ChangeFormControls ? ModuleProcessing.ExtensionFromType(sel.ModuleType) : ".frx");
+            ILocateModules oldModuleLocator;
+            ILocateModules newModuleLocator;
+            if (Session.Action == ActionType.Extract) {
+                oldModuleLocator = _vm.ActiveSession.TemporaryFolderModuleLocator;
+                newModuleLocator = _vm.ActiveSession.RepositoryFolderModuleLocator;
+            } else {
+                oldModuleLocator = _vm.ActiveSession.RepositoryFolderModuleLocator;
+                newModuleLocator = _vm.ActiveSession.TemporaryFolderModuleLocator;
+            }
             string oldPath;
             string newPath;
-            if (Session.Action == ActionType.Extract) {
-                oldPath = Path.Combine(Session.FolderPath, fileName);
-                newPath = Path.Combine(_vm.ActiveSession.TemporaryFolderPath, fileName);
-            } else {
-                oldPath = Path.Combine(_vm.ActiveSession.TemporaryFolderPath, fileName);
-                newPath = Path.Combine(Session.FolderPath, fileName);
+            if (sel.ChangeType == ChangeType.ChangeFormControls)
+            {
+                oldPath = oldModuleLocator.GetFrxPath(sel.ModuleName);
+                newPath = newModuleLocator.GetFrxPath(sel.ModuleName);
+            }
+            else
+            {
+                oldPath = oldModuleLocator.GetModulePath(sel.ModuleName, sel.ModuleType);
+                newPath = newModuleLocator.GetModulePath(sel.ModuleName, sel.ModuleType);
             }
             if (sel.ChangeType == ChangeType.ChangeFormControls) {
                 Lib.FrxFilesAreDifferent(oldPath, newPath, out var explain);
