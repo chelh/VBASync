@@ -399,7 +399,7 @@ File 2: {{'{2}'}}</value>
     <value>Licenses</value>
   </data>
   <data name="SWAddNewDocumentsToFile" xml:space="preserve">
-    <value>Add new document modules when publishing (expert option)</value>
+    <value>Allow adding new document modules when publishing (expert option)</value>
   </data>
   <data name="SWGeneralTab" xml:space="preserve">
     <value>General</value>
@@ -425,7 +425,7 @@ File 2: {{'{2}'}}</value>
     <comment>{TargetDir} should not be translated. Clarify in a note if needed.</comment>
   </data>
   <data name="SWDeleteDocumentsFromFile" xml:space="preserve">
-    <value>Delete document modules when publishing (expert option)</value>
+    <value>Allow deleting document modules when publishing (expert option)</value>
   </data>
   <data name="SWSearchRepositorySubdirectories" xml:space="preserve">
     <value>Search subdirectories of VBA project folder</value>

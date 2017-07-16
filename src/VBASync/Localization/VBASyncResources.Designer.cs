@@ -776,7 +776,7 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Add new document modules when publishing (expert option).
+        ///   Looks up a localized string similar to Allow adding new document modules when publishing (expert option).
         /// </summary>
         public static string SWAddNewDocumentsToFile {
             get {
@@ -821,7 +821,7 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Delete document modules when publishing (expert option).
+        ///   Looks up a localized string similar to Allow deleting document modules when publishing (expert option).
         /// </summary>
         public static string SWDeleteDocumentsFromFile {
             get {
