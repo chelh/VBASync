@@ -893,7 +893,7 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Search repository subdirectories.
+        ///   Looks up a localized string similar to Search subdirectories of VBA project folder.
         /// </summary>
         public static string SWSearchRepositorySubdirectories {
             get {

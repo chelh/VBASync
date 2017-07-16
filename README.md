@@ -66,7 +66,7 @@ Switch | Meaning
 `-d <dir>` | Specify version-control directory
 `-r`   | Do the selected action, then immediately exit (**required** on Linux/Mac)
 `-i`   | Ignore empty modules
-`-u`   | Search repository subdirectories for modules
+`-u`   | Search subdirectories of version-control directory
 `-a`   | Allow adding new document modules when publishing (expert option)
 `-e`   | Allow deleting document modules when publishing (expert option)
 `-h <hook>` | If `-p` was specified earlier, set the before-publish hook. Else set the after-extract hook.

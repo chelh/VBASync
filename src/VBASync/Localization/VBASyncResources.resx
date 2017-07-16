@@ -428,6 +428,6 @@ File 2: {{'{2}'}}</value>
     <value>Delete document modules when publishing (expert option)</value>
   </data>
   <data name="SWSearchRepositorySubdirectories" xml:space="preserve">
-    <value>Search repository subdirectories</value>
+    <value>Search subdirectories of VBA project folder</value>
   </data>
 </root>
