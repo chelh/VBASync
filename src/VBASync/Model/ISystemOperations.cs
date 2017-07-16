@@ -27,6 +27,7 @@ namespace VBASync.Model
         Stream OpenFileForRead(string path);
         Stream OpenFileForWrite(string path);
         string PathCombine(params string[] parts);
+        string PathGetDirectoryName(string path);
         string PathGetExtension(string path);
         string PathGetFileName(string path);
         string PathGetFileNameWithoutExtension(string path);

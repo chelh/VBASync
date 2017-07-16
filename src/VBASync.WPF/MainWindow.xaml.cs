@@ -230,7 +230,7 @@ namespace VBASync.WPF {
             }
             using (var st = new FileStream(lastSessionPath, FileMode.Create))
             {
-                _vm.SaveSession(st, true, false);
+                _vm.SaveSession(st, true, true);
             }
         }
 

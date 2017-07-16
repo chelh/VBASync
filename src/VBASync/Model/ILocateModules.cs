@@ -1,0 +1,8 @@
+﻿namespace VBASync.Model
+{
+    internal interface ILocateModules
+    {
+        string GetFrxPath(string name);
+        string GetModulePath(string name, ModuleType type);
+    }
+}

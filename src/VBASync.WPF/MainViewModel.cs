@@ -38,7 +38,8 @@ namespace VBASync.WPF
                 DiffToolParameters = startup.DiffToolParameters,
                 IgnoreEmpty = startup.IgnoreEmpty,
                 Language = startup.Language,
-                Portable = startup.Portable
+                Portable = startup.Portable,
+                SearchRepositorySubdirectories = startup.SearchRepositorySubdirectories
             };
             RecentFiles = new BindingList<string>();
             foreach (var recentFile in startup.RecentFiles)
@@ -143,6 +144,7 @@ namespace VBASync.WPF
             {
                 sb.Append("AddNewDocumentsToFile=").AppendLine(Settings.AddNewDocumentsToFile ? "true" : "false");
                 sb.Append("IgnoreEmpty=").AppendLine(Settings.IgnoreEmpty ? "true" : "false");
+                sb.Append("SearchRepositorySubdirectories=").AppendLine(Settings.SearchRepositorySubdirectories ? "true" : "false");
             }
             if (saveGlobalSettings)
             {

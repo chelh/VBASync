@@ -6,9 +6,10 @@ namespace VBASync.Model
 {
     public sealed class ActiveSession : IDisposable
     {
-        private readonly ISystemOperations _so;
+        private readonly VbaRepositoryFolder _repositoryFolder;
         private readonly ISession _session;
         private readonly ISessionSettings _sessionSettings;
+        private readonly ISystemOperations _so;
         private readonly VbaTemporaryFolder _tempFolder;
 
         public ActiveSession(ISession session, ISessionSettings sessionSettings) : this(new RealSystemOperations(), session, sessionSettings)
@@ -21,92 +22,20 @@ namespace VBASync.Model
             _session = session;
             _sessionSettings = sessionSettings;
             _tempFolder = new VbaTemporaryFolder(so);
+            _repositoryFolder = new VbaRepositoryFolder(so, session, sessionSettings);
         }
 
         public string TemporaryFolderPath => _tempFolder.FolderPath;
 
-        public void Apply(IEnumerable<Patch> changes)
+        public void Apply(IEnumerable<Patch> patches)
         {
             if (_session.Action == ActionType.Extract)
             {
-                foreach (var p in changes)
-                {
-                    var fileName = p.ModuleName + ModuleProcessing.ExtensionFromType(p.ModuleType);
-                    switch (p.ChangeType)
-                    {
-                        case ChangeType.DeleteFile:
-                            _so.FileDelete(_so.PathCombine(_session.FolderPath, fileName));
-                            if (p.ModuleType == ModuleType.Form)
-                            {
-                                _so.FileDelete(_so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"));
-                            }
-                            break;
-                        case ChangeType.ChangeFormControls:
-                            _so.FileCopy(_so.PathCombine(_tempFolder.FolderPath, p.ModuleName + ".frx"), _so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"), true);
-                            break;
-                        case ChangeType.Licenses:
-                            if (!_so.FileExists(_so.PathCombine(_tempFolder.FolderPath, fileName)))
-                            {
-                                _so.FileDelete(_so.PathCombine(_session.FolderPath, fileName));
-                            }
-                            else
-                            {
-                                _so.FileCopy(_so.PathCombine(_tempFolder.FolderPath, fileName), _so.PathCombine(_session.FolderPath, fileName), true);
-                            }
-                            break;
-                        default:
-                            _so.FileCopy(_so.PathCombine(_tempFolder.FolderPath, fileName), _so.PathCombine(_session.FolderPath, fileName), true);
-                            if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form)
-                            {
-                                _so.FileCopy(_so.PathCombine(_tempFolder.FolderPath, p.ModuleName + ".frx"), _so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"), true);
-                            }
-                            break;
-                    }
-                }
+                ApplyPatches(patches, _tempFolder, _repositoryFolder);
             }
             else
             {
-                foreach (var p in changes)
-                {
-                    var fileName = p.ModuleName + ModuleProcessing.ExtensionFromType(p.ModuleType);
-                    switch (p.ChangeType)
-                    {
-                        case ChangeType.DeleteFile:
-                            _so.FileDelete(_so.PathCombine(_tempFolder.FolderPath, fileName));
-                            if (p.ModuleType == ModuleType.Form)
-                            {
-                                _so.FileDelete(_so.PathCombine(_tempFolder.FolderPath, p.ModuleName + ".frx"));
-                            }
-                            break;
-                        case ChangeType.ChangeFormControls:
-                            _so.FileCopy(_so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"), _so.PathCombine(_tempFolder.FolderPath, p.ModuleName + ".frx"), true);
-                            break;
-                        case ChangeType.Licenses:
-                            if (!_so.FileExists(_so.PathCombine(_session.FolderPath, fileName)))
-                            {
-                                _so.FileDelete(_so.PathCombine(_tempFolder.FolderPath, fileName));
-                            }
-                            else
-                            {
-                                _so.FileCopy(_so.PathCombine(_session.FolderPath, fileName), _so.PathCombine(_tempFolder.FolderPath, fileName), true);
-                            }
-                            break;
-                        default:
-                            if (_so.FileExists(_so.PathCombine(_session.FolderPath, fileName)))
-                            {
-                                _so.FileCopy(_so.PathCombine(_session.FolderPath, fileName), _so.PathCombine(_tempFolder.FolderPath, fileName), true);
-                            }
-                            else
-                            {
-                                _so.FileWriteAllText(_so.PathCombine(_tempFolder.FolderPath, fileName), p.SideBySideNewText, _tempFolder.ProjectEncoding);
-                            }
-                            if (p.ChangeType == ChangeType.AddFile && p.ModuleType == ModuleType.Form)
-                            {
-                                _so.FileCopy(_so.PathCombine(_session.FolderPath, p.ModuleName + ".frx"), _so.PathCombine(_tempFolder.FolderPath, p.ModuleName + ".frx"), true);
-                            }
-                            break;
-                    }
-                }
+                ApplyPatches(patches, _repositoryFolder, _tempFolder);
                 _sessionSettings.BeforePublishHook?.Execute(_tempFolder.FolderPath);
                 _tempFolder.Write(_session.FilePath);
             }
@@ -116,12 +45,14 @@ namespace VBASync.Model
 
         public IEnumerable<Patch> GetPatches()
         {
-            var folderModules = Lib.GetFolderModules(_so, _session.FolderPath);
+            var folderModules = _repositoryFolder.GetCodeModules();
             _tempFolder.Read(_session.FilePath);
             _sessionSettings.AfterExtractHook?.Execute(_tempFolder.FolderPath);
             _tempFolder.FixCase(folderModules.ToDictionary(kvp => kvp.Key, kvp => kvp.Value.Item1));
-            var vbaFileModules = Lib.GetFolderModules(_so, _tempFolder.FolderPath);
-            foreach (var patch in Lib.GetModulePatches(_so, _session, _sessionSettings, _tempFolder.FolderPath, folderModules, vbaFileModules))
+            var vbaFileModules = _tempFolder.GetCodeModules();
+            foreach (var patch in Lib.GetModulePatches(_so, _session, _sessionSettings,
+                _repositoryFolder.GetModuleLocator(), folderModules,
+                _tempFolder.GetModuleLocator(), vbaFileModules))
             {
                 yield return patch;
             }
@@ -134,6 +65,28 @@ namespace VBASync.Model
             if (licensesPatch != null)
             {
                 yield return licensesPatch;
+            }
+        }
+
+        private void ApplyPatches(IEnumerable<Patch> patches, VbaFolder source, VbaFolder destination)
+        {
+            foreach (var patch in patches)
+            {
+                switch (patch.ChangeType)
+                {
+                    case ChangeType.AddFile:
+                        destination.AddModule(patch.ModuleName, patch.ModuleType, source);
+                        break;
+                    case ChangeType.DeleteFile:
+                        destination.DeleteModule(patch.ModuleName, patch.ModuleType);
+                        break;
+                    case ChangeType.ChangeFormControls:
+                        destination.ReplaceFormControls(patch.ModuleName, source);
+                        break;
+                    default:
+                        destination.ReplaceTextModule(patch.ModuleName, patch.ModuleType, source, patch.SideBySideNewText);
+                        break;
+                }
             }
         }
     }

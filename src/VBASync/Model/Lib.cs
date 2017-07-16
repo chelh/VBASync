@@ -36,24 +36,6 @@ namespace VBASync.Model
             }
         }
 
-        internal static IList<KeyValuePair<string, Tuple<string, ModuleType>>> GetFolderModules(ISystemOperations so, string folderPath)
-        {
-            var modulesText = new Dictionary<string, Tuple<string, ModuleType>>();
-            var extensions = new[] { ".bas", ".cls", ".frm" };
-            var projIni = new ProjectIni(so.PathCombine(folderPath, "Project.ini"));
-            if (so.FileExists(so.PathCombine(folderPath, "Project.ini.local")))
-            {
-                projIni.AddFile(so.PathCombine(folderPath, "Project.ini.local"));
-            }
-            var projEncoding = Encoding.GetEncoding(projIni.GetInt("General", "CodePage") ?? Encoding.Default.CodePage);
-            foreach (var filePath in so.DirectoryGetFiles(folderPath, "*.*").Where(s => extensions.Any(s.EndsWith)).Select(s => so.PathCombine(folderPath, so.PathGetFileName(s))))
-            {
-                var moduleText = so.FileReadAllText(filePath, projEncoding).TrimEnd('\r', '\n') + "\r\n";
-                modulesText[so.PathGetFileNameWithoutExtension(filePath)] = Tuple.Create(moduleText, ModuleProcessing.TypeFromText(moduleText));
-            }
-            return modulesText.ToList();
-        }
-
         internal static Patch GetLicensesPatch(ISystemOperations so, ISession session, string evfPath)
         {
             var folderLicensesPath = so.PathCombine(session.FolderPath, "LicenseKeys.bin");
@@ -86,26 +68,26 @@ namespace VBASync.Model
         }
 
         internal static IEnumerable<Patch> GetModulePatches(ISystemOperations so, ISession session, ISessionSettings sessionSettings,
-            string vbaFolderPath, IList<KeyValuePair<string, Tuple<string, ModuleType>>> folderModules,
-            IList<KeyValuePair<string, Tuple<string, ModuleType>>> fileModules)
+            ILocateModules folderModuleLocator, IList<KeyValuePair<string, Tuple<string, ModuleType>>> folderModules,
+            ILocateModules fileModuleLocator, IList<KeyValuePair<string, Tuple<string, ModuleType>>> fileModules)
         {
             IList<KeyValuePair<string, Tuple<string, ModuleType>>> oldModules;
             IList<KeyValuePair<string, Tuple<string, ModuleType>>> newModules;
-            string oldFolder;
-            string newFolder;
+            ILocateModules oldModuleLocator;
+            ILocateModules newModuleLocator;
             if (session.Action == ActionType.Extract)
             {
                 oldModules = folderModules;
                 newModules = fileModules;
-                oldFolder = session.FolderPath;
-                newFolder = vbaFolderPath;
+                oldModuleLocator = folderModuleLocator;
+                newModuleLocator = fileModuleLocator;
             }
             else
             {
                 oldModules = fileModules;
                 newModules = folderModules;
-                oldFolder = vbaFolderPath;
-                newFolder = session.FolderPath;
+                oldModuleLocator = fileModuleLocator;
+                newModuleLocator = folderModuleLocator;
             }
 
             if (sessionSettings.IgnoreEmpty)
@@ -129,7 +111,7 @@ namespace VBASync.Model
                                   OldText = o.Value.Item1,
                                   NewText = n.Value.Item1
                               }).ToArray();
-            patches.AddRange(GetFrxChanges(so, oldFolder, newFolder, sideBySide.Where(x => x.NewType == ModuleType.Form).Select(x => x.Name)));
+            patches.AddRange(GetFrxChanges(so, oldModuleLocator, newModuleLocator, sideBySide.Where(x => x.NewType == ModuleType.Form).Select(x => x.Name)));
             sideBySide = sideBySide.Where(sxs => sxs.OldText != sxs.NewText).ToArray();
             foreach (var sxs in sideBySide)
             {
@@ -302,20 +284,21 @@ namespace VBASync.Model
             }
         }
 
-        private static IEnumerable<Patch> GetFrxChanges(ISystemOperations fo, string oldFolder, string newFolder, IEnumerable<string> frmModules)
+        private static IEnumerable<Patch> GetFrxChanges(ISystemOperations fo, ILocateModules oldModuleLocator,
+            ILocateModules newModuleLocator, IEnumerable<string> frmModules)
         {
             foreach (var modName in frmModules)
             {
-                var oldFrxPath = fo.PathCombine(oldFolder, modName + ".frx");
-                var newFrxPath = fo.PathCombine(newFolder, modName + ".frx");
-                if (!fo.FileExists(oldFrxPath) && !fo.FileExists(newFrxPath))
+                var oldFrxPath = oldModuleLocator.GetFrxPath(modName);
+                var newFrxPath = newModuleLocator.GetFrxPath(modName);
+                if (string.IsNullOrEmpty(oldFrxPath) && string.IsNullOrEmpty(newFrxPath))
                 {
                 }
-                else if (fo.FileExists(oldFrxPath) && !fo.FileExists(newFrxPath))
+                else if (!string.IsNullOrEmpty(oldFrxPath) && string.IsNullOrEmpty(newFrxPath))
                 {
                     yield return Patch.MakeFrxDeletion(modName);
                 }
-                else if (!fo.FileExists(oldFrxPath) && fo.FileExists(newFrxPath))
+                else if (string.IsNullOrEmpty(oldFrxPath) && !string.IsNullOrEmpty(newFrxPath))
                 {
                     yield return Patch.MakeFrxChange(modName);
                 }

@@ -20,6 +20,6 @@ namespace VBASync.Model
             _so = so;
         }
 
-        protected override IEnumerable<string> GetModuleFilePaths() => GetModuleFilePaths(_settings.SearchRepositorySubdirectories);
+        protected override List<string> GetModuleFilePaths() => GetModuleFilePaths(_settings.SearchRepositorySubdirectories);
     }
 }

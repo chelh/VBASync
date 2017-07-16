@@ -893,6 +893,15 @@ namespace VBASync.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Search repository subdirectories.
+        /// </summary>
+        public static string SWSearchRepositorySubdirectories {
+            get {
+                return ResourceManager.GetString("SWSearchRepositorySubdirectories", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Session.
         /// </summary>
         public static string SWSessionTab {

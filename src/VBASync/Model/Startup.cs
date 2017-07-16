@@ -85,6 +85,10 @@ namespace VBASync.Model
                     case "/E":
                         DeleteDocumentsFromFile = true;
                         break;
+                    case "-U":
+                    case "/U":
+                        SearchRepositorySubdirectories = true;
+                        break;
                     default:
                         ProcessIni(_appIniFileFactory(args[i]), true);
                         break;
@@ -107,6 +111,7 @@ namespace VBASync.Model
             var iniFolderPath = ini.GetString("General", "FolderPath");
             var iniLanguage = ini.GetString("General", "Language");
             var iniPortable = ini.GetBool("General", "Portable");
+            var iniSearchSubdirectories = ini.GetBool("General", "SearchRepositorySubdirectories");
 
             if (iniAction.HasValue && allowSessionSettings)
             {
@@ -171,6 +176,11 @@ namespace VBASync.Model
             if (iniPortable.HasValue)
             {
                 Portable = iniPortable.Value;
+            }
+
+            if (iniSearchSubdirectories.HasValue)
+            {
+                SearchRepositorySubdirectories = iniSearchSubdirectories.Value;
             }
 
             if (ini.GetString("RecentFiles", "1") != null)

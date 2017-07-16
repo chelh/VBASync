@@ -139,6 +139,32 @@ namespace VBASync.Tests.Mocks
             return sb.ToString();
         }
 
+        public string PathGetDirectoryName(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return null;
+            }
+            if (path == "/")
+            {
+                return "/";
+            }
+            if (path.EndsWith("/"))
+            {
+                path = path.Substring(0, path.Length - 1);
+            }
+            var idx = path.LastIndexOf('/');
+            if (idx == 0)
+            {
+                return "/";
+            }
+            if (idx < 0)
+            {
+                return "";
+            }
+            return path.Substring(0, idx);
+        }
+
         public virtual string PathGetExtension(string path)
         {
             var idx = path.LastIndexOf('.');

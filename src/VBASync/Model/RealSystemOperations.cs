@@ -34,6 +34,7 @@ namespace VBASync.Model
         public Stream OpenFileForRead(string path) => new FileStream(path, FileMode.Open, FileAccess.Read);
         public Stream OpenFileForWrite(string path) => new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite);
         public string PathCombine(params string[] parts) => Path.Combine(parts);
+        public string PathGetDirectoryName(string path) => Path.GetDirectoryName(path);
         public string PathGetExtension(string path) => Path.GetExtension(path);
         public string PathGetFileName(string path) => Path.GetFileName(path);
         public string PathGetFileNameWithoutExtension(string path) => Path.GetFileNameWithoutExtension(path);
