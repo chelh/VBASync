@@ -380,7 +380,6 @@ namespace VBASync.Model
                     projStrings.Add($"[Reference {refer.Name}]");
                     projStrings.AddRange(refer.GetConfigStrings());
                 }
-                projStrings.Add("");
 
                 _so.FileWriteAllLines(_so.PathCombine(FolderPath, "Project.ini"), projStrings, Encoding.UTF8); // write using system line ending
 
