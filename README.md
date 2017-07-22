@@ -1,16 +1,17 @@
-# VBA Sync Tool&#x2001;![VBA Sync logo](http://i.imgur.com/sQAsBy4.png)
-
-[**Looking for a new maintainer!**](https://github.com/chelh/VBASync/issues/36)
+# VBA Sync&#x2001;![VBA Sync logo](http://i.imgur.com/sQAsBy4.png)
 
 Microsoft Office VBA code is usually held in binary format, making proper
 version control difficult. VBA Sync Tool synchronizes macros between a
 VBA-enabled file and a folder, enabling easy version control using Git, SVN,
 Mercurial, or any other VCS.
 
-[**Download latest release (stable)**](https://github.com/chelh/VBASync/releases/latest)[ **(testing)**](https://github.com/chelh/VBASync/releases/tag/v2.2.0-rc1)
+**I no longer maintain this project. I have released it into the public domain.**
+
+[**Download my final release (v2.2.0)**](https://github.com/chelh/VBASync/releases/latest)  
+[**Look for a newer version, or advertise your new version**](https://github.com/chelh/VBASync/issues/36)
 
 ## Features
-VBA Sync Tool works *directly with the Office file,* unlike most
+VBA Sync works *directly with the Office file,* unlike most
 other solutions, which use a host application (e.g., Excel) to manipulate
 the VBA code. This gives it several advantages:
   * Does not require special Excel settings.
@@ -33,9 +34,9 @@ the VBA code. This gives it several advantages:
   * Compatible with Windows, Linux, and Mac.
 
 ## Using
-VBA Sync Tool has two modes: **Extract**&nbsp;mode extracts modules
+VBA Sync has two modes: **Extract** mode extracts modules
 from the file into the folder. You can then commit the extracted files
-to version control. **Publish**&nbsp;mode publishes modules from
+to version control. **Publish** mode publishes modules from
 the folder into the file. You should do this after merges.
 
 After you select a mode, a folder path, and a file path, the tool will
@@ -48,9 +49,9 @@ to synchronize, click **Apply** or **OK**.
 
 You can save and load session settings from the **File** menu. Settings
 are saved as `.ini` files. If a settings file is named `VBASync.ini`
-and located in the working directory, VBA Sync Tool will load those
+and located in the working directory, VBA Sync will load those
 settings automatically. I recommend taking advantage of this and
-launching VBA Sync Tool from a shortcut with the working directory overridden,
+launching VBA Sync from a shortcut with the working directory overridden,
 to avoid having to specify the folder and file each time you need to synchronize.
 
 ![VBA Sync after selecting folder and file locations](http://i.imgur.com/GrXx2VH.png)
@@ -71,33 +72,17 @@ Switch | Meaning
 `-e`   | Allow deleting document modules when publishing (expert option)
 `-h <hook>` | If `-p` was specified earlier, set the before-publish hook. Else set the after-extract hook.
 
-Any other parameter passed to VBA Sync Tool will be read and parsed as a session `.ini` file.
+Any other parameter passed to VBA Sync will be read and parsed as a session `.ini` file.
 
-## Contributing
-I appreciate any code contributions, but am especially interested
-in [issue 1](https://github.com/chelh/VBASync/issues/1) (Access support)
-and [issue 8](https://github.com/chelh/VBASync/issues/8) (translations).
-
-Opening a [new issue](https://github.com/chelh/VBASync/issues/new) is
-the best way to contact me, especially if you want to contribute code.
-
-Before building, download [`VBACompressionCodec.dll`](https://github.com/chelh/VBACompressionCodec/releases)
-to the `src` directory. Then build using Visual Studio 2017.
-
-## License
-Copyright © 2017 Chelsea Hughes
+## Public domain software
+Created 2017 by Chelsea Hughes
 
 Thanks to GitHub user hectorticoli for the French translation.
 
-You may use this software for any purpose and alter it freely.
-You may redistribute it subject to these restrictions:
+I release all rights to this work. You may use it for any purpose, and alter
+and redistribute it freely. If you use this in another product, credit would
+be appreciated but is not required.
 
- 1. Don’t misrepresent the software’s origin.
- 2. Clearly mark any altered versions, and don’t misrepresent them
-    as the original.
- 3. Keep this notice intact when you distribute the software’s
-    source code.
-
-This software is provided “as-is,” without any express or
-implied warranty. In no event will I or any other contributor
-be held liable for any damages arising from the use of this software.
+This software is provided “as-is,” without any express or implied warranty.
+In no event will I or any other contributor be held liable for any damages
+arising from the use of this software.
