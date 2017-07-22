@@ -395,4 +395,34 @@ Fichier 2 : {{'{2}'}}</value>
   <data name="ErrorCannotLoadGUI" xml:space="preserve">
     <value>Impossible de charger l'interface WPF. Si votre système n'est pas Windows ou ne supporte par le WPF, vous ne pouvez exécuter VBASync qu'en spécifiant -r en ligne de commande.</value>
   </data>
+  <data name="SWAddNewDocumentsToFile" xml:space="preserve">
+    <value>Autoriser l'ajout de nouveaux modules de type documents lors de la publication (option expert)</value>
+  </data>
+  <data name="SWGeneralTab" xml:space="preserve">
+    <value>Général</value>
+  </data>
+  <data name="SWSessionTab" xml:space="preserve">
+    <value>Session</value>
+  </data>
+  <data name="SWIgnoreEmpty" xml:space="preserve">
+    <value>Ignorer les modules vides</value>
+  </data>
+  <data name="SWAfterExtractHook" xml:space="preserve">
+    <value>Hook post-extraction</value>
+  </data>
+  <data name="SWAfterExtractHookHelp" xml:space="preserve">
+    <value>Macros : {TargetDir}</value>
+  </data>
+  <data name="SWBeforePublishHook" xml:space="preserve">
+    <value>Hook pré-publication</value>
+  </data>
+  <data name="SWBeforePublishHookHelp" xml:space="preserve">
+    <value>Macros : {TargetDir}</value>
+  </data>
+  <data name="SWDeleteDocumentsFromFile" xml:space="preserve">
+    <value>Autoriser la suppression de modules de type document lors de la publication (option expert)</value>
+  </data>
+  <data name="SWSearchRepositorySubdirectories" xml:space="preserve">
+    <value>Rechercher dans les sous dossiers du projet VBA</value>
+  </data>
 </root>
